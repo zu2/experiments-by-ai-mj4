@@ -1,0 +1,710 @@
+[
+  {
+    "name": "wk_kind",
+    "address": 114,
+    "bytes": 1,
+    "static_references": 61
+  },
+  {
+    "name": "posx",
+    "address": 115,
+    "bytes": 1,
+    "static_references": 54
+  },
+  {
+    "name": "turn",
+    "address": 116,
+    "bytes": 1,
+    "static_references": 41
+  },
+  {
+    "name": "posy",
+    "address": 117,
+    "bytes": 1,
+    "static_references": 40
+  },
+  {
+    "name": "sm_x",
+    "address": 118,
+    "bytes": 1,
+    "static_references": 32
+  },
+  {
+    "name": "wk_num",
+    "address": 119,
+    "bytes": 2,
+    "static_references": 44
+  },
+  {
+    "name": "ai_player",
+    "address": 121,
+    "bytes": 1,
+    "static_references": 21
+  },
+  {
+    "name": "min_s",
+    "address": 122,
+    "bytes": 1,
+    "static_references": 21
+  },
+  {
+    "name": "wk_draw",
+    "address": 123,
+    "bytes": 1,
+    "static_references": 19
+  },
+  {
+    "name": "loop_p",
+    "address": 124,
+    "bytes": 1,
+    "static_references": 18
+  },
+  {
+    "name": "sh_best",
+    "address": 125,
+    "bytes": 1,
+    "static_references": 17
+  },
+  {
+    "name": "ht_p",
+    "address": 126,
+    "bytes": 1,
+    "static_references": 16
+  },
+  {
+    "name": "px_x",
+    "address": 127,
+    "bytes": 1,
+    "static_references": 16
+  },
+  {
+    "name": "sm_y",
+    "address": 128,
+    "bytes": 1,
+    "static_references": 16
+  },
+  {
+    "name": "ry_v",
+    "address": 129,
+    "bytes": 2,
+    "static_references": 30
+  },
+  {
+    "name": "dealer",
+    "address": 131,
+    "bytes": 1,
+    "static_references": 14
+  },
+  {
+    "name": "cursor",
+    "address": 132,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "discarder",
+    "address": 133,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "pai_kind",
+    "address": 134,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "kan_kind",
+    "address": 135,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "sets_n",
+    "address": 136,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "al_cap",
+    "address": 137,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "ui_sp",
+    "address": 138,
+    "bytes": 1,
+    "static_references": 13
+  },
+  {
+    "name": "ad_pick",
+    "address": 139,
+    "bytes": 1,
+    "static_references": 12
+  },
+  {
+    "name": "ht_n",
+    "address": 140,
+    "bytes": 1,
+    "static_references": 12
+  },
+  {
+    "name": "kk1",
+    "address": 141,
+    "bytes": 1,
+    "static_references": 12
+  },
+  {
+    "name": "other",
+    "address": 142,
+    "bytes": 1,
+    "static_references": 12
+  },
+  {
+    "name": "call_kind",
+    "address": 143,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "cc_key",
+    "address": 144,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "ck_a",
+    "address": 145,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "wk_count",
+    "address": 146,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "knew",
+    "address": 147,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "px_y",
+    "address": 148,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "sflags",
+    "address": 149,
+    "bytes": 1,
+    "static_references": 11
+  },
+  {
+    "name": "ck_b",
+    "address": 150,
+    "bytes": 1,
+    "static_references": 10
+  },
+  {
+    "name": "sg_taatsu",
+    "address": 151,
+    "bytes": 1,
+    "static_references": 10
+  },
+  {
+    "name": "kk2",
+    "address": 152,
+    "bytes": 1,
+    "static_references": 10
+  },
+  {
+    "name": "attr_or",
+    "address": 153,
+    "bytes": 1,
+    "static_references": 9
+  },
+  {
+    "name": "dc_tile",
+    "address": 154,
+    "bytes": 1,
+    "static_references": 9
+  },
+  {
+    "name": "fi_han",
+    "address": 155,
+    "bytes": 1,
+    "static_references": 9
+  },
+  {
+    "name": "ko_k",
+    "address": 156,
+    "bytes": 1,
+    "static_references": 9
+  },
+  {
+    "name": "rp_chi",
+    "address": 157,
+    "bytes": 1,
+    "static_references": 9
+  },
+  {
+    "name": "seed",
+    "address": 158,
+    "bytes": 3,
+    "static_references": 25
+  },
+  {
+    "name": "wk_accept",
+    "address": 161,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "wk_best",
+    "address": 162,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "cur_fu",
+    "address": 163,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "head_kind",
+    "address": 164,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "sg_best",
+    "address": 165,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "ib_kind",
+    "address": 166,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "pcm_phase",
+    "address": 167,
+    "bytes": 1,
+    "static_references": 8
+  },
+  {
+    "name": "fi_basic",
+    "address": 168,
+    "bytes": 2,
+    "static_references": 15
+  },
+  {
+    "name": "attr_and",
+    "address": 170,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "best_han",
+    "address": 171,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "best_pts",
+    "address": 172,
+    "bytes": 2,
+    "static_references": 14
+  },
+  {
+    "name": "cop_t",
+    "address": 174,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "cw_p",
+    "address": 175,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "dcc_count",
+    "address": 176,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "dora_cnt",
+    "address": 177,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "dora_n",
+    "address": 178,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "sg_cap",
+    "address": 179,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "greedy_sum",
+    "address": 180,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "fmk_kind",
+    "address": 181,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "nfuro",
+    "address": 182,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "react_act",
+    "address": 183,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "s3_kind",
+    "address": 184,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "se_kind",
+    "address": 185,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "toi_slots",
+    "address": 186,
+    "bytes": 1,
+    "static_references": 7
+  },
+  {
+    "name": "best_fu",
+    "address": 187,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "leaf_taatsu",
+    "address": 188,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "wk_bonus",
+    "address": 189,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "dcc_cost",
+    "address": 190,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "dh_i",
+    "address": 191,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "dcl_kind",
+    "address": 192,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "df_type",
+    "address": 193,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "chiitoi_kinds",
+    "address": 194,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "mark_tip",
+    "address": 195,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "react_pat",
+    "address": 196,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "wk_first",
+    "address": 197,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "round",
+    "address": 198,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "al_j",
+    "address": 199,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "sr_row",
+    "address": 200,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "title_i",
+    "address": 201,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "win_kind",
+    "address": 202,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "yao_kinds",
+    "address": 203,
+    "bytes": 1,
+    "static_references": 6
+  },
+  {
+    "name": "pay_amt",
+    "address": 204,
+    "bytes": 2,
+    "static_references": 11
+  },
+  {
+    "name": "wk_unseen",
+    "address": 206,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "aka_n",
+    "address": 207,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "best_n",
+    "address": 208,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "chiitoi_pairs",
+    "address": 209,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "chi_pat",
+    "address": 210,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "df_j",
+    "address": 211,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "dv_divisor",
+    "address": 212,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "ed_wait",
+    "address": 213,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "fw_k",
+    "address": 214,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "ibn_best",
+    "address": 215,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "kyotaku",
+    "address": 216,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "fmk_type",
+    "address": 217,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "fmk_k",
+    "address": 218,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "ot_i",
+    "address": 219,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "pay_factor",
+    "address": 220,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "px_ink",
+    "address": 221,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "ry_tenpai",
+    "address": 222,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "cc_sanshoku",
+    "address": 223,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "heads_n",
+    "address": 224,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "sm_flags",
+    "address": 225,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "ss_i",
+    "address": 226,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "stick_x",
+    "address": 227,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "tb_n_live",
+    "address": 228,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "ura_n",
+    "address": 229,
+    "bytes": 1,
+    "static_references": 5
+  },
+  {
+    "name": "al_x",
+    "address": 230,
+    "bytes": 2,
+    "static_references": 9
+  },
+  {
+    "name": "ch_src",
+    "address": 232,
+    "bytes": 2,
+    "static_references": 9
+  },
+  {
+    "name": "sm_src",
+    "address": 234,
+    "bytes": 2,
+    "static_references": 9
+  },
+  {
+    "name": "yao_pairs",
+    "address": 236,
+    "bytes": 1,
+    "static_references": 4
+  },
+  {
+    "name": "wk_score",
+    "address": 237,
+    "bytes": 1,
+    "static_references": 4
+  },
+  {
+    "name": "lone_dora_kind",
+    "address": 238,
+    "bytes": 1,
+    "static_references": 4
+  },
+  {
+    "name": "cop_pat",
+    "address": 239,
+    "bytes": 1,
+    "static_references": 4
+  },
+  {
+    "name": "wk_limit",
+    "address": 240,
+    "bytes": 1,
+    "static_references": 4
+  },
+  {
+    "name": "dc_p",
+    "address": 241,
+    "bytes": 1,
+    "static_references": 4
+  }
+]
