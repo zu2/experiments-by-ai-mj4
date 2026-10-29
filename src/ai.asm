@@ -323,11 +323,6 @@ least_danger_01:
 ; lower the shanten number.
 best_accept:
 	jsr	flush_filter
-	; Kokushi ranks its middle tiles first (cc_rank).
-	tst iw_kok
-	beq accept_full
-	jsr kokushi_mid
-accept_full:
 	jsr	choose_cands
  jsr ad_rel_build
 	ldaa	cc_order
@@ -454,17 +449,12 @@ cand_priority:
 choose_cands_10:
  ; Equal priorities prefer losing less dora, then the completed bonus.
 cc_rank:
-	tst iw_kok
-	beq cc_rank_value
-	ldab wk_kind
-	cmpb isolated_kind
-	beq cc_rank_kok_middle
-	cmpb isolated_kind2
-	beq cc_rank_kok_middle
-	cmpb isolated_kind3
-	bne cc_rank_value
-cc_rank_kok_middle:
-	clr cc_key
+ ; Kokushi discards its middle tiles first.
+ tst iw_kok
+ beq cc_rank_value
+ jsr kind_is_yaochu
+ bne cc_rank_value
+ clr cc_key
 cc_rank_value:
  ; Complete the intent-compatible value before selecting the shortlist.
  ; Reuse it both for equal-priority ordering and final acceptance scoring.
@@ -1411,90 +1401,6 @@ off_suit_00:
 off_suit_01:
  clra
  rts
-; Kokushi: ranks the middle tiles with sk = min_s for cc_rank. isolated_kind is
-; the best by keep_value and intent_bias (a dora loses 2), isolated_kind2 and
-; isolated_kind3 the next middle kinds in kind order ($FF = none).
-kokushi_mid:
-	clr	wk_best
-	ldaa #$FF
-	staa isolated_kind2
-	staa isolated_kind3
-	staa isolated_kind4
-	clr	wk_kind
-kokushi_mid_00:
-	jsr	kind_counts_x
-	ldaa	sk-counts,x
-	cmpa	min_s
-	bne	kokushi_mid_01
-	jsr	ad_flush_cand
-	beq	kokushi_mid_01
-	ldaa wk_kind
-	jsr kind_is_yaochu
-	bne kokushi_mid_01
-	jsr dora_cut_cost
-	ldaa isolated_kind2
-	cmpa #$FF
-	beq kokushi_mid_02
-	ldaa isolated_kind3
-	cmpa #$FF
-	beq kokushi_mid_03
-	ldaa isolated_kind4
-	cmpa #$FF
-	bne kokushi_mid_04
-	ldaa wk_kind
-	staa isolated_kind4
-	bra kokushi_mid_04
-kokushi_mid_03:
-	ldaa wk_kind
-	staa isolated_kind3
-	bra kokushi_mid_04
-kokushi_mid_02:
-	ldaa wk_kind
-	staa isolated_kind2
-kokushi_mid_04:
-	jsr	keep_value
-	staa	wk_score
- jsr intent_bias
-	staa	wk_count
-	ldaa	wk_score
-	asla
-	asla
-	asla
-	asla
-	adda	#16
-	suba	wk_count
-		tst dcc_cost
-		beq kokushi_mid_05
-		deca
-		deca
-kokushi_mid_05:
-	cmpa	wk_best
-	bls kokushi_mid_01
-		staa	wk_best
-	ldaa	wk_kind
-	staa	isolated_kind
-kokushi_mid_01:
-	inc	wk_kind
-	ldaa	wk_kind
-	cmpa	#K_END
-	bne	kokushi_mid_00
-	ldaa isolated_kind2
-	cmpa isolated_kind
-	bne kokushi_mid_10
-	ldaa isolated_kind3
-	staa isolated_kind2
-	ldaa isolated_kind4
-	staa isolated_kind3
-	rts
-kokushi_mid_10:
-	ldaa isolated_kind3
-	cmpa isolated_kind
-	bne kokushi_mid_11
-	ldaa isolated_kind4
-	staa isolated_kind3
-kokushi_mid_11:
-	rts
-
 ; A non-dora singleton with no neighbour within two, before discard.
 ; Minimum-shanten and flush legality are checked by the caller.
 ; Returns with N and Z set from A.
@@ -2651,10 +2557,6 @@ wk_left: .ds 1 ; shared work: tanyao yaochu limit (set_intents), toitoi slots le
 
  .bss
 
-isolated_kind: .ds 1 ; best Kokushi middle candidate (kokushi_mid)
-isolated_kind2: .ds 1 ; second Kokushi middle candidate fallback
-isolated_kind3: .ds 1 ; second distinct middle candidate fallback
-isolated_kind4: .ds 1 ; third distinct middle candidate fallback
 iw_number_exempt: .ds 1 ; nonzero when a special route keeps its own tile order
 
  .code

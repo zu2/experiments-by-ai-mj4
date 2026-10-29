@@ -60,7 +60,7 @@
 | `ca_` | ai_call | 1 | ca_none |
 | `calc_` | 計算 | 1 | calc_fu |
 | `calldisc_` | call_discard の中の見出し | 1 | calldisc_cpu |
-| `cc_` | choose_cands | 15 | cc_bonus cc_cand_bonus cc_costs cc_insert_x |
+| `cc_` | choose_cands | 14 | cc_bonus cc_cand_bonus cc_costs cc_insert_x |
 | `cflush_` | call_flush_ok の中の見出し | 1 | cflush_yes |
 | `ch_` | drawchar と char_at | 3 | ch_cnt ch_dst ch_src |
 | `ck_` | チーに使う手の 2 種類（chi_kinds） | 2 | ck_a ck_b |
@@ -170,7 +170,7 @@
 |---|---|---:|---|
 | `abort_` | 途中流局 | 2 | abort_names abort_reason |
 | `abortive_` | 途中流局 | 1 | abortive_draw |
-| `accept_` | 受け入れ | 3 | accept_compare accept_eval accept_full |
+| `accept_` | 受け入れ | 2 | accept_compare accept_eval |
 | `add_` | 足す | 8 | add_action add_fu add_fu2 add_kan_option |
 | `addxb_` | addxb（X に B を足す） | 2 | addxb addxb_tmp |
 | `after_` | あと | 1 | after_draw |
@@ -243,11 +243,11 @@
 | `in_` | 中にある | 1 | in_opp_river |
 | `intent_` | 手の狙い | 14 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
 | `is_` | 判定（A = 0 か 1） | 7 | is_agari is_closed is_dora_kind is_kokushi |
-| `isolated_` | 孤立牌（isolated_cand）と、国士無双の中張牌（kokushi_mid の出力） | 5 | isolated_cand isolated_kind isolated_kind2 isolated_kind3 |
+| `isolated_` | 孤立牌（isolated_cand） | 1 | isolated_cand |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
 | `keep_` | 残す | 10 | keep_check_flush keep_chiitoi keep_honor keep_honor_old |
 | `kind_` | 牌の種類（A = 牌の種類を受け取るルーチンと、wk_kind を入れて呼ぶ入口。例: kind_counts_x は B = wk_kind で counts_x） | 7 | kind_counts_x kind_is_yaochu kind_number kind_number_b |
-| `kokushi_` | 国士無双 | 2 | kokushi_dead kokushi_mid |
+| `kokushi_` | 国士無双 | 1 | kokushi_dead |
 | `kuikae_` | 喰い替え | 1 | kuikae_ok |
 | `kyoku_` | 局 | 2 | kyoku kyoku_init_calls |
 | `kyuushu_` | 九種九牌 | 2 | kyuushu_ask kyuushu_check |
@@ -341,7 +341,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 674 個で、232 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 666 個で、231 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -473,7 +473,6 @@
 | `keep_value` | 3 |
 | `kind_number` | 2 |
 | `kind_suit` | 3 |
-| `kokushi_mid` | 8 |
 | `kuikae_ok` | 3 |
 | `kv_base` | 2 |
 | `kyoku` | 5 |
