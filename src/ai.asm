@@ -31,8 +31,9 @@ cpu_turn_02:
 	ldaa	#ACT_DISCARD
 	rts
 
-; Returns A = 1 and B = kind for an ankan that keeps the shanten number
-; (not against riichi).
+; Returns A = 1 and B = kind for a kan that keeps the shanten number (not
+; against riichi): an ankan of four tiles in the hand, or a kakan of the one
+; tile of a kind the player has a pon of.
 ; Returns with N and Z set from A.
 ai_kan:
  jsr any_riichi
@@ -50,7 +51,27 @@ ai_kan_00:
  jsr counts_x
  ldaa 0,x
  cmpa #4
+ beq ai_kan_03
+ cmpa #1
  bne ai_kan_01
+ ldaa ai_player
+ ldab kan_kind
+ jsr furo_find_pon
+ cpx #0
+ beq ai_kan_01
+ ; Kakan: the hand loses the tile, the furo stays a set.
+ jsr shanten
+ staa ak_before
+ ldab kan_kind
+ jsr counts_x
+ dec 0,x
+ jsr shanten
+ psha
+ ldab kan_kind
+ jsr counts_x
+ inc 0,x
+ bra ai_kan_04
+ai_kan_03:
  jsr shanten
  staa ak_before
  ldab kan_kind
@@ -62,6 +83,7 @@ ai_kan_00:
  jsr counts_x
  ldaa #4
  staa 0,x
+ai_kan_04:
  pula
  cmpa ak_before
  bne ai_kan_01
@@ -2350,7 +2372,7 @@ danger_player: .ds 1 ; riichi player danger_one is checking
 ; wk_best is allocated in directpage.asm.
 ; wk_score is allocated in directpage.asm.
 ai_tile:	.ds	1 ; tile ai_discard chose
-ak_before:	.ds	1 ; shanten before the ankan
+ak_before:	.ds	1 ; shanten before the kan
 ; wk_accept is allocated in directpage.asm.
 ; wk_unseen is allocated in directpage.asm.
 ara_last:	.ds	1 ; last kind rel_adjust changes
