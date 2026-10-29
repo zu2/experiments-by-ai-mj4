@@ -229,11 +229,19 @@ ai_discard_00:
  staa e1_sec
  stab e1_frame
  jsr discard_sk
+ ; draws_left / 4 draws are left for this player: fewer than min_s cannot
+ ; reach tenpai without a call, so it only defends.
+ ldaa draws_left
+ lsra
+ lsra
+ cmpa min_s
+ bcs ai_discard_02
 	jsr	any_riichi
 	beq	ai_discard_05
 	ldaa	min_s
 	cmpa	#2
 	blt	ai_discard_03
+ai_discard_02:
 	ldaa	#$7F
 	staa	wk_limit
 	bra	ai_discard_04
