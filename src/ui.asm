@@ -230,8 +230,20 @@ ui_furo_00:
  staa df_type
  ldaa 1,x
  staa df_kind
+ ; df_rot: the place of the called tile, turned on the CPU furo
+ ; (0 left from the player before, 1 across, 2 right from the next player).
+ ldab #$FF
  ldaa 2,x
- staa df_from
+ cmpa #$FF
+ beq ui_furo_02
+ suba df_p
+ anda #3
+ beq ui_furo_02
+ nega
+ adda #3
+ tab
+ui_furo_02:
+ stab df_rot
  tst df_small
  beq ui_furo_large
  ldaa sm_x
@@ -252,10 +264,30 @@ ui_furo_10:
 ui_furo_begin:
  clr df_j
 ui_furo_tile:
+ ; df_o: the place among the tiles of the tile drawn at df_j. A chi shows
+ ; the called tile first, then the other two in order.
+ ldaa df_j
+ tst df_type
+ bne ui_furo_03
+ ldab df_red
+ lsrb
+ lsrb
+ andb #3
+ tsta
+ bne ui_furo_04
+ tba
+ bra ui_furo_03
+ui_furo_04:
+ deca
+ cba
+ bcs ui_furo_03
+ inca
+ui_furo_03:
+ staa df_o
  ldaa df_kind
  ldab df_type
  bne ui_furo_kind
- adda df_j
+ adda df_o
 ui_furo_kind:
  asla
  ldab df_red
@@ -265,7 +297,7 @@ ui_furo_kind:
  lsrb
  lsrb
  andb #3
- cmpb df_j
+ cmpb df_o
  bne ui_furo_img
  inca
 ui_furo_img:
@@ -278,9 +310,16 @@ ui_furo_img:
  beq ui_furo_face
  ldaa #IMG_BACK
 ui_furo_face:
- clrb
  tst df_small
  beq ui_furo_big
+ clrb
+ psha
+ ldaa df_j
+ cmpa df_rot
+ bne ui_furo_flat
+ ldab #RF_RIICHI
+ui_furo_flat:
+ pula
  jsr smalltile_advance
  bra ui_furo_20
 ui_furo_big:
@@ -340,16 +379,7 @@ ui_kan_big:
  jsr ui_icon
 ui_furo_advance:
  tst df_small
- beq ui_furo_mark
- ldaa sm_x
- suba #36
- staa sm_x
- jsr ui_call_mark
- ldaa sm_x
- adda #36
- staa sm_x
- bra ui_furo_30
-ui_furo_mark:
+ bne ui_furo_30
  jsr ui_call_mark
 ui_furo_30:
  inc df_i
@@ -948,30 +978,14 @@ ui_faces: .ds 1 ; nonzero when ui_hand draws the faces of CPU tiles
 df_small: .ds 1 ; nonzero when ui_furo draws small CPU tiles
 df_kind: .ds 1 ; furo kind
 df_red: .ds 1 ; furo red place
-df_from: .ds 1 ; furo called from
+df_rot: .ds 1 ; place of the called tile ($FF for none)
+df_o: .ds 1 ; place among the tiles of the tile drawn
 
  .code
-; Draws the mark that shows the player a furo was called from.
+; Draws the dot over the called tile of a large furo.
 ui_call_mark:
- ldaa df_from
- cmpa #$FF
- beq ui_call_mark_02
- suba df_p
- anda #3
- beq ui_call_mark_02
- nega
- adda #3
- tst df_small
- beq ui_call_mark_00
- jsr mul12
- addb sm_x
- addb #5
- stab px_x
- ldaa sm_y
- suba #2
- staa px_y
- bra ui_call_mark_01
-ui_call_mark_00:
+ ldaa df_rot
+ bmi ui_call_mark_02
  asla
  adda df_cx
  asla
@@ -981,7 +995,6 @@ ui_call_mark_00:
  staa px_x
  ldaa #166
  staa px_y
-ui_call_mark_01:
  ldaa #1
  staa px_ink
  jsr ui_pixel

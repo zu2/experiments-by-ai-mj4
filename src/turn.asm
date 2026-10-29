@@ -1616,8 +1616,9 @@ clear_ippatsu_00:
 
 ; ---------------------------------------------------------------- furo
 
-; A furo is 3 bytes: M_TYPE (type in bits 0-1; bit 7 set if a red five is
-; in the furo, bits 4-5 its place among the tiles), M_KIND (the first kind)
+; A furo is 3 bytes: M_TYPE (type in bits 0-1; for a chi, bits 2-3 the place
+; of the called tile; bit 7 set if a red five is in the furo, bits 4-5 its
+; place among the tiles), M_KIND (the first kind)
 ; and M_FROM (the player called from, $FF for a closed kan). Only
 ; furo_make and furo_upgrade change P_NFURO and P_FURO.
 
@@ -1671,6 +1672,15 @@ furo_make_05:
 	addb	#P_FURO
 	jsr	addxb
 	ldaa	fmk_type
+	bne	furo_make_06
+	; A chi keeps the place of the called tile in bits 2-3.
+	ldab	fmk_tile
+	lsrb
+	subb	fmk_kind
+	aslb
+	aslb
+	tba
+furo_make_06:
 	oraa	fmk_red
 	staa	0,x
 	ldaa	fmk_kind
