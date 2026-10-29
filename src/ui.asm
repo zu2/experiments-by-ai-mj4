@@ -334,34 +334,33 @@ ui_furo_20:
  ldaa df_j
  cmpa #3
  bne ui_furo_tile
- ; Mark kans with K, without requiring a fourth full-width tile.
+ ; Mark kans without a fourth tile: K under a large furo; on a CPU open
+ ; kan the turned (called) tile loses its top and bottom rows.
  ldaa df_type
  cmpa #M_MINKAN
  bcs ui_furo_advance
  tst df_small
  beq ui_kan_big
- ldaa sm_x
- suba #24
- lsra
- lsra
- lsra
- staa posx
+ cmpa #M_MINKAN
+ bne ui_furo_advance
+ clr px_ink
  ldaa sm_y
- lsra
- lsra
- lsra
- staa posy
- ; CPU kan is marked by a short inverted stripe within the middle tile.
+ staa px_y
+ bsr ui_kan_row
  ldaa sm_y
  adda #10
  staa px_y
- ldaa sm_x
- suba #24
- staa px_x
- clr px_ink
- ldab #10
- jsr ui_pixel_line
+ bsr ui_kan_row
  bra ui_furo_advance
+; Clears row px_y of the turned tile of the furo just drawn.
+ui_kan_row:
+ ldaa df_rot
+ jsr mul12
+ addb sm_x
+ subb #36
+ stab px_x
+ ldab #11
+ jmp ui_pixel_line
 ui_kan_big:
  ldaa df_cx
  adda #2
