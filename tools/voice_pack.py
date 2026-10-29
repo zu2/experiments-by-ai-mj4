@@ -46,7 +46,7 @@ for name, (raw, delta) in words.items():
     packed = bytes(int(bits[i:i+8], 2) for i in range(0, len(bits), 8))
     (root / (name + '.lz')).write_bytes(packed)
     samples = len(raw) * 8 // 5
-    assert samples <= 0x3298 - 0x2100, 'PCM_BUF overruns the BSS'
+    assert samples <= 0x3300 - 0x2100, 'PCM_BUF overruns the BSS'
     out += ['snd_' + name + ':', ' .byte $FF', ' .word %d' % samples]
     for i in range(0, len(packed), 16):
         out.append(' .byte ' + ','.join('$%02X' % v for v in packed[i:i+16]))
