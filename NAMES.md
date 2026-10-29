@@ -271,7 +271,7 @@
 | `page_` | score_page の中の見出し | 6 | page_advance page_gain page_header page_put_sign |
 | `pai_` | 牌（scan_pai が数える、手牌と副露の牌の事実） | 46 | pai_acc_end pai_acc_start pai_add_simple pai_block |
 | `pair_` | 牌の組 | 2 | pair_remove pair_restore |
-| `pay_` | 支払い | 3 | pay_amt pay_basic pay_factor |
+| `pay_` | 支払い | 4 | pay_amt pay_basic pay_factor pay_share |
 | `payer_` | 支払う人 | 1 | payer_amount |
 | `pending_` | あとで開くドラ | 1 | pending_dora |
 | `pick_` | 選ぶ | 1 | pick_kan |
@@ -299,7 +299,7 @@
 | `seq_` | 順子 | 1 | seq_n |
 | `set_` | 決めて書く | 1 | set_intents |
 | `sets_` | 面子の数 | 1 | sets_n |
-| `settle_` | 点の移動 | 9 | settle_draw settle_factor settle_han settle_honba |
+| `settle_` | 点の移動 | 7 | settle_draw settle_han settle_honba settle_normal |
 | `setup_` | 点の計算の入力を作る（setup_score、setup_place、setup_win） | 14 | setup_aka setup_dk setup_dora setup_flags |
 | `shanten_` | シャンテン数 | 3 | shanten shanten_furo shanten_lim |
 | `shape_` | 形 | 1 | shape_add |
@@ -479,6 +479,7 @@
 | `number_bias` | 2 |
 | `off_suit` | 2 |
 | `own_kan` | 3 |
+| `pay_share` | 2 |
 | `payer_amount` | 1 |
 | `pcm_play` | 4 |
 | `pick_kan` | 2 |
@@ -507,11 +508,11 @@
 | `scan_pai` | 8 |
 | `score_hand` | 3 |
 | `score_page` | 1 |
-| `score_total` | 3 |
+| `score_total` | 1 |
 | `search` | 6 |
 | `set_intents` | 4 |
 | `settle_draw` | 5 |
-| `settle_win` | 2 |
+| `settle_win` | 4 |
 | `setup_win` | 3 |
 | `sg_call_leaf` | 2 |
 | `sg_entry_x` | 1 |

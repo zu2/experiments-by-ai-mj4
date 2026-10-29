@@ -30,32 +30,44 @@ payer_amount_00:
  stx pay_amt
  rts
 
-; Correct tsumo total: round each payer separately, then add honba/pool.
+; B = 1 if the payer is the dealer, else 0. Returns pay_amt = what one payer
+; pays for the win with basic points fi_basic, before honba.
+pay_share:
+ ldaa #4
+ tst tsumo_flag
+ bne pay_share_00
+ tst dealer_flag
+ beq pay_share_01
+ ldaa #6
+ bra pay_share_01
+pay_share_00:
+ ldaa #2
+ tst dealer_flag
+ bne pay_share_01
+ tstb
+ bne pay_share_01
+ ldaa #1
+pay_share_01:
+ staa pay_factor
+ jmp payer_amount
+
+; Returns wk_num = the points of the win before honba and pool; each payer is
+; rounded separately. A tsumo is paid by the dealer (or a third child when
+; the dealer wins) and two children.
 score_total:
  tst tsumo_flag
- bne score_total_01
- ldaa #4
- tst dealer_flag
- beq score_total_00
- ldaa #6
-score_total_00:
- staa pay_factor
- jsr payer_amount
+ bne score_total_00
+ jsr pay_share
  ldx pay_amt
  stx wk_num
  rts
-score_total_01:
- ldaa #2
- staa pay_factor
- jsr payer_amount
+score_total_00:
+ ldab #1
+ jsr pay_share
  ldx pay_amt
  stx total_tmp
- tst dealer_flag
- bne score_total_03
- ldaa #1
- staa pay_factor
- jsr payer_amount
-score_total_03:
+ clrb
+ jsr pay_share
  ldab pay_amt+1
  ldaa pay_amt
  aslb
@@ -84,25 +96,16 @@ settle_win_00:
  cmpa turn
  beq settle_win_10
  tst tsumo_flag
- bne settle_tsumo
+ bne settle_win_01
  cmpa discarder
  bne settle_win_10
- ldaa #4
- tst dealer_flag
- beq settle_factor
- ldaa #6
- bra settle_factor
-settle_tsumo:
- ldaa #2
- tst dealer_flag
- bne settle_factor
- ldab settle_p
- cmpb dealer
- beq settle_factor
- ldaa #1
-settle_factor:
- staa pay_factor
- jsr payer_amount
+settle_win_01:
+ clrb
+ cmpa dealer
+ bne settle_win_02
+ incb
+settle_win_02:
+ jsr pay_share
  ; Someone goes below zero long before 86 honba, so honba*3 fits a byte.
  ldab honba
  clra
