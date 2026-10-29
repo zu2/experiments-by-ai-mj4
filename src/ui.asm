@@ -6,7 +6,6 @@ ui_hand:
  tsta
  beq ui_human
  jsr ui_band
- suba #2
  staa sm_y
  clr dh_i
  clr ui_faces
@@ -53,10 +52,8 @@ ui_cpu_erase:
  ldaa #180
  suba sm_x
  staa ui_width
- ldaa #14
+ ldaa #12
  jsr ui_erase_px
- inc sm_y
- inc sm_y
 ui_cpu_tiles:
  ldaa dh_i
  cmpa ht_n
@@ -195,7 +192,7 @@ ui_band:
  ldab #42
  jsr mul8
  tba
- adda #10
+ adda #9
  rts
 
 ; Draws the furo of player ht_p.
@@ -458,8 +455,9 @@ ui_river_y:
  ldaa #135
  rts
 ui_river_y_00:
+ ; One black row between the hand and the river.
  jsr ui_band
- adda #12
+ adda #13
  rts
 ; A = player. Erases and redraws its river.
 ui_river_draw:
