@@ -906,8 +906,10 @@ ui_mark_tsumo:
  ldaa #164
  bra ui_mark_tsumo_01
 ui_mark_tsumo_00:
- ldaa #173
- staa mark_tip
+ ldaa ot_i
+ jsr mul12
+ addb #5
+ stab mark_tip
  ldaa turn
  jsr ui_band
  adda #12
@@ -915,7 +917,12 @@ ui_mark_tsumo_01:
  staa mark_top
  ldaa #1
  staa mark_live
- staa px_ink
+ ; A black outline keeps the mark visible over a white river tile.
+ clr px_ink
+ ldaa #3
+ ldab #4
+ jsr rmark_rows
+ inc px_ink
  jmp rmark_pixels
 ; Redraws the scores and the riichi-denied message.
 draw_riichi:
@@ -1078,26 +1085,34 @@ river_mark:
  ldaa #1
  staa mark_live
  staa px_ink
+; Draws the marker (widths 1, 3, 5) with px_ink.
 rmark_pixels:
+ ldaa #1
+ ldab #3
+; A = first width, B = rows. Draws rows centered on mark_tip from mark_top,
+; each 2 pixels wider than the row above and at most 7, with px_ink.
+rmark_rows:
+ staa mark_width
+ stab mark_rows
  ldaa mark_top
  staa px_y
- ldaa #1
- staa mark_width
-rmark_pixels_00:
- ldaa mark_tip
+rmark_rows_00:
+ ldaa mark_width
+ lsra
+ nega
+ adda mark_tip
  staa px_x
  ldab mark_width
  jsr ui_pixel_line
- dec mark_tip
  inc px_y
- inc mark_width
- inc mark_width
  ldaa mark_width
  cmpa #7
- bne rmark_pixels_00
- ldaa mark_tip
- adda #3
- staa mark_tip
+ beq rmark_rows_01
+ adda #2
+ staa mark_width
+rmark_rows_01:
+ dec mark_rows
+ bne rmark_rows_00
  rts
  .bss
 hint_x: .ds 1 ; pixel column of the next hint letter
@@ -1107,6 +1122,7 @@ mark_live: .ds 1 ; nonzero while the river marker is shown
 ; mark_tip is allocated in directpage.asm.
 mark_top: .ds 1 ; marker top row
 mark_width: .ds 1 ; marker width
+mark_rows: .ds 1 ; marker rows left
 
 
  .code
