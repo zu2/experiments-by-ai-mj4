@@ -901,19 +901,42 @@ intent_no_tanyao:
  ; Toitoi: no minshun, at least three pairs, and pairs (triplets
  ; included) + triplets + pai_toi_yaku >= 8. Tanyao/dora value is
  ; not evidence of a triplet shape.
+ ; Toitoi stays locked (intent_lock) until a chi.
  tst 0,x
- bne set_intents_70
+ bne intent_toi_off
+ ldaa intent_lock-minshun_n,x
+ bita #$40
+ bne intent_toi_on
  ldaa pai_pairs
  cmpa #3
- bcs set_intents_70
+ bcs intent_toi_off
 intent_toi_sum:
  adda pai_trips
  adda pai_toi_yaku
 intent_toi_cmp:
  cmpa #8
- bcs set_intents_70
+ bcs intent_toi_off
+intent_toi_on:
  inc iw_toi
+ ldaa intent_lock-minshun_n,x
+ oraa #$40
+ bra intent_toi_store
+intent_toi_off:
+ ldaa intent_lock-minshun_n,x
+ anda #$BF
+intent_toi_store:
+ staa intent_lock-minshun_n,x
 set_intents_70:
+ ; Flush stays locked with its suit until an off-suit set blocks it.
+ ldaa intent_lock-minshun_n,x
+ bpl intent_fl_new
+ anda #3
+ staa pai_max_suit
+ inc iw_flush
+ jsr iw_off_suit_furo
+ bne intent_fl_clear
+ bra intent_fl_lock
+intent_fl_new:
  ldaa pai_flush_score
  adda pai_honor_pts
 	 cmpa #8
@@ -929,9 +952,21 @@ intent_fl_check:
  adda pai_suit2
  suba pai_max
  cmpa #5
- bcs set_intents_80
+ bcc intent_fl_clear
+intent_fl_lock:
+ jsr ai_furo_x
+ ldaa intent_lock-minshun_n,x
+ anda #$40
+ oraa #$80
+ oraa pai_max_suit
+ bra intent_fl_store
 intent_fl_clear:
  clr iw_flush
+ jsr ai_furo_x
+ ldaa intent_lock-minshun_n,x
+ anda #$40
+intent_fl_store:
+ staa intent_lock-minshun_n,x
 set_intents_80:
  ; Central-tile growth is irrelevant to these active hand routes.
  ldaa iw_chi
@@ -1358,27 +1393,6 @@ flush_filter:
  clr flush_only
  tst iw_flush
  beq flush_filter_23
- clr wk_kind
-flush_filter_00:
- jsr kind_counts_x
- tst 0,x
- beq flush_filter_20
- jsr kind_off_suit
- beq flush_filter_20
- ; set_intents already rejected complete off-suit sets.
- ; off_suit preserves X, so the counts address is still valid.
- ldaa pai_max
- cmpa #11
- bcc flush_filter_20
- ; With fewer than 11 tiles in the main suit, retain other-suit pairs/taatsu.
- jsr connection
- cmpa #1
- bhi flush_filter_23
-flush_filter_20:
- inc wk_kind
- ldaa wk_kind
- cmpa #K_HONOR
- bne flush_filter_00
  clr wk_kind
 flush_filter_21:
  jsr kind_counts_x

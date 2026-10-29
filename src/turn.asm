@@ -1990,6 +1990,7 @@ minkou_n:	.ds	4 ; minkou (pon)
 minkan_n:	.ds	4 ; minkan (open kan, added kan included)
 ankan_n:	.ds	4 ; ankan (closed kan)
 furo_attr:	.ds	4 ; FURO_NO_CHANTA, FURO_NO_TANYAO
+intent_lock:	.ds	4 ; set_intents: bit 7 flush (bits 0-1 its suit), bit 6 toitoi
 furo_facts_end:
 kokushi_dead:	.ds	1 ; nonzero when a yaochu kind is all shown (no kokushi for anyone)
 chankan_f:	.ds	1 ; nonzero for chankan

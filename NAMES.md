@@ -241,7 +241,7 @@
 | `image_` | 画像 | 1 | image_of_kind |
 | `img_` | 画像 | 2 | img_of img_of_b |
 | `in_` | 中にある | 1 | in_opp_river |
-| `intent_` | 手の狙い | 14 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
+| `intent_` | 手の狙い | 21 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
 | `is_` | 判定（A = 0 か 1） | 7 | is_agari is_closed is_dora_kind is_kokushi |
 | `isolated_` | 孤立牌（isolated_cand） | 1 | isolated_cand |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
@@ -341,7 +341,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 671 個で、231 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 669 個で、231 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -431,7 +431,7 @@
 | `find_waits` | 10 |
 | `find_yakuman` | 1 |
 | `finish` | 1 |
-| `flush_filter` | 5 |
+| `flush_filter` | 3 |
 | `fmk_note` | 3 |
 | `fmk_take` | 1 |
 | `furo_counts` | 5 |
