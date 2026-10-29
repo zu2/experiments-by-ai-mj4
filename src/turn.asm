@@ -1910,7 +1910,8 @@ clear_letters:
  staa sm_x
  ldaa own_hint_y
  staa sm_y
- ldaa #32
+ ; act_ron and act_tsumo are three characters.
+ ldaa #24
  staa ui_width
  ldaa #8
  jsr ui_erase_px

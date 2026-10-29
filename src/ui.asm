@@ -1058,7 +1058,18 @@ hint_clear:
  ldaa hint_y
  staa sm_y
  ldaa #8
- jmp ui_erase_px
+ jsr ui_erase_px
+ ; Four letters beside the last tile of the first river row reach the riichi
+ ; stick of the discarder (a CPU); draw the stick again.
+ ldaa discarder
+ staa ui_sp
+ jsr ui_band
+ adda #7
+ lsra
+ lsra
+ lsra
+ staa posy
+ jmp ui_stick
 hint_clear_00:
  rts
 hint_chars:
