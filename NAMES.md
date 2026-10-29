@@ -43,25 +43,26 @@
 | `ACT_` | 手番の行動 |
 
 ## 略語の接頭辞
+名前の数と例は、`src/*.asm` のラベル（番号のラベルを除く）、変数と `.equ` の名前（小文字のもの）から数えた。接頭辞を除いた語そのもの（`smalltile` など）も、その接頭辞の名前に数える。例は、名前の順で初めの 4 つ。
 | 接頭辞 | 意味 | 名前の数 | 例 |
 |---|---|---:|---|
 | `ab_` | all_yaochu | 1 | ab_index |
 | `ac_` | acceptance（受け入れの計算）とその変数 | 5 | ac_kok_active ac_lower ac_ptr ac_special |
 | `acc_` | acc_mark / acc_search / acc_leaf | 4 | acc_goal acc_leaf acc_mark acc_search |
 | `acceval_` | accept_eval の中の見出し | 2 | acceval_regular acceval_yes |
-| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 10 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
+| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 18 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
 | `ak_` | ai_kan | 1 | ak_before |
 | `al_` | acc_leaf | 19 | al_base al_cap al_ccap al_check |
 | `an_` | analyse | 1 | an_k |
 | `ara_` | rel_adjust | 1 | ara_last |
 | `attr_` | 牌の属性 | 2 | attr_and attr_or |
-| `ba_` | batch_leaf | 6 | ba_bound ba_cap ba_delta ba_k |
+| `ba_` | batch_leaf | 4 | ba_bound ba_cap ba_k ba_ptr |
 | `ca_` | ai_call | 1 | ca_none |
 | `calc_` | 計算 | 1 | calc_fu |
 | `calldisc_` | call_discard の中の見出し | 1 | calldisc_cpu |
-| `cc_` | choose_cands | 12 | cc_bonus cc_cand_bonus cc_costs cc_focus |
+| `cc_` | choose_cands | 16 | cc_bonus cc_cand_bonus cc_costs cc_focus |
 | `cflush_` | call_flush_ok の中の見出し | 1 | cflush_yes |
-| `ch_` | drawchar | 4 | ch_cnt ch_dst ch_src ch_yoff |
+| `ch_` | drawchar と char_at | 3 | ch_cnt ch_dst ch_src |
 | `ck_` | チーに使う手の 2 種類（chi_kinds） | 2 | ck_a ck_b |
 | `cl_` | collect | 1 | cl_i |
 | `cn_` | connection | 1 | cn_honor_weights |
@@ -73,7 +74,7 @@
 | `dcc_` | dora_cut_cost | 3 | dcc_cost dcc_count dcc_honor_table |
 | `dcl_` | do_call | 1 | dcl_kind |
 | `dd_` | ui_indicators（ドラ表示牌の描画） | 2 | dd_i dd_off |
-| `df_` | ui_furo（副露の描画） | 10 | df_cx df_from df_i df_j |
+| `df_` | ui_furo（副露の描画） | 11 | df_cx df_i df_j df_kind |
 | `dg_` | danger_one | 3 | dg_rank dg_sides dg_suji |
 | `dh_` | draw_hand の牌の番号 | 1 | dh_i |
 | `div8_` | div8 | 2 | div8 div8_a |
@@ -100,7 +101,7 @@
 | `fup_` | furo_upgrade | 1 | fup_x |
 | `fw_` | find_waits | 2 | fw_kokushi fw_result |
 | `fy_` | find_yakuman | 2 | fy_pair fy_trip |
-| `gd_` | greedy | 10 | gd_smc_read0 gd_smc_read1 gd_smc_read2 gd_smc_read3 |
+| `gd_` | greedy | 3 | gd_smc_last gd_smc_read0 gd_transitions |
 | `hat_` | hand_at | 4 | hat_drawn hat_left hat_n hat_red |
 | `hreact_` | human_react の中の見出し | 2 | hreact_ask hreact_show |
 | `ht_` | 描く手牌（ht_p、ht_n） | 2 | ht_n ht_p |
@@ -141,12 +142,12 @@
 | `s3_` | 三色（sanshoku_near） | 8 | s3_best s3_full s3_intent s3_iso_ok |
 | `sbt_` | sort_bytes | 1 | sbt_swapped |
 | `se_` | search | 3 | se_block se_counts_x se_kind |
-| `sg_` | sh_general | 16 | sg_advance sg_batch sg_best sg_call_head |
+| `sg_` | sh_general | 17 | sg_advance sg_batch sg_best sg_call_head |
 | `sh_` | shanten | 3 | sh_best sh_chiitoi sh_general |
 | `shf_` | shuffle | 3 | shf_left shf_pi shf_pj |
 | `showdraw_` | show_draw の中の見出し | 5 | showdraw_amount showdraw_gain showdraw_no_pay showdraw_noten |
 | `sm_` | smalltile | 14 | sm_align sm_bits sm_dst sm_flags |
-| `snd_` | 効果音のデータ | 9 | snd_chi snd_discard snd_kan snd_notify |
+| `snd_` | 効果音のデータ | 8 | snd_chi snd_discard snd_kan snd_pon |
 | `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 12 | spec_before spec_cut spec_kinds13 spec_kinds14 |
 | `sr_` | show_result | 3 | sr_i sr_id sr_row |
 | `ss_` | setup_score | 5 | ss_count ss_flag_if ss_furo ss_i |
@@ -155,6 +156,7 @@
 | `toib_` | toi_bonus の中の見出し | 9 | toib_add_dead toib_cap toib_done toib_drop_dead |
 | `tp_` | toi_prepare | 1 | tp_kind |
 | `tt_` | draw_title | 1 | tt_line |
+| `tx_` | text_px の位置 | 2 | tx_x tx_y |
 | `ui_` | 画面の描画 | 67 | ui_all ui_back_n ui_band ui_big |
 | `up_` | unpack_voice | 7 | up_bits up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
@@ -163,11 +165,12 @@
 | `ym_` | 役満 | 3 | ym_extra ym_n ym_y |
 
 ## 単語の接頭辞
+名前の数と例は、`src/*.asm` のラベル（番号のラベルを除く）、変数と `.equ` の名前（小文字のもの）から数えた。接頭辞を除いた語そのもの（`smalltile` など）も、その接頭辞の名前に数える。例は、名前の順で初めの 4 つ。
 | 接頭辞 | 意味 | 名前の数 | 例 |
 |---|---|---:|---|
 | `abort_` | 途中流局 | 2 | abort_names abort_reason |
 | `abortive_` | 途中流局 | 1 | abortive_draw |
-| `accept_` | 受け入れ | 5 | accept_acc accept_compare accept_eval accept_full |
+| `accept_` | 受け入れ | 4 | accept_compare accept_eval accept_full accept_multi |
 | `add_` | 足す | 8 | add_action add_fu add_fu2 add_kan_option |
 | `addxb_` | addxb（X に B を足す） | 2 | addxb addxb_tmp |
 | `after_` | あと | 1 | after_draw |
@@ -184,22 +187,23 @@
 | `auto_` | 自動対局 | 1 | auto_play |
 | `base_` | 基本 | 12 | base_chankan base_ippatsu base_last base_last_add |
 | `batch_` | まとめて | 7 | batch_add_total batch_evaluate batch_leaf batch_man |
-| `best_` | 最もよい結果の役と点 | 7 | best_accept best_fu best_han best_n |
+| `best_` | 最もよい結果の役と点 | 8 | best_accept best_accept_route_ready best_fu best_han |
 | `bias_` | intent_bias（狙いによる打牌の補正）の中の見出し | 8 | bias_addc_chi bias_addc_flush bias_addc_kok bias_chanta |
 | `bits4_` | bits4（4 ビットの表示） | 2 | bits4 bits4_x |
 | `block_` | ブロック | 1 | block_fu |
 | `bss_` | BSS の範囲 | 2 | bss_all_end bss_start |
 | `btype_` | ブロックの種類 | 2 | btype btype_x |
-| `call_` | 鳴き | 21 | call_bit call_chanta_pats call_chi call_chi_yaku |
+| `call_` | 鳴き | 32 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
 | `can_` | できること | 3 | can_riichi can_ron can_win |
 | `cand_` | choose_cands の中の見出し | 6 | cand_clear_order cand_isolated cand_loop cand_next |
+| `candidate_` | 候補 | 1 | candidate_acceptance |
 | `chankan_` | 槍槓 | 1 | chankan_f |
-| `char_` | drawchar の中の見出し | 2 | char_line char_no_carry |
+| `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 4 | char_at char_line char_no_carry char_px |
 | `check_` | 確かめる | 1 | check_win |
 | `chi_` | チー | 10 | chi_forbidden chi_i1 chi_i2 chi_key |
 | `chiitoi_` | 七対子 | 2 | chiitoi_kinds chiitoi_pairs |
-| `choose_` | 選ぶ | 2 | choose_cands choose_chi |
-| `clear_` | 消す | 5 | clear_bss clear_directpage clear_ippatsu clear_letters |
+| `choose_` | 選ぶ | 4 | choose_cands choose_cands_limit_low_ok choose_cands_limit_ok choose_chi |
+| `clear_` | 消す | 6 | clear_bss clear_directpage clear_ippatsu clear_kk |
 | `closed_` | 門前 | 1 | closed_flag |
 | `count_` | 数える | 1 | count_yaochu |
 | `counts_` | 手牌の数え上げ | 2 | counts counts_x |
@@ -210,10 +214,10 @@
 | `deal_` | 配牌 | 2 | deal_cnt deal_player |
 | `dealer_` | 親 | 3 | dealer dealer_flag dealer_top |
 | `decomp_` | 分け方 | 20 | decomp_all decomp_ankou decomp_chanta decomp_chanta2 |
-| `discard_` | 打牌 | 3 | discard discard_bonus discard_step |
+| `discard_` | 打牌 | 4 | discard discard_bonus discard_sk discard_step |
 | `do_` | 行う | 1 | do_call |
-| `dora_` | ドラ | 8 | dora_cnt dora_cut_cost dora_hits dora_kind_at |
-| `draw_` | 描く | 10 | draw_arrow draw_hand draw_info draw_name |
+| `dora_` | ドラ | 9 | dora_cnt dora_cut_cost dora_hits dora_kind_at |
+| `draw_` | 描く | 13 | draw_arrow draw_hand draw_hands draw_info |
 | `draws_` | 残りのツモ | 1 | draws_left |
 | `drawstr_` | drawstr | 2 | drawstr drawstr_x |
 | `each_` | それぞれ | 1 | each_head |
@@ -225,21 +229,21 @@
 | `flush_` | 混一色 | 2 | flush_filter flush_only |
 | `furo_` | 副露（暗槓を含む。チー・ポン・明槓・暗槓でできた面子） | 8 | furo_attr furo_counts furo_facts furo_facts_end |
 | `game_` | 半荘 | 2 | game_active game_end |
-| `greedy_` | greedy（ブロックを欲張りに数える） | 2 | greedy greedy_sum |
+| `greedy_` | greedy（ブロックを欲張りに数える） | 5 | greedy greedy_left greedy_loop greedy_saved_x |
 | `hand_` | 手牌 | 7 | hand_add hand_add_go hand_at hand_draw |
-| `has_` | 判定 | 3 | has_four has_wait has_wait_cut |
+| `has_` | 判定 | 2 | has_four has_wait_cut |
 | `head_` | 雀頭 | 2 | head_fu head_kind |
 | `heads_` | 雀頭の数 | 1 | heads_n |
 | `hide_` | 隠す | 1 | hide_riichi |
-| `hint_` | ヒントの行 | 9 | hint_add hint_char hint_chars hint_clear |
+| `hint_` | ヒントの行 | 7 | hint_add hint_chars hint_clear hint_origin |
 | `honor_` | 字牌 | 1 | honor_pairs |
 | `human_` | 人の手番 | 10 | human_called human_discard human_letters human_manual |
 | `image_` | 画像 | 1 | image_of_kind |
 | `img_` | 画像 | 2 | img_of img_of_b |
 | `in_` | 中にある | 1 | in_opp_river |
-| `intent_` | 手の狙い | 13 | intent_bias intent_bonus intent_fl_check intent_flags |
+| `intent_` | 手の狙い | 14 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
 | `is_` | 判定（A = 0 か 1） | 7 | is_agari is_closed is_dora_kind is_kokushi |
-| `isolated_` | 孤立牌（ad_isolated の出力） | 3 | isolated_cand isolated_kind isolated_n |
+| `isolated_` | 孤立牌（ad_isolated の出力） | 6 | isolated_cand isolated_kind isolated_kind2 isolated_kind3 |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
 | `keep_` | 残す | 10 | keep_check_flush keep_chiitoi keep_honor keep_honor_old |
 | `kind_` | 牌の種類（A = 牌の種類を受け取るルーチンと、wk_kind を入れて呼ぶ入口。例: kind_counts_x は B = wk_kind で counts_x） | 7 | kind_counts_x kind_is_yaochu kind_number kind_number_b |
@@ -254,7 +258,7 @@
 | `lone_` | 孤立 | 2 | lone_dora lone_dora_kind |
 | `loop_` | いくつかのルーチンが使うループの番号 | 1 | loop_p |
 | `make_` | 作る | 1 | make_tot |
-| `mark_` | 河の印 | 5 | mark_clear mark_live mark_tip mark_top |
+| `mark_` | ▲（河の捨て牌とツモの印） | 6 | mark_clear mark_live mark_rows mark_tip |
 | `min_` | 最小 | 1 | min_s |
 | `minkan_` | 明槓子 | 1 | minkan_n |
 | `minkou_` | 明刻子 | 1 | minkou_n |
@@ -268,8 +272,8 @@
 | `open_` | CPU の手を見せる | 3 | open_cur open_mode open_prev |
 | `options_` | call_options の中の見出し | 4 | options_bit options_chi options_ploop options_pnext |
 | `own_` | 人の手番の表示 | 4 | own_hint_str own_hint_x own_hint_y own_kan |
-| `page_` | score_page の中の見出し | 6 | page_advance page_gain page_header page_put_sign |
-| `pai_` | 牌（scan_pai が数える、手牌と副露の牌の事実） | 46 | pai_acc_end pai_acc_start pai_add_simple pai_block |
+| `page_` | score_page の中の見出し | 5 | page_advance page_gain page_header page_sign |
+| `pai_` | 牌（scan_pai が数える、手牌と副露の牌の事実） | 51 | pai_acc_end pai_acc_start pai_add_simple pai_block |
 | `pair_` | 牌の組 | 2 | pair_remove pair_restore |
 | `pay_` | 支払い | 4 | pay_amt pay_basic pay_factor pay_share |
 | `payer_` | 支払う人 | 1 | payer_amount |
@@ -280,14 +284,14 @@
 | `posy_` | 行 | 2 | posy posy_textaddr |
 | `print_` | 数を表示する | 6 | print_a2 print_byte_num print_num print_score |
 | `push_` | 積む | 1 | push_block |
-| `react_` | 他家の打牌への反応 | 30 | react_act react_answer react_call react_called |
-| `redraw_` | 描き直す | 1 | redraw_all |
+| `react_` | 他家の打牌への反応 | 30 | react react_act react_answer react_call |
+| `redraw_` | 描き直す | 2 | redraw_all redraw_hands |
 | `result_` | 結果の画面 | 1 | result_active |
 | `reveal_` | 手を見せる | 2 | reveal reveal_hands |
 | `riichi_` | リーチ | 9 | riichi_allowed riichi_hint_live riichi_hint_x riichi_mode |
 | `rinshan_` | 嶺上 | 2 | rinshan rinshan_draw |
 | `river_` | 河 | 3 | river_footer river_mark river_mark_done |
-| `rmark_` | river_mark | 1 | rmark_pixels |
+| `rmark_` | ▲ を描く（river_mark、mark_clear、ui_mark_tsumo） | 2 | rmark_pixels rmark_rows |
 | `ron_` | ロン | 3 | ron_no ron_ok ron_yes |
 | `round_` | 場風 | 2 | round round_kind |
 | `sanshoku_` | 三色 | 14 | sanshoku_alive sanshoku_back sanshoku_cut sanshoku_full |
@@ -302,33 +306,34 @@
 | `settle_` | 点の移動 | 7 | settle_draw settle_han settle_honba settle_normal |
 | `setup_` | 点の計算の入力を作る（setup_score、setup_place、setup_win） | 14 | setup_aka setup_dk setup_dora setup_flags |
 | `shanten_` | シャンテン数 | 3 | shanten shanten_furo shanten_lim |
-| `shape_` | 形 | 1 | shape_add |
 | `short_` | 候補の順 | 1 | short_conn |
 | `show_` | 表示する | 6 | show_draw show_kan_hint show_own_hint show_result |
 | `shuffle_` | 牌山を混ぜる | 4 | shuffle shuffle_honor shuffle_kind shuffle_put |
 | `single_` | 1 ビット | 1 | single_bit |
 | `small_` | smalltile の中の見出し | 6 | small_aligned small_next_row small_row_bits small_row_turned |
+| `smalltile_` | 小さい牌（12×12）を描く | 2 | smalltile smalltile_advance |
 | `sort_` | 並べ替え | 4 | sort_base sort_best sort_bytes sort_n |
 | `start_` | 始め | 3 | start start_yaku start_yaku_clr |
 | `stick_` | リーチ棒 | 4 | stick_draw stick_ink stick_row stick_x |
 | `tanyao_` | タンヤオ | 1 | tanyao_iso_ok |
 | `tenpai_` | 聴牌 | 2 | tenpai_pay tenpai_without |
+| `text_` | 文字列 | 1 | text_px |
 | `tie_` | 同点 | 2 | tie_policy tie_ukeire |
 | `tile_` | drawtile の中の見出し | 8 | tile_attr tile_colors tile_crow tile_line |
-| `title_` | タイトル画面 | 8 | title title_dragons title_i title_lines |
+| `title_` | タイトル画面 | 7 | title title_dragons title_i title_lines |
 | `toggle_` | 切り替える | 1 | toggle_open |
 | `toi_` | トイトイ | 5 | toi_bonus toi_dead toi_live toi_prepare |
 | `total_` | 点の合計 | 1 | total_tmp |
 | `trip_` | 刻子 | 2 | trip_n trip_n_x |
 | `tsumo_` | ツモ | 1 | tsumo_flag |
-| `turn_` | 手番 | 4 | turn turn_eval_load turn_loop turn_player |
 | `turn90_` | sm_turn（牌を 90 度回す）の中の見出し | 3 | turn90_align_w turn90_col turn90_fetch |
+| `turn_` | 手番 | 4 | turn turn_eval_load turn_loop turn_player |
 | `unpack_` | 展開 | 1 | unpack_voice |
 | `unseen_` | 考えている人から見えていない牌（unshown − 手牌。ai_unseen が作る） | 2 | unseen unseen_x |
 | `unshown_` | 場にまだ見せていない牌（全員に共通。出来事のときに更新する） | 5 | unshown unshown_dora unshown_init unshown_kind |
 | `ura_` | 裏ドラ | 1 | ura_n |
-| `wait_` | 待つ | 3 | wait_frames wait_known wait_space |
-| `waits_` | 待ち | 3 | waits waits_old waits_start |
+| `wait_` | 待つ | 2 | wait_frames wait_space |
+| `waits_` | 待ち | 2 | waits waits_old |
 | `wall_` | 牌山 | 3 | wall wall_next wall_x |
 | `win_` | 和了 | 7 | win_game_end win_kind win_ron win_show |
 | `wind_` | 風 | 2 | wind_kinds wind_names |
