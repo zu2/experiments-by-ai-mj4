@@ -558,12 +558,6 @@
     "static_references": 5
   },
   {
-    "name": "fw_k",
-    "address": 214,
-    "bytes": 1,
-    "static_references": 5
-  },
-  {
     "name": "ibn_best",
     "address": 215,
     "bytes": 1,

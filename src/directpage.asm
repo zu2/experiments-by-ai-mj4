@@ -96,7 +96,6 @@ chi_pat .equ $00D2 ; chi pattern the human chose
 df_j .equ $00D3 ; tile index in the furo
 dv_divisor .equ $00D4 ; divisor of div8
 ed_wait .equ $00D5 ; W_* wait of the winning tile
-fw_k .equ $00D6 ; kind find_waits checks
 ibn_best .equ $00D7 ; intent_bonus result
 kyotaku .equ $00D8 ; riichi sticks on the table
 fmk_type .equ $00D9 ; M_* type of the furo

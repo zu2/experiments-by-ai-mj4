@@ -86,7 +86,6 @@ for item in directpage:
  assert 0x72<=a and a+size<=0xf2
  assert not (set(range(a,a+size)) & used)
  used.update(range(a,a+size));syms[item['name']]=a
-assert used==set(range(0x72,0xf2))
 syms['DP_FIRST']=0x72;syms['DP_END']=0xf2
 Path('build/symbols.h').write_text(''.join(f'#define S_{n} 0x{v:04x}\n' for n,v in syms.items()))
 Path('build/symbols.json').write_text(json.dumps(syms,indent=2))

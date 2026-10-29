@@ -10,7 +10,7 @@ evdisc_candidate:
  jsr kind_counts_x
  tst sk-counts,x
  bne evdisc_next_cand
- jsr relevant
+ dec 0,x
  ldx #dora_of_kind
  ldab wk_kind
  jsr addxb
@@ -122,54 +122,26 @@ ev_prepare_10:
 ev_prepare_20:
  rts
 
-; The usual candidate-specific relevance filter is reused. Unlike ordinary
-; acceptance, a dead shape wait is still tested for permanent furiten.
-; counts is the 13-tile hand after discarding wk_kind.
+; counts is the 13-tile hand after discarding wk_kind. A dead wait is
+; still a wait for permanent furiten.
 ev_acceptance:
  clr wk_accept
- clr wk_draw
  clr ev_furiten
  clr ev_sum
  clr ev_sum+1
  clr ev_sum+2
- ; A draw makes chiitoi or kokushi only from its tenpai; otherwise only the
- ; regular shape is tested.
- clr ev_special
- tst nfuro
- bne ev_acceptance_00
- jsr ad_spec_values
- jsr spec_shanten
- tsta
- bne ev_acceptance_00
- inc ev_special
+ jsr find_waits
+ clr wk_draw
+ ldx #waits
 ev_acceptance_00:
- ldx #rel
- ldab wk_draw
- jsr addxb
+ stx ev_wait_ptr
  tst 0,x
  beq ev_acceptance_11
  ldab wk_draw
  jsr unseen_x
  ldaa 0,x
  staa wk_unseen
- ldab wk_draw
- jsr counts_x
- ldaa 0,x
- adda furo_tiles-counts,x
- cmpa #4
- bcc ev_acceptance_11
- inc 0,x
- tst ev_special
- beq evacc_sets
- jsr is_agari
- bra evacc_agari
-evacc_sets:
- jsr agari_sets
-evacc_agari:
- tsta
- beq ev_acceptance_10
- ldaa wk_accept
- adda wk_unseen
+ adda wk_accept
  staa wk_accept
  ldx #ev_river
  ldab wk_draw
@@ -183,10 +155,13 @@ evacc_is_furiten:
  inc ev_furiten
 evacc_live_wait:
  tst ev_furiten
- bne ev_acceptance_10
+ bne ev_acceptance_11
  tst wk_unseen
- beq ev_acceptance_10
+ beq ev_acceptance_11
  ; The inputs of score_hand that change with the discard and the wait.
+ ldab wk_draw
+ jsr counts_x
+ inc 0,x
  ldaa wk_draw
  staa win_kind
  ldaa ev_hand_aka
@@ -212,11 +187,12 @@ evacc_add_points:
 evacc_no_carry:
  decb
  bne evacc_add_points
-ev_acceptance_10:
  ldab wk_draw
  jsr counts_x
  dec 0,x
 ev_acceptance_11:
+ ldx ev_wait_ptr
+ inx
  inc wk_draw
  ldaa wk_draw
  cmpa #K_END
@@ -237,10 +213,10 @@ ev_best: .ds 3 ; best ev_sum so far
 ev_best_waits: .ds 1 ; its acceptance
 ev_has_best: .ds 1 ; 1 once ev_best is set
 ev_furiten: .ds 1 ; nonzero when a wait is in our river or is the discard
-ev_special: .ds 1 ; 1 when the 13 tiles are chiitoi or kokushi tenpai
 ev_base_dora: .ds 1 ; dora of the 14 tiles
 ev_hand_dora: .ds 1 ; input of ev_acceptance: dora after the discard
 ev_hand_aka: .ds 1 ; input of ev_acceptance: red fives after the discard
 ev_base_aka: .ds 1 ; red fives of the 14 tiles
 ev_ptr: .ds 2 ; next river tile
+ev_wait_ptr: .ds 2 ; &waits[wk_draw] (ev_acceptance)
 ev_river_n: .ds 1 ; river tiles left

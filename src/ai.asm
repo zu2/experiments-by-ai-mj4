@@ -181,7 +181,7 @@ ai_riichi:
  tst sk-counts,x
  bne ai_riichi_00
  dec 0,x
- jsr wait_known
+ jsr find_waits
  psha
  ldab ad_pick
  jsr	counts_x
@@ -1617,6 +1617,7 @@ candidate_acceptance:
 ; counts = the hand after the discard (shanten min_s). Returns A = number
 ; of unseen tiles that lower the shanten number.
 acceptance:
+ ldaa min_s
  jsr acc_mark
  clr wk_accept
  clr wk_draw
@@ -2516,6 +2517,9 @@ danger_01:
 	.bss
 ; ai_player is allocated in directpage.asm.
 danger_max:	.ds	1 ; highest danger over the riichi players
+; find_waits writes waits as waits-ac_yes,x: waits stays within 255 bytes after ac_yes.
+waits: .ds KN ; output of find_waits: 1 for each winning kind
+waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)
 
 	.bss
  .bss

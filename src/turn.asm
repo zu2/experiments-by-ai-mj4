@@ -982,39 +982,26 @@ ron_ok:
  ldab #1
  jsr check_win
  beq ron_no
+ ; Furiten: a kind in the own river completes the 13 tiles.
  ldaa ra_player
  jsr player
  ldab P_RLEN,x
  beq ron_yes
  stab rn_n
  jsr eval_load
- ldx #waits
- ldab #KN
-ron_ok_00:
- clr 0,x
- inx
- decb
- bne ron_ok_00
+ jsr find_waits
+ ldaa ra_player
  jsr player
  ldab #P_RIVER
  jsr addxb
 ron_ok_01:
- ldaa 0,x
- lsra
+ ldab 0,x
+ lsrb
  stx rn_x
- tab
  ldx #waits
  jsr addxb
  tst 0,x
- bne ron_ok_02
- inc 0,x
- ldx rn_x
- ldab 0,x
- lsrb
- jsr shape_add
- tsta
  bne ron_no
-ron_ok_02:
  ldx rn_x
  inx
  dec rn_n
@@ -1024,21 +1011,6 @@ ron_yes:
  rts
 ron_no:
  clra
- rts
-
-; Probe one hypothetical draw; counts are always restored.
-; B = kind, returns A = boolean. Four copies already held cannot draw a fifth.
-shape_add:
- jsr	counts_x
- ldaa 0,x
- adda furo_tiles-counts,x
- cmpa #4
- bcc ron_no
- stx probe_ptr
- inc 0,x
- jsr is_agari
- ldx probe_ptr
- dec 0,x
  rts
 
 ; A = 1 if counts contains a quartet.
@@ -1055,49 +1027,91 @@ has_four_00:
  bne has_four_00
  bra ron_no
 
-; counts and nfuro of a 13-tile hand. Sets waits[k] = 1 for every kind
-; that completes it.
-find_waits:
- clr fw_stop
- bra waits_start
-; When no quartet is held, shanten zero implies a legal wait.
+; counts, furo_tiles and nfuro of a hand of 13 - 3*nfuro tiles. Sets
+; waits[k] = 1 for every kind k that completes it (regular shape, chiitoi or
+; kokushi), except a kind of which 4 tiles are held. counts is restored.
+; Returns A = 1 if there is a wait.
 ; Returns with N and Z set from A.
 has_wait_cut:
  dec 0,x
-has_wait:
- jsr shanten
- bne ron_no
-wait_known:
- jsr has_four
- beq ron_yes
- ldaa #1
- staa fw_stop
-waits_start:
- ldaa #K_FIRST
- staa fw_k
-wait_known_00:
- ldab fw_k
- jsr	kattr_x
- tst 0,x
- beq wait_known_01
- ldab fw_k
- jsr shape_add
- psha
- ldx #waits
- ldab fw_k
- jsr addxb
- pula
- staa 0,x
+find_waits:
+ ldx #counts
+find_waits_00:
+ clrb
+ ldaa 0,x
+ adda furo_tiles-counts,x
+ cmpa #4
+ bcc find_waits_01
+ incb
+find_waits_01:
+ stab ac_yes-counts,x
+ inx
+ cpx #counts+KN
+ bne find_waits_00
+ clra
+ jsr acc_search
+ tst nfuro
+ bne fw_result
+ ; Chiitoi tenpai: the single tile.
+ jsr sh_chiitoi
  tsta
- beq wait_known_01
- tst fw_stop
- bne ron_yes
-wait_known_01:
- inc fw_k
- ldaa fw_k
- cmpa #K_END
- bne wait_known_00
- bra ron_no
+ bne fw_kokushi
+ ldx #counts
+find_waits_10:
+ ldaa 0,x
+ cmpa #1
+ bne find_waits_11
+ ldaa #2
+ staa ac_yes-counts,x
+find_waits_11:
+ inx
+ cpx #counts+KN
+ bne find_waits_10
+fw_kokushi:
+ ; Kokushi tenpai: every yaochu kind without a pair, or the missing kind.
+ jsr count_yaochu
+ ldaa #13
+ suba yao_kinds
+ tst yao_pairs
+ beq find_waits_20
+ deca
+find_waits_20:
+ tsta
+ bne fw_result
+ ldx #yao_offsets
+find_waits_21:
+ stx yao_ptr
+ ldab 0,x
+ jsr counts_x
+ tst yao_pairs
+ beq find_waits_22
+ tst 0,x
+ bne find_waits_23
+find_waits_22:
+ ldaa #2
+ staa ac_yes-counts,x
+find_waits_23:
+ ldx yao_ptr
+ inx
+ cpx #yao_offsets+13
+ bne find_waits_21
+fw_result:
+ ; ac_yes 2 becomes 1, 1 and 0 become 0.
+ clra
+ ldx #ac_yes
+find_waits_30:
+ ldab 0,x
+ lsrb
+ stab waits-ac_yes,x
+ aba
+ inx
+ cpx #ac_yes+KN
+ bne find_waits_30
+ tsta
+ beq find_waits_31
+ ldaa #1
+find_waits_31:
+ rts
 
 ; The own player reacts to dc_tile. Returns A = R_*, B = chi pattern.
 human_react:
@@ -1978,12 +1992,9 @@ kan_n:	.ds	1 ; kan options
 kan_k:	.ds	4 ; their kinds
 ; ko_k is allocated in directpage.asm.
 ; kk2 is allocated in directpage.asm.
-waits:	.ds	KN ; 1 for each winning kind
-waits_old:	.ds	KN ; waits before an ankan
 ra_player:	.ds	1 ; player riichi_allowed checks
 rn_n:	.ds	1 ; river tiles left (ron_ok)
 rn_x:	.ds	2 ; next river tile
-; fw_k is allocated in directpage.asm.
 rp_pon:	.ds	1 ; pon possible
 rp_kan:	.ds	1 ; open kan possible
 ; rp_chi is allocated in directpage.asm.
@@ -2064,10 +2075,8 @@ auto_play:	.ds	1 ; nonzero when every player is a CPU
  .bss
 ri_player: .ds 1 ; player riichi_ok checks
 ri_kind: .ds 1 ; kind tried
-fw_stop: .ds 1 ; nonzero to stop at the first wait
 
  .bss
-probe_ptr: .ds 2 ; next kind probed
 
  .code
 ; Shows the riichi hint (show_kan_hint: the kan hint).

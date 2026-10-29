@@ -145,7 +145,7 @@ settle_draw:
 settle_draw_00:
  ldaa loop_p
  jsr eval_load
- jsr has_wait
+ jsr find_waits
  beq settle_draw_01
  inc ry_n
  jsr ry_bits4_x

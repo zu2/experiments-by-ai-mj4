@@ -221,12 +221,13 @@ sg_batch: .ds 1 ; 3 while batch_prepare searches
 ad_forbidden_s: .ds 1 ; best shanten of a forbidden discard (127 if none)
 
  .code
-; Acceptance by the 13-tile decompositions of value <= min_s. A draw wk_draw
-; lowers the regular shanten number below min_s only if it improves one of
-; them: added to the residual, completing a set with residual tiles, or
+; A = goal. Acceptance by the 13-tile decompositions of value <= goal. A draw
+; wk_draw lowers the regular shanten number below the goal only if it improves
+; one of them: added to the residual, completing a set with residual tiles, or
 ; completing the head with a residual tile.
 ; ac_yes: 0 = not asked, 1 = asked, 2 = lowers the shanten number.
 acc_mark:
+ psha
  ldx #counts
 acc_mark_00:
  clra
@@ -243,6 +244,10 @@ acc_mark_02:
  inx
  cpx #counts+KN
  bne acc_mark_00
+ pula
+; A = goal, ac_yes already made. Marks the asked draws that lower the value.
+acc_search:
+ staa acc_goal
  ldx #acc_leaf
  stx sg_call_leaf+1
  stx sg_call_head+1
@@ -256,7 +261,7 @@ acc_leaf:
  suba sets_n
  staa al_cap
  suba heads_n
- cmpa min_s
+ cmpa acc_goal
  bgt acc_leaf_04
  jsr leaf_parts
  ldab heads_n
@@ -439,7 +444,7 @@ al_seq_try:
  inc 2,x
  tst al_res
  rts
-; Returns A = value - min_s for the part al_part re-evaluated, one set more
+; Returns A = value - acc_goal for the part al_part re-evaluated, one set more
 ; (al_check_m) or not, and al_heads heads.
 al_check_m:
  ldab al_cap
@@ -460,7 +465,7 @@ al_check_00:
 al_check_01:
  adda al_other
  ldab al_ccap
-; A = taatsu, B = cap. Returns A = 2*cap - al_heads - min(A, cap) - min_s.
+; A = taatsu, B = cap. Returns A = 2*cap - al_heads - min(A, cap) - acc_goal.
 al_value:
  cba
  bls al_value_00
@@ -471,7 +476,7 @@ al_value_00:
  asla
  suba al_tmp
  suba al_heads
- suba min_s
+ suba acc_goal
  rts
 ; Taatsu of each part of counts in leaf_part_taatsu, total in A and leaf_taatsu.
 leaf_parts:
@@ -504,6 +509,7 @@ honor_pairs_00:
  bne honor_pairs_00
  rts
  .bss
+acc_goal: .ds 1 ; input of acc_search: the shanten value a draw must go below
 leaf_part_taatsu: .ds 4 ; output of leaf_parts: taatsu of each part (man, pin, sou, honors)
 al_heads: .ds 1 ; heads of the leaf, with the tried head
 ; leaf_taatsu is allocated in directpage.asm.

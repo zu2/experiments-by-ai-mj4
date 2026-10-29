@@ -47,7 +47,7 @@
 |---|---|---:|---|
 | `ab_` | all_yaochu | 1 | ab_index |
 | `ac_` | acceptance（受け入れの計算）とその変数 | 4 | ac_kok_active ac_ptr ac_special ac_yes |
-| `acc_` | acc_mark / acc_leaf | 2 | acc_leaf acc_mark |
+| `acc_` | acc_mark / acc_search / acc_leaf | 4 | acc_goal acc_leaf acc_mark acc_search |
 | `acceval_` | accept_eval の中の見出し | 2 | acceval_regular acceval_yes |
 | `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 10 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
 | `ak_` | ai_kan | 1 | ak_before |
@@ -96,7 +96,7 @@
 | `fmk_` | furo_make とその入力 | 11 | fmk_from fmk_j fmk_k fmk_kind |
 | `fp_` | furo_find_pon | 2 | fp_k fp_n |
 | `fup_` | furo_upgrade | 1 | fup_x |
-| `fw_` | find_waits | 2 | fw_k fw_stop |
+| `fw_` | find_waits | 2 | fw_kokushi fw_result |
 | `fy_` | find_yakuman | 2 | fy_pair fy_trip |
 | `gd_` | greedy | 10 | gd_smc_read0 gd_smc_read1 gd_smc_read2 gd_smc_read3 |
 | `hat_` | hand_at | 4 | hat_drawn hat_left hat_n hat_red |
@@ -277,7 +277,6 @@
 | `player_` | プレイヤーの領域 | 2 | player player_base |
 | `posy_` | 行 | 2 | posy posy_textaddr |
 | `print_` | 数を表示する | 6 | print_a2 print_byte_num print_num print_score |
-| `probe_` | 試しの牌 | 1 | probe_ptr |
 | `push_` | 積む | 1 | push_block |
 | `react_` | 他家の打牌への反応 | 30 | react_act react_answer react_call react_called |
 | `redraw_` | 描き直す | 1 | redraw_all |
