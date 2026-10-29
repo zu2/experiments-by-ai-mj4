@@ -13,8 +13,11 @@ is_agari:
 	bne	is_agari_01
 ; Returns A = 1 if counts is a winning regular shape (four sets and a head).
 agari_sets:
-	ldx	#sets_ok
-	jmp	each_head
+	jsr	sh_general
+	inca
+	beq	is_agari_01
+	clra
+	rts
 is_agari_01:
 	ldaa	#1
 	rts
@@ -53,55 +56,6 @@ each_head_01:
 	bne	each_head_00
 	clra
 each_head_02:
-	rts
-
-; Returns A = 1 if all tiles in counts make triplets and sequences. The
-; empty kinds between the suits and the honors stop sequences.
-sets_ok:
-	ldx	#counts
-	ldab	#KN
-sets_ok_00:
-	ldaa	0,x
-	staa	work-counts,x
-	inx
-	decb
-	bne	sets_ok_00
-	ldx	#work+K_FIRST
-sets_ok_01:
-	ldaa	0,x
-	cmpa	#3
-	bcs	sets_ok_02
-	suba	#3
-sets_ok_02:
-	tsta
-	beq	sets_ok_03
-	cmpa	1,x
-	bhi	sets_ok_06
-	cmpa	2,x
-	bhi	sets_ok_06
-	nega
-	tab
-	addb	1,x
-	stab	1,x
-	adda	2,x
-	staa	2,x
-sets_ok_03:
-	inx
-	cpx	#work+K_HONOR
-	bne	sets_ok_01
-sets_ok_04:
-	ldaa 0,x
-	beq sets_ok_05
-	cmpa #3
-	bne sets_ok_06
-sets_ok_05:
-	inx
-	cpx #work+K_END
-	bne sets_ok_04
-	ldaa	#1
-	rts
-sets_ok_06:
-	clra
 	rts
 
 ; Returns A = 1 if counts is thirteen orphans.

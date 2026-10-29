@@ -298,7 +298,7 @@
 | `select_` | 選ぶ | 1 | select_arrow |
 | `seq_` | 順子 | 1 | seq_n |
 | `set_` | 決めて書く | 1 | set_intents |
-| `sets_` | 面子の数 | 2 | sets_n sets_ok |
+| `sets_` | 面子の数 | 1 | sets_n |
 | `settle_` | 点の移動 | 9 | settle_draw settle_factor settle_han settle_honba |
 | `setup_` | 点の計算の入力を作る（setup_score、setup_place、setup_win） | 14 | setup_aka setup_dk setup_dora setup_flags |
 | `shanten_` | シャンテン数 | 3 | shanten shanten_furo shanten_lim |
@@ -510,7 +510,6 @@
 | `score_total` | 3 |
 | `search` | 6 |
 | `set_intents` | 4 |
-| `sets_ok` | 7 |
 | `settle_draw` | 5 |
 | `settle_win` | 2 |
 | `setup_win` | 3 |
