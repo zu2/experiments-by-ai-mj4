@@ -1408,6 +1408,34 @@ flush_filter_22:
  ldaa wk_kind
  cmpa #K_END
  bne flush_filter_21
+ ; An open hand discards an off-suit tile even at a higher shanten: min_s
+ ; becomes the lowest sk of the off-suit kinds.
+ jsr ai_furo_x
+ ldaa minshun_n-minshun_n,x
+ adda minkou_n-minshun_n,x
+ adda minkan_n-minshun_n,x
+ beq flush_filter_23
+ ldaa #$7F
+ staa wk_count
+ clr wk_kind
+flush_filter_24:
+ jsr kind_off_suit
+ beq flush_filter_25
+ jsr kind_counts_x
+ ldaa sk-counts,x
+ cmpa wk_count
+ bcc flush_filter_25
+ staa wk_count
+flush_filter_25:
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_HONOR
+ bne flush_filter_24
+ ldaa wk_count
+ cmpa #$7F
+ beq flush_filter_23
+ staa min_s
+ inc flush_only
 flush_filter_23:
  rts
 ; Returns A = 1 if kind wk_kind may be a candidate under the flush filter.
@@ -1451,6 +1479,24 @@ off_suit_shape_02:
  rts
 off_suit_shape_03:
  ldaa #1
+ rts
+; Returns A = the off-suit tiles in the hand (counts).
+off_suit_tiles:
+ clr wk_count
+ clr wk_kind
+off_suit_tiles_00:
+ jsr kind_off_suit
+ beq off_suit_tiles_01
+ jsr kind_counts_x
+ ldaa 0,x
+ adda wk_count
+ staa wk_count
+off_suit_tiles_01:
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_HONOR
+ bne off_suit_tiles_00
+ ldaa wk_count
  rts
 ; A = kind, returns 1 for a numbered tile outside pai_max_suit, otherwise 0.
 ; Returns with N and Z set from A.
@@ -2111,9 +2157,13 @@ ai_call_10:
 	jsr	set_intents
  ldaa iw_flush
  staa call_flush
- ; A flush call needs the off-suit tiles to be isolated.
+ ; A flush call needs the off-suit tiles to be isolated, or at most two
+ ; of them; flush_filter discards them after the call.
  jsr off_suit_shape
  beq ai_call_20
+ jsr off_suit_tiles
+ cmpa #3
+ bcs ai_call_20
  clr call_flush
 ai_call_20:
 	jsr	shanten
