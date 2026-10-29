@@ -195,7 +195,7 @@ ui_band:
  ldab #42
  jsr mul8
  tba
- adda #9
+ adda #10
  rts
 
 ; Draws the furo of player ht_p.
@@ -1013,52 +1013,45 @@ hint_start:
  jsr ui_latest_discard
  ldaa sm_x
  adda #19
- lsra
- lsra
- lsra
- cmpa #28
+ anda #$F8
+ cmpa #224
  bls hint_start_00
- ldaa #28
+ ldaa #224
 hint_start_00:
  staa hint_origin
  staa hint_x
  ldaa sm_y
- ; Round the river position up to a text row, clear of the hand above.
- adda #8
- lsra
- lsra
- lsra
+ ; The letters are centered on the 11 pixel face of the discard.
+ adda #2
  staa hint_y
- clr hint_n
  rts
 ; A = hint character index. Adds it to the hint row.
 hint_add:
  tab
  ldx #hint_chars
  jsr addxb
- ldaa 0,x
- staa hint_char
- ldaa hint_x
- staa posx
  ldaa hint_y
- staa posy
- clr ch_yoff
- ldaa hint_char
- jsr drawchar
- inc hint_x
- inc hint_n
+ staa tx_y
+ ldab hint_x
+ stab tx_x
+ ldaa 0,x
+ jsr char_px
+ ldaa tx_x
+ staa hint_x
  rts
 ; Removes the hint row.
 hint_clear:
- tst hint_n
+ ldaa hint_x
+ ldab hint_origin
+ stab hint_x
+ sba
  beq hint_clear_00
- ldaa hint_origin
- staa posx
+ staa ui_width
+ stab sm_x
  ldaa hint_y
- staa posy
- ldaa hint_n
- jsr erase1
- clr hint_n
+ staa sm_y
+ ldaa #8
+ jmp ui_erase_px
 hint_clear_00:
  rts
 hint_chars:
@@ -1107,11 +1100,9 @@ rmark_pixels_00:
  staa mark_tip
  rts
  .bss
-hint_x: .ds 1 ; hint x
-hint_origin: .ds 1 ; hint start x
-hint_y: .ds 1 ; hint text row
-hint_n: .ds 1 ; hint characters
-hint_char: .ds 1 ; hint character
+hint_x: .ds 1 ; pixel column of the next hint letter
+hint_origin: .ds 1 ; pixel column of the first hint letter
+hint_y: .ds 1 ; hint pixel row
 mark_live: .ds 1 ; nonzero while the river marker is shown
 ; mark_tip is allocated in directpage.asm.
 mark_top: .ds 1 ; marker top row

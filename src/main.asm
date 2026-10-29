@@ -262,7 +262,6 @@ abortive_draw:
 	staa	abort_reason
 	clr	game_active
 	jsr	redraw_hands
-	clr	ch_yoff
 	clr	posx
 	clr	posy
 	ldaa	#22
@@ -786,7 +785,6 @@ show_win_scores:
 score_page:
  staa result_active
  jsr clear_screen
- clr ch_yoff
  ldaa #10
  staa posx
  ldaa #1
@@ -889,7 +887,6 @@ page_advance:
 ; score with its tenpai state and point transfer directly underneath.
 show_draw:
 	clr	game_active
-	clr	ch_yoff
 	ldaa	#2
 	staa	result_active
 	staa	posx
@@ -1486,7 +1483,6 @@ print_num_01:
 
 ; Title with native tile artwork and the keyboard guide.
 draw_title:
-	clr	ch_yoff
 	jsr	clear_screen
 	clr	title_i
 title_tile_loop:
@@ -1510,18 +1506,14 @@ title_tile_loop:
  stx tt_line
 title_text:
  ldx tt_line
- ldaa 0,x
- cmpa #$FF
+ ldab 0,x
+ cmpb #$FF
  beq draw_title_00
- staa posx
  ldaa 1,x
- staa posy
- ldaa 2,x
- staa ch_yoff
- ldx 3,x
- jsr drawstr
+ ldx 2,x
+ jsr text_px
  ldx tt_line
- ldab #5
+ ldab #4
  jsr addxb
  stx tt_line
  bra title_text
@@ -1554,19 +1546,19 @@ toggle_open:
 
 ; x, text row, half-row offset, string pointer; no compressed data.
 title_lines:
- .byte 13,7,0
+ .byte 13*8,7*8
  .word s_title
- .byte 10,9,0
+ .byte 10*8,9*8
  .word s_subtitle
- .byte 6,12,0
+ .byte 6*8,12*8
  .word s_move_help
- .byte 6,13,4
+ .byte 6*8,13*8+4
  .word s_discard_help
- .byte 6,15,0
+ .byte 6*8,15*8
  .word s_win_help
- .byte 6,16,4
+ .byte 6*8,16*8+4
  .word s_call_help
- .byte 7,18,0
+ .byte 7*8,18*8
  .word s_start_help
  .byte $FF
 
@@ -1756,23 +1748,52 @@ next_zero:
 draw_zero:
  ldaa #CH_0
 drawchar:
+ psha
+	ldaa	posy
+	adda	#VRAMHI
+	staa	ch_dst
+ ldaa posx
+	staa	ch_dst+1
+ pula
+ bsr char_at
+ jsr posy_textaddr
+	ldaa	#ATTR_TEXT
+	staa	COLORREG
+	staa	0,x
+	rts
+; X = string ending with $FF, A = pixel row, B = pixel column (a multiple of 8).
+text_px:
+ staa tx_y
+ stab tx_x
+text_px_00:
+ ldaa 0,x
+ cmpa #$FF
+ beq char_at_00
+ inx
+ stx dst_ptr
+ bsr char_px
+ ldx dst_ptr
+ bra text_px_00
+; A = character. Draws it at tx_x, tx_y and moves tx_x to the next character.
+char_px:
+ psha
+ ldaa tx_y
+ ldab tx_x
+ jsr pixel_address
+ staa ch_dst
+ stab ch_dst+1
+ ldab tx_x
+ addb #8
+ stab tx_x
+ pula
+; A = character. Draws its 7 rows at ch_dst and clears the row below.
+char_at:
 	ldab	#7
 	jsr	mul8
 	addb	#<font
 	adca	#>font
 	staa	ch_src
 	stab	ch_src+1
-	ldaa	posy
-	adda	#VRAMHI
-	staa	ch_dst
-	ldaa	ch_yoff
-	asla
-	asla
-	asla
-	asla
-	asla
-	adda	posx
-	staa	ch_dst+1
 	ldab	#7
 	stab	ch_cnt
 char_line:
@@ -1792,10 +1813,7 @@ char_no_carry:
 	bne	char_line
 	ldx	ch_dst
 	clr	0,x
- jsr posy_textaddr
-	ldaa	#ATTR_TEXT
-	staa	COLORREG
-	staa	0,x
+char_at_00:
 	rts
 
 ; A = tile. Returns A = image number: 0-26 for the suits, 27-33 for the
@@ -2107,7 +2125,8 @@ dt_dst:	.ds	2 ; drawtile screen address
 dt_cnt:	.ds	1 ; drawtile rows left
 dst_ptr:	.ds	2 ; next character
 ; ch_src is allocated in directpage.asm.
-ch_yoff:	.ds	1 ; half-row offset of drawchar
+tx_x: .ds 1 ; pixel column of text_px
+tx_y: .ds 1 ; pixel row of text_px
 ch_dst:	.ds	2 ; drawchar screen address
 ch_cnt:	.ds	1 ; drawchar rows left
 

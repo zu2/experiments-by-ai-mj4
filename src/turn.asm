@@ -509,7 +509,6 @@ kyuushu_ask:
  ldaa #20
  staa posx
  staa posy
- clr ch_yoff
  ldx #act_kyuushu
  jsr drawstr
 kyuushu_ask_00:
@@ -1898,11 +1897,13 @@ clear_letters:
  tst let_n
  beq clear_letters_00
  ldaa own_hint_x
- staa posx
+ staa sm_x
  ldaa own_hint_y
- staa posy
- ldaa #4
- jsr erase1
+ staa sm_y
+ ldaa #32
+ staa ui_width
+ ldaa #8
+ jsr ui_erase_px
  clr let_n
 clear_letters_00:
  rts
@@ -1926,22 +1927,22 @@ add_action:
  bls add_action_00
  ldaa #28
 add_action_00:
- staa posx
+ asla
+ asla
+ asla
  staa own_hint_x
- ldaa #20
+ ldaa #20*8
  bra add_action_02
 add_action_01:
  jsr hint_start
  ldaa hint_origin
- staa posx
  staa own_hint_x
  ldaa hint_y
 add_action_02:
- staa posy
  staa own_hint_y
+ ldab own_hint_x
  ldx own_hint_str
- clr ch_yoff
- jsr drawstr
+ jsr text_px
  inc let_n
  rts
 
@@ -2095,7 +2096,6 @@ show_own_hint:
  ldaa #27
  staa riichi_hint_x
  staa posx
- clr ch_yoff
  jsr drawstr
  ldaa #1
  staa riichi_hint_live
@@ -2119,7 +2119,7 @@ riichi_hint_x: .ds 1 ; x of the riichi hint
 riichi_hint_live: .ds 1 ; nonzero while the hint is shown
 
  .bss
-own_hint_x: .ds 1 ; x of the own hint
-own_hint_y: .ds 1 ; y of the own hint
+own_hint_x: .ds 1 ; pixel column of the own hint
+own_hint_y: .ds 1 ; pixel row of the own hint
 own_hint_str: .ds 2 ; own hint string
  .code
