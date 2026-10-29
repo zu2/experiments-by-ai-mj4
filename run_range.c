@@ -54,7 +54,7 @@ for(unsigned g=start_id;g<end_id;g++){
  if(cpu.pc==S_ev_discard)route=2;
  if(cpu.pc==S_least_danger)route=0;
  if(cpu.pc==S_choose_cands)full=1;
- if(cpu.pc==S_ad_s_loop_07){last_ms=(signed char)mem[S_min_s];unsigned p=mem[S_ai_player];uint32_t h[10]={g,decision++,p,mem[S_players+120*p+52]+1,route,full,0,mem[S_min_s],mem[S_ad_pick],mem[S_draws_left]};}
+ if(cpu.pc==S_ai_discard_07){last_ms=(signed char)mem[S_min_s];unsigned p=mem[S_ai_player];uint32_t h[10]={g,decision++,p,mem[S_players+120*p+52]+1,route,full,0,mem[S_min_s],mem[S_ad_pick],mem[S_draws_left]};}
  if(sp&&mem[cpu.pc]==0x39&&cpu.sp==sp){printf("TURN,%u,%u,%u,%u,%u,%lu,%u\n",g,turn++,cpu.a,
 (cpu.a==2?kind_old(cpu.b):cpu.a==0?tile_old(cpu.b):0),
 mem[S_decl],cyc-begin+5,last_ms);sp=0;}

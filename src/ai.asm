@@ -198,6 +198,52 @@ ai_discard:
 	ldaa	ai_player
 	jsr	eval_load
  jsr ai_unseen
+ ; The start time for ev1_discard: $0B seconds, $0C frames (0..59), kept by the IRQ.
+ai_discard_00:
+ ldab $0C
+ ldaa $0B
+ cmpb $0C
+ bne ai_discard_00
+ staa e1_sec
+ stab e1_frame
+ jsr discard_sk
+	jsr	any_riichi
+	beq	ai_discard_05
+	ldaa	min_s
+	cmpa	#2
+	blt	ai_discard_03
+	ldaa	#$7F
+	staa	wk_limit
+	bra	ai_discard_04
+ai_discard_03:
+	ldaa	min_s
+	staa	wk_limit
+ai_discard_04:
+	jsr	least_danger
+	jmp	ai_discard_07
+ai_discard_05:
+ tst min_s
+ bne ai_discard_06
+ jsr ev_discard
+ bra ai_discard_07
+ai_discard_06:
+	jsr	set_intents
+ jsr toi_prepare
+ jsr tie_policy
+	jsr	best_accept
+	ldaa	min_s
+	cmpa	#1
+	bne	ai_discard_07
+	jsr	ev1_discard
+ai_discard_07:
+	ldaa	ai_player
+	ldab	ad_pick
+	jmp	hand_pick
+
+
+; counts = 14 tiles. Sets sk of every kind (shanten after discarding it, $7F if
+; not allowed by kk1/kk2), min_s (lowest of them) and ad_forbidden_s.
+discard_sk:
  jsr spec_prep14
  jsr batch_prepare
 	ldaa	#$7F
@@ -229,34 +275,7 @@ ad_s_loop_02:
 	ldaa	wk_kind
 	cmpa	#K_END
 	bne	ad_s_loop
-	jsr	any_riichi
-	beq	ad_s_loop_05
-	ldaa	min_s
-	cmpa	#2
-	blt	ad_s_loop_03
-	ldaa	#$7F
-	staa	wk_limit
-	bra	ad_s_loop_04
-ad_s_loop_03:
-	ldaa	min_s
-	staa	wk_limit
-ad_s_loop_04:
-	jsr	least_danger
-	jmp	ad_s_loop_07
-ad_s_loop_05:
- tst min_s
- bne ad_s_loop_06
- jsr ev_discard
- bra ad_s_loop_07
-ad_s_loop_06:
-	jsr	set_intents
- jsr toi_prepare
- jsr tie_policy
-	jsr	best_accept
-ad_s_loop_07:
-	ldaa	ai_player
-	ldab	ad_pick
-	jmp	hand_pick
+ rts
 
 ; Returns A = 1 if kind wk_kind is in the hand and may be discarded, and
 ; X = &counts[wk_kind].
@@ -1615,12 +1634,20 @@ candidate_acceptance:
  rts
 
 ; counts = the hand after the discard (shanten min_s). Returns A = number
-; of unseen tiles that lower the shanten number.
+; of unseen tiles that lower the shanten number, and sets bit (k & 7) of
+; ac_lower[k >> 3] for every such kind k.
 acceptance:
  ldaa min_s
  jsr acc_mark
  clr wk_accept
  clr wk_draw
+ ldx #ac_lower
+ ldab #5
+acceptance_10:
+ clr 0,x
+ inx
+ decb
+ bne acceptance_10
  ldx #counts
 acceptance_00:
  stx ac_ptr
@@ -1653,6 +1680,24 @@ acceptance_03:
  ldaa wk_accept
  adda wk_unseen
  staa wk_accept
+ ldaa wk_draw
+ tab
+ lsrb
+ lsrb
+ lsrb
+ ldx #ac_lower
+ jsr addxb
+ anda #7
+ tab
+ ldaa #1
+acceptance_11:
+ decb
+ bmi acceptance_12
+ asla
+ bra acceptance_11
+acceptance_12:
+ oraa 0,x
+ staa 0,x
 acceptance_04:
  ldx ac_ptr
  inx
@@ -2883,4 +2928,5 @@ tie_ukeire: .ds 1 ; output of tie_policy: 1 when equal scores compare acceptance
 
  .bss
 ac_ptr: .ds 2 ; &counts[draw]
+ac_lower: .ds 5 ; output of acceptance: 1 bit for each kind that lowers the shanten
  .code

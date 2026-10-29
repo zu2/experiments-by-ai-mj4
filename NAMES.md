@@ -46,7 +46,7 @@
 | 接頭辞 | 意味 | 名前の数 | 例 |
 |---|---|---:|---|
 | `ab_` | all_yaochu | 1 | ab_index |
-| `ac_` | acceptance（受け入れの計算）とその変数 | 4 | ac_kok_active ac_ptr ac_special ac_yes |
+| `ac_` | acceptance（受け入れの計算）とその変数 | 5 | ac_kok_active ac_lower ac_ptr ac_special |
 | `acc_` | acc_mark / acc_search / acc_leaf | 4 | acc_goal acc_leaf acc_mark acc_search |
 | `acceval_` | accept_eval の中の見出し | 2 | acceval_regular acceval_yes |
 | `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 10 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
@@ -81,13 +81,15 @@
 | `dst_` | drawstr | 1 | dst_ptr |
 | `dt_` | drawtile | 6 | dt_cnt dt_color dt_dst dt_repeat |
 | `dv_` | div8 | 2 | dv_bits dv_divisor |
+| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 17 | e1_d e1_e e1_ebit e1_ebyte |
 | `ed_` | eval_decomp | 4 | ed_pinfu ed_wait ed_wi ed_yhead |
 | `eh_` | each_head | 1 | eh_routine |
 | `el_` | eval_load | 2 | el_dst el_src |
 | `ep_` | eval_places | 3 | ep_i ep_kind ep_off |
 | `er_` | erase | 5 | er_cnt er_h er_p er_w |
-| `ev_` | ev_discard（聴牌での打牌の評価） | 16 | ev_acceptance ev_base_aka ev_base_dora ev_best |
-| `evacc_` | ev_acceptance の中の見出し | 6 | evacc_add_points evacc_agari evacc_is_furiten evacc_live_wait |
+| `ev1_` | ev1_discard とその中のルーチン | 3 | ev1_best ev1_discard ev1_draw |
+| `ev_` | ev_discard（聴牌での打牌の評価） | 17 | ev_acceptance ev_base_aka ev_base_dora ev_best |
+| `evacc_` | ev_acceptance の中の見出し | 4 | evacc_add_points evacc_is_furiten evacc_live_wait evacc_no_carry |
 | `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
 | `evprep_` | ev_prepare の中の見出し | 1 | evprep_clear |
 | `fc_` | fi_copy | 2 | fc_i fc_src |
