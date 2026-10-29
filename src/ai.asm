@@ -246,6 +246,20 @@ ai_discard_02:
 	staa	wk_limit
 	bra	ai_discard_04
 ai_discard_03:
+ ; An open tenpai without yaku (ev_best = 0) cannot win: it only defends.
+ tst min_s
+ bne ai_discard_10
+ jsr ai_furo_x
+ ldaa minshun_n-minshun_n,x
+ adda minkou_n-minshun_n,x
+ adda minkan_n-minshun_n,x
+ beq ai_discard_10
+ jsr ev_discard
+ ldaa ev_best
+ oraa ev_best+1
+ oraa ev_best+2
+ beq ai_discard_02
+ai_discard_10:
 	ldaa	min_s
 	staa	wk_limit
 ai_discard_04:
