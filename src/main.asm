@@ -246,6 +246,16 @@ win_tsumo_23:
 win_game_end:
 	jmp	game_end
 
+; Sounds snd_select twice with a gap, for a draw.
+draw_sound:
+	ldx	#snd_select
+	jsr	play
+	ldaa	#5
+	jsr	wait_frames
+	ldx	#snd_select
+	jsr	play
+	rts
+
 ; A = ABORT_*. Shows the hands and the reason; no payment. The dealer
 ; stays, one more honba, and the riichi sticks stay on the table.
 abortive_draw:
@@ -269,6 +279,7 @@ abortive_draw:
 	staa	posy
 	ldx	#s_push
 	jsr	drawstr
+	jsr	draw_sound
 	jsr	wait_space
 	inc	honba
 	jmp	kyoku
@@ -281,6 +292,7 @@ ryukyoku:
 	jsr	settle_draw
 	jsr	reveal_hands
 	jsr	show_draw
+	jsr	draw_sound
 	jsr	wait_space
 	jsr	tobi
 	bne	win_game_end

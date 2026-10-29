@@ -1120,7 +1120,7 @@ hreact_show:
 	clra
 	rts
 hreact_ask:
- ldx #snd_notify
+ ldx #snd_select
  jsr play
  jsr clear_letters
  jsr hint_start
@@ -1934,7 +1934,7 @@ add_action_02:
 
 ; Shows R:ロン and waits. Returns A nonzero for ron (R), 0 for pass (space).
 ask_ron:
-	ldx	#snd_notify
+	ldx	#snd_select
 	jsr	play
 	jsr	clear_letters
 	ldx	#act_ron

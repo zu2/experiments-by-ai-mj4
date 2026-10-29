@@ -40,8 +40,6 @@ snd_select:
 
 snd_discard:
 	.byte	40,8,0
-snd_notify:
- .byte 28,45,20,60,0
 snd_pon:
  .byte 60,30,45,40,0
 snd_chi:
