@@ -946,9 +946,9 @@ ui_mark_tsumo_01:
  staa mark_top
  ldaa #1
  staa mark_live
- ; A black box behind the mark keeps it visible over a white river tile.
+ ; A black box as wide as the tile keeps the mark visible over a white river tile.
  clr px_ink
- ldaa #7
+ ldaa #11
  ldab #4
  jsr rmark_rows
  inc px_ink
@@ -1102,7 +1102,7 @@ rmark_pixels:
  ldaa #1
  ldab #3
 ; A = first width, B = rows. Draws rows centered on mark_tip from mark_top,
-; each 2 pixels wider than the row above and at most 7, with px_ink.
+; each 2 pixels wider than the row above until the width is 7 or more, with px_ink.
 rmark_rows:
  staa mark_width
  stab mark_rows
@@ -1119,7 +1119,7 @@ rmark_rows_00:
  inc px_y
  ldaa mark_width
  cmpa #7
- beq rmark_rows_01
+ bcc rmark_rows_01
  adda #2
  staa mark_width
 rmark_rows_01:
