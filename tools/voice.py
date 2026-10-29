@@ -20,7 +20,7 @@ for name in ('pon', 'chi', 'kan', 'ron', 'tsumo', 'riichi'):
     x -= x.mean()
     peak = max(abs(x))
     active = np.flatnonzero(abs(x) > peak * .025)
-    x = x[max(0, active[0] - 160):min(len(x), active[-1] + 240)]
+    x = x[active[0]:active[-1] + 1]
     # Gentle -3 dB low shelf, then +4 dB presence around 2.5 kHz (Q=1.1).
     low = sosfilt(butter(1, 250, fs=8000, output='sos'), x)
     x -= (1 - 10**(-3 / 20)) * low
