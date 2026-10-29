@@ -5,13 +5,14 @@ HON=[['000010000', '111111111', '000010000', '011111110', '010010010', '01111111
 def tile(k):
  red=k in (34,35,36)
  im=Image.new('L',(12,12),255);d=ImageDraw.Draw(im)
- d.line((11,0,11,11),fill=0);d.line((0,11,11,11),fill=0)
+ # Row 11 is part of the face (white); a black row below the tile row separates it.
+ d.line((11,0,11,11),fill=0)
  def pat(rows,x,y):
   for yy,row in enumerate(rows):
    for xx,v in enumerate(row):
     if v=='1':d.point((x+xx,y+yy),0)
  if k==37:
-  for y in range(11):
+  for y in range(12):
    for x in range(11):
     if (x+y)%2==1:d.point((x,y),0)
  elif k>=27 and k<34:
