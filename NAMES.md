@@ -337,23 +337,24 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 640 個で、226 のルーチンにある。
+番号のラベルは 671 個で、233 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
 | `acc_leaf` | 5 |
 | `acc_mark` | 3 |
-| `acceptance` | 6 |
+| `acceptance` | 9 |
 | `ad_allowed` | 1 |
 | `ad_flush_cand` | 1 |
 | `ad_isolated` | 2 |
 | `ad_rel_build` | 2 |
-| `ad_s_loop` | 8 |
+| `ad_s_loop` | 3 |
 | `add_action` | 3 |
 | `add_set_fu` | 1 |
 | `addxb` | 1 |
 | `after_draw` | 5 |
 | `ai_call` | 5 |
+| `ai_discard` | 6 |
 | `ai_kan` | 3 |
 | `ai_riichi` | 1 |
 | `ai_unseen` | 1 |
@@ -377,7 +378,8 @@
 | `call_options` | 2 |
 | `call_yaku_ok` | 3 |
 | `cc_rank` | 5 |
-| `check_win` | 4 |
+| `char_at` | 1 |
+| `check_win` | 3 |
 | `chi_forbidden` | 3 |
 | `chi_kinds` | 3 |
 | `chi_step` | 5 |
@@ -400,6 +402,7 @@
 | `div8` | 2 |
 | `dora_cut_cost` | 5 |
 | `dora_next` | 4 |
+| `draw_hands` | 1 |
 | `draw_name` | 2 |
 | `draw_nokori` | 1 |
 | `draw_riichi` | 2 |
@@ -408,9 +411,13 @@
 | `drawtile` | 1 |
 | `each_head` | 3 |
 | `erase` | 5 |
-| `ev_acceptance` | 4 |
-| `ev_discard` | 3 |
+| `ev1_best` | 2 |
+| `ev1_discard` | 11 |
+| `ev1_draw` | 16 |
+| `ev_acceptance` | 3 |
+| `ev_discard` | 1 |
 | `ev_prepare` | 3 |
+| `ev_value` | 1 |
 | `eval_decomp` | 6 |
 | `eval_load` | 1 |
 | `eval_places` | 7 |
@@ -418,15 +425,16 @@
 | `fi_copy` | 2 |
 | `fi_limit` | 4 |
 | `final_scores` | 1 |
+| `find_waits` | 10 |
 | `find_yakuman` | 1 |
 | `finish` | 1 |
-| `flush_filter` | 6 |
+| `flush_filter` | 5 |
 | `fmk_note` | 3 |
 | `fmk_take` | 1 |
 | `furo_counts` | 5 |
 | `furo_facts` | 4 |
 | `furo_find_pon` | 4 |
-| `furo_make` | 6 |
+| `furo_make` | 7 |
 | `furo_upgrade` | 1 |
 | `game_end` | 3 |
 | `hand_add` | 1 |
@@ -493,13 +501,12 @@
 | `rel_restore` | 4 |
 | `rel_tenpai` | 2 |
 | `relevant` | 2 |
-| `reveal_hands` | 1 |
 | `riichi_allowed` | 1 |
 | `riichi_ok` | 2 |
 | `riichi_turn` | 6 |
-| `river_footer` | 2 |
-| `rmark_pixels` | 2 |
-| `ron_ok` | 3 |
+| `river_footer` | 1 |
+| `rmark_rows` | 2 |
+| `ron_ok` | 1 |
 | `rotate` | 1 |
 | `s3_iso_ok` | 2 |
 | `sanshoku_near` | 4 |
@@ -518,7 +525,7 @@
 | `sg_entry_x` | 1 |
 | `sg_four` | 2 |
 | `sg_init` | 1 |
-| `sg_leaf` | 5 |
+| `sg_leaf` | 3 |
 | `sh_chiitoi` | 3 |
 | `shanten` | 4 |
 | `shanten_lim` | 1 |
@@ -537,15 +544,16 @@
 | `ss_furo` | 7 |
 | `stick_draw` | 3 |
 | `tanyao_iso_ok` | 4 |
+| `text_px` | 1 |
 | `tie_policy` | 2 |
 | `title_wait` | 2 |
 | `tobi` | 2 |
 | `toi_bonus` | 1 |
 | `toi_prepare` | 4 |
 | `turn_loop` | 1 |
-| `ui_call_mark` | 3 |
+| `ui_call_mark` | 1 |
 | `ui_erase_px` | 5 |
-| `ui_furo` | 6 |
+| `ui_furo` | 9 |
 | `ui_header` | 1 |
 | `ui_human` | 1 |
 | `ui_icon` | 2 |
@@ -561,7 +569,6 @@
 | `unshown_init` | 1 |
 | `unshown_kind` | 1 |
 | `wait_frames` | 1 |
-| `wait_known` | 2 |
 | `win_tsumo` | 5 |
 | `yaku_han_of` | 4 |
 | `yakuhai_call` | 2 |
