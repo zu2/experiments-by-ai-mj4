@@ -247,7 +247,30 @@ ai_discard_05:
  tst min_s
  bne ai_discard_06
  jsr ev_discard
+ ; An open hand whose every tenpai has no yaku (ev_best = 0) chooses among
+ ; the 1-shanten discards instead, when there is one.
+ ldaa ev_best
+ oraa ev_best+1
+ oraa ev_best+2
+ bne ai_discard_07
+ jsr ai_furo_x
+ ldaa minshun_n-minshun_n,x
+ adda minkou_n-minshun_n,x
+ adda minkan_n-minshun_n,x
+ beq ai_discard_07
+ clr wk_kind
+ai_discard_08:
+ jsr kind_counts_x
+ ldaa sk-counts,x
+ cmpa #1
+ beq ai_discard_09
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_END
+ bne ai_discard_08
  bra ai_discard_07
+ai_discard_09:
+ staa min_s
 ai_discard_06:
 	jsr	set_intents
  jsr toi_prepare
