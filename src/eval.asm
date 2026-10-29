@@ -103,12 +103,6 @@ shanten_00:
 shanten_01:
 	ldaa	sh_best
 	bmi	shanten_11
-	bne	shanten_10
-; A special shape is tenpai. Only a regular agari can improve its zero
-; (a special agari would have given -1 above).
-	jsr	agari_sets
-	nega
-	rts
 shanten_10:
 	jsr	sh_general
 	cmpa	sh_best
