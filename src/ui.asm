@@ -940,8 +940,8 @@ ui_mark_tsumo_00:
  stab mark_tip
  ldaa turn
  jsr ui_band
- ; The tip sits on the black bottom row of the drawn tile.
- adda #11
+ ; The tip sits on the black row between the hand and the river.
+ adda #12
 ui_mark_tsumo_01:
  staa mark_top
  ldaa #1
