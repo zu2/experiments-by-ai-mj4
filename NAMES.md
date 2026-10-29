@@ -50,7 +50,7 @@
 | `ac_` | acceptance（受け入れの計算）とその変数 | 5 | ac_kok_active ac_lower ac_ptr ac_special |
 | `acc_` | acc_mark / acc_search / acc_leaf | 4 | acc_goal acc_leaf acc_mark acc_search |
 | `acceval_` | accept_eval の中の見出し | 2 | acceval_regular acceval_yes |
-| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 18 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
+| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 9 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
 | `ak_` | ai_kan | 1 | ak_before |
 | `al_` | acc_leaf | 19 | al_base al_cap al_ccap al_check |
 | `an_` | analyse | 1 | an_k |
@@ -60,7 +60,7 @@
 | `ca_` | ai_call | 1 | ca_none |
 | `calc_` | 計算 | 1 | calc_fu |
 | `calldisc_` | call_discard の中の見出し | 1 | calldisc_cpu |
-| `cc_` | choose_cands | 16 | cc_bonus cc_cand_bonus cc_costs cc_focus |
+| `cc_` | choose_cands | 15 | cc_bonus cc_cand_bonus cc_costs cc_insert_x |
 | `cflush_` | call_flush_ok の中の見出し | 1 | cflush_yes |
 | `ch_` | drawchar と char_at | 3 | ch_cnt ch_dst ch_src |
 | `ck_` | チーに使う手の 2 種類（chi_kinds） | 2 | ck_a ck_b |
@@ -139,7 +139,7 @@
 | `rr_` | ui_river_draw | 2 | rr_k rr_p |
 | `rvt_` | ui_river_tile | 5 | rvt_flag rvt_img rvt_index rvt_player |
 | `ry_` | 流局（settle_draw と表示） | 5 | ry_bits4_x ry_n ry_score_before ry_tenpai |
-| `s3_` | 三色（sanshoku_near） | 8 | s3_best s3_full s3_intent s3_iso_ok |
+| `s3_` | 三色（sanshoku_near） | 6 | s3_best s3_full s3_kind s3_n |
 | `sbt_` | sort_bytes | 1 | sbt_swapped |
 | `se_` | search | 3 | se_block se_counts_x se_kind |
 | `sg_` | sh_general | 17 | sg_advance sg_batch sg_best sg_call_head |
@@ -170,7 +170,7 @@
 |---|---|---:|---|
 | `abort_` | 途中流局 | 2 | abort_names abort_reason |
 | `abortive_` | 途中流局 | 1 | abortive_draw |
-| `accept_` | 受け入れ | 4 | accept_compare accept_eval accept_full accept_multi |
+| `accept_` | 受け入れ | 3 | accept_compare accept_eval accept_full |
 | `add_` | 足す | 8 | add_action add_fu add_fu2 add_kan_option |
 | `addxb_` | addxb（X に B を足す） | 2 | addxb addxb_tmp |
 | `after_` | あと | 1 | after_draw |
@@ -187,7 +187,7 @@
 | `auto_` | 自動対局 | 1 | auto_play |
 | `base_` | 基本 | 12 | base_chankan base_ippatsu base_last base_last_add |
 | `batch_` | まとめて | 7 | batch_add_total batch_evaluate batch_leaf batch_man |
-| `best_` | 最もよい結果の役と点 | 8 | best_accept best_accept_route_ready best_fu best_han |
+| `best_` | 最もよい結果の役と点 | 7 | best_accept best_fu best_han best_n |
 | `bias_` | intent_bias（狙いによる打牌の補正）の中の見出し | 8 | bias_addc_chi bias_addc_flush bias_addc_kok bias_chanta |
 | `bits4_` | bits4（4 ビットの表示） | 2 | bits4 bits4_x |
 | `block_` | ブロック | 1 | block_fu |
@@ -195,7 +195,7 @@
 | `btype_` | ブロックの種類 | 2 | btype btype_x |
 | `call_` | 鳴き | 32 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
 | `can_` | できること | 3 | can_riichi can_ron can_win |
-| `cand_` | choose_cands の中の見出し | 6 | cand_clear_order cand_isolated cand_loop cand_next |
+| `cand_` | choose_cands の中の見出し | 5 | cand_clear_order cand_loop cand_next cand_priority |
 | `candidate_` | 候補 | 1 | candidate_acceptance |
 | `chankan_` | 槍槓 | 1 | chankan_f |
 | `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 4 | char_at char_line char_no_carry char_px |
@@ -243,11 +243,11 @@
 | `in_` | 中にある | 1 | in_opp_river |
 | `intent_` | 手の狙い | 14 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
 | `is_` | 判定（A = 0 か 1） | 7 | is_agari is_closed is_dora_kind is_kokushi |
-| `isolated_` | 孤立牌（ad_isolated の出力） | 6 | isolated_cand isolated_kind isolated_kind2 isolated_kind3 |
+| `isolated_` | 孤立牌（isolated_cand）と、国士無双の中張牌（kokushi_mid の出力） | 5 | isolated_cand isolated_kind isolated_kind2 isolated_kind3 |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
 | `keep_` | 残す | 10 | keep_check_flush keep_chiitoi keep_honor keep_honor_old |
 | `kind_` | 牌の種類（A = 牌の種類を受け取るルーチンと、wk_kind を入れて呼ぶ入口。例: kind_counts_x は B = wk_kind で counts_x） | 7 | kind_counts_x kind_is_yaochu kind_number kind_number_b |
-| `kokushi_` | 国士無双 | 1 | kokushi_dead |
+| `kokushi_` | 国士無双 | 2 | kokushi_dead kokushi_mid |
 | `kuikae_` | 喰い替え | 1 | kuikae_ok |
 | `kyoku_` | 局 | 2 | kyoku kyoku_init_calls |
 | `kyuushu_` | 九種九牌 | 2 | kyuushu_ask kyuushu_check |
@@ -315,7 +315,6 @@
 | `sort_` | 並べ替え | 4 | sort_base sort_best sort_bytes sort_n |
 | `start_` | 始め | 3 | start start_yaku start_yaku_clr |
 | `stick_` | リーチ棒 | 4 | stick_draw stick_ink stick_row stick_x |
-| `tanyao_` | タンヤオ | 1 | tanyao_iso_ok |
 | `tenpai_` | 聴牌 | 2 | tenpai_pay tenpai_without |
 | `text_` | 文字列 | 1 | text_px |
 | `tie_` | 同点 | 2 | tie_policy tie_ukeire |
@@ -342,7 +341,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 675 個で、234 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 674 個で、232 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -351,7 +350,6 @@
 | `acceptance` | 9 |
 | `ad_allowed` | 1 |
 | `ad_flush_cand` | 1 |
-| `ad_isolated` | 2 |
 | `ad_rel_build` | 2 |
 | `ad_s_loop` | 3 |
 | `add_action` | 3 |
@@ -375,7 +373,7 @@
 | `base_yaku` | 2 |
 | `batch_leaf` | 5 |
 | `batch_prepare` | 1 |
-| `best_accept` | 5 |
+| `best_accept` | 4 |
 | `calc_fu` | 11 |
 | `call_chi_yaku` | 4 |
 | `call_discard` | 1 |
@@ -475,6 +473,7 @@
 | `keep_value` | 3 |
 | `kind_number` | 2 |
 | `kind_suit` | 3 |
+| `kokushi_mid` | 8 |
 | `kuikae_ok` | 3 |
 | `kv_base` | 2 |
 | `kyoku` | 5 |
@@ -514,7 +513,6 @@
 | `rmark_rows` | 2 |
 | `ron_ok` | 1 |
 | `rotate` | 1 |
-| `s3_iso_ok` | 2 |
 | `sanshoku_near` | 4 |
 | `save_scores` | 1 |
 | `scan_keys` | 5 |
@@ -549,7 +547,6 @@
 | `ss_flag_if` | 1 |
 | `ss_furo` | 7 |
 | `stick_draw` | 3 |
-| `tanyao_iso_ok` | 4 |
 | `text_px` | 1 |
 | `tie_policy` | 2 |
 | `title_wait` | 2 |

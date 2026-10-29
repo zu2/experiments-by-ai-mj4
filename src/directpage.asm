@@ -33,7 +33,7 @@ other .equ $008E ; player reacting to dc_tile
 call_kind .equ $008F ; kind of dc_tile for ai_call
 cc_key .equ $0090 ; rank of the candidate (lower is cut first)
 ck_a .equ $0091 ; first hand kind of the call
-wk_count .equ $0092 ; shared work: tile count (set_intents per kind, ad_isolated)
+wk_count .equ $0092 ; shared work: tile count (set_intents per kind, kokushi_mid)
 knew .equ $0093 ; keys pressed in this frame
 px_y .equ $0094 ; pixel y
 sflags .equ $0095 ; F_* flags for score_hand
@@ -47,7 +47,7 @@ ko_k .equ $009C ; kind kan_options checks
 rp_chi .equ $009D ; chi patterns possible (bits)
 seed .equ $009E ; xorshift24 state (3 bytes)
 wk_accept .equ $00A1 ; shared work: acceptance sum (output of acceptance, ev_acceptance)
-wk_best .equ $00A2 ; shared work: best value (least_danger, best_accept, ad_isolated)
+wk_best .equ $00A2 ; shared work: best value (least_danger, best_accept, kokushi_mid)
 cur_fu .equ $00A3 ; fu of the decomposition
 head_kind .equ $00A4 ; kind of the head
 sg_best .equ $00A5 ; lowest shanten found by sh_general
@@ -115,7 +115,7 @@ al_x .equ $00E6 ; &counts[draw]
 ch_src .equ $00E8 ; font address of the character
 sm_src .equ $00EA ; image address
 yao_pairs .equ $00EC ; yaochu kinds with 2 or more
-wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept, ad_isolated)
+wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept, kokushi_mid)
 lone_dora_kind .equ $00EE ; output of lone_dora: lone dora kind reserved as a candidate ($FF = none)
 cop_pat .equ $00EF ; chi pattern call_options checks
 wk_limit .equ $00F0 ; shared work: shanten limit (ai_discard -> least_danger; batch_prepare low)

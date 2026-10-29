@@ -322,41 +322,11 @@ least_danger_01:
 ; Sets ad_pick to the kind with sk = min_s that leaves the most tiles that
 ; lower the shanten number.
 best_accept:
- clr cc_focus
 	jsr	flush_filter
- tst iw_toi
-	beq best_accept_route_ready
+	; Kokushi ranks its middle tiles first (cc_rank).
 	tst iw_kok
 	beq accept_full
-	; Prepare a middle-tile fallback for the Kokushi shortlist.
-	jsr ad_isolated
-	bra accept_full
-best_accept_route_ready:
-	jsr	ad_isolated
-	beq	accept_full
-	tst iw_kok
-	bne accept_full
- jsr s3_iso_ok
- beq accept_full
- jsr tanyao_iso_ok
- bne accept_multi
- ; Bit 0 retains the existing yaochu alternative comparison.
- inc cc_focus
-accept_multi:
- ldaa isolated_n
- cmpa #2
- bcs best_accept_00
- ; Bit 1 adds only legal non-dora singleton isolated candidates.
- ldaa cc_focus
- adda #2
- staa cc_focus
-best_accept_00:
- tst cc_focus
- bne accept_full
- ; The isolated kind is the answer.
- ldaa isolated_kind
- staa ad_pick
- rts
+	jsr kokushi_mid
 accept_full:
 	jsr	choose_cands
  jsr ad_rel_build
@@ -444,22 +414,6 @@ cand_loop:
  beq cand_shape
  jsr ad_flush_cand
  beq cand_next
- tst cc_focus
- beq cand_shape
- ldaa wk_kind
- cmpa isolated_kind
- beq cand_shape
- ldaa cc_focus
- bita #1
- beq cand_isolated
- jsr kind_is_yaochu
- bne cand_shape
-cand_isolated:
- ldaa cc_focus
- bita #2
- beq cand_next
- jsr isolated_cand
- beq cand_next
 cand_shape:
  jsr isolated_cand
  staa cc_isol_flag
@@ -475,16 +429,6 @@ choose_cands_00:
  jsr kind_counts_x
  inc 0,x
  pula
- tst cc_focus
- beq cand_priority
- ldab wk_kind
- cmpb isolated_kind
- bne cand_priority
- ; Reserve one shortlist slot for the original immediate choice.
- clr cc_key
- clr dcc_cost
- clr wk_bonus
- bra cc_rank
 cand_priority:
  nega
  adda #4
@@ -1365,36 +1309,6 @@ short_conn_01:
 short_conn_02:
  rts
 
-; An isolated simple must not bypass a compatible yaochu alternative.
-; Returns with N and Z set from A.
-tanyao_iso_ok:
- tst iw_tanyao
- beq tanyao_iso_ok_02
- ldaa isolated_kind
- jsr is_simple
- beq tanyao_iso_ok_02
- clr wk_kind
-tanyao_iso_ok_00:
- jsr kind_counts_x
- ldaa sk-counts,x
- cmpa min_s
- bne tanyao_iso_ok_01
- jsr kind_is_yaochu
- beq tanyao_iso_ok_01
- jsr ad_flush_cand
- bne tanyao_iso_ok_03
-tanyao_iso_ok_01:
- inc wk_kind
- ldaa wk_kind
- cmpa #K_END
- bne tanyao_iso_ok_00
-tanyao_iso_ok_02:
- ldaa #1
- rts
-tanyao_iso_ok_03:
- clra
- rts
-
 ; Restrict equal-shanten attack candidates to off-suit discards when possible.
 ; Defense and the minimum-shanten calculation are unchanged.
 flush_filter:
@@ -1497,59 +1411,47 @@ off_suit_00:
 off_suit_01:
  clra
  rts
-; Selects the best min-shanten fallback: an isolated tile normally, or a
-; middle tile while Kokushi intent is active. Returns A nonzero if one is found. Dora middle tiles remain
-; eligible, with a small penalty so a non-dora middle tile wins when close.
-; Returns with N and Z set from A.
-ad_isolated:
- clr isolated_n
+; Kokushi: ranks the middle tiles with sk = min_s for cc_rank. isolated_kind is
+; the best by keep_value and intent_bias (a dora loses 2), isolated_kind2 and
+; isolated_kind3 the next middle kinds in kind order ($FF = none).
+kokushi_mid:
 	clr	wk_best
 	ldaa #$FF
 	staa isolated_kind2
 	staa isolated_kind3
 	staa isolated_kind4
 	clr	wk_kind
-ad_isolated_00:
+kokushi_mid_00:
 	jsr	kind_counts_x
 	ldaa	sk-counts,x
 	cmpa	min_s
-	bne	ad_isolated_01
+	bne	kokushi_mid_01
 	jsr	ad_flush_cand
-	beq	ad_isolated_01
-	tst iw_kok
-	beq ad_isolated_regular
+	beq	kokushi_mid_01
 	ldaa wk_kind
 	jsr kind_is_yaochu
-	bne ad_isolated_01
+	bne kokushi_mid_01
 	jsr dora_cut_cost
-	bra ad_isolated_count
-ad_isolated_regular:
- jsr isolated_cand
- beq ad_isolated_01
-ad_isolated_count:
- inc isolated_n
-	tst iw_kok
-	beq ad_isolated_rank
 	ldaa isolated_kind2
 	cmpa #$FF
-	beq ad_isolated_save_middle
+	beq kokushi_mid_02
 	ldaa isolated_kind3
 	cmpa #$FF
-	beq ad_isolated_save_middle3
+	beq kokushi_mid_03
 	ldaa isolated_kind4
 	cmpa #$FF
-	bne ad_isolated_rank
+	bne kokushi_mid_04
 	ldaa wk_kind
 	staa isolated_kind4
-	bra ad_isolated_rank
-ad_isolated_save_middle3:
+	bra kokushi_mid_04
+kokushi_mid_03:
 	ldaa wk_kind
 	staa isolated_kind3
-	bra ad_isolated_rank
-ad_isolated_save_middle:
+	bra kokushi_mid_04
+kokushi_mid_02:
 	ldaa wk_kind
 	staa isolated_kind2
-ad_isolated_rank:
+kokushi_mid_04:
 	jsr	keep_value
 	staa	wk_score
  jsr intent_bias
@@ -1561,41 +1463,36 @@ ad_isolated_rank:
 	asla
 	adda	#16
 	suba	wk_count
-		tst iw_kok
-		beq ad_isolated_score_ready
 		tst dcc_cost
-		beq ad_isolated_score_ready
+		beq kokushi_mid_05
 		deca
 		deca
-ad_isolated_score_ready:
+kokushi_mid_05:
 	cmpa	wk_best
-	bls ad_isolated_01
+	bls kokushi_mid_01
 		staa	wk_best
 	ldaa	wk_kind
 	staa	isolated_kind
-ad_isolated_01:
+kokushi_mid_01:
 	inc	wk_kind
 	ldaa	wk_kind
 	cmpa	#K_END
-	bne	ad_isolated_00
-	tst iw_kok
-	beq ad_isolated_result
+	bne	kokushi_mid_00
 	ldaa isolated_kind2
 	cmpa isolated_kind
-	bne ad_isolated_check_middle3
+	bne kokushi_mid_10
 	ldaa isolated_kind3
 	staa isolated_kind2
 	ldaa isolated_kind4
 	staa isolated_kind3
-	bra ad_isolated_result
-ad_isolated_check_middle3:
+	rts
+kokushi_mid_10:
 	ldaa isolated_kind3
 	cmpa isolated_kind
-	bne ad_isolated_result
+	bne kokushi_mid_11
 	ldaa isolated_kind4
 	staa isolated_kind3
-ad_isolated_result:
-	ldaa	wk_best
+kokushi_mid_11:
 	rts
 
 ; A non-dora singleton with no neighbour within two, before discard.
@@ -2615,32 +2512,6 @@ waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)
  .bss
  .bss
  .code
-; Preserve the cheap isolated-tile decision unless this actual discard
-; reduces the best three-colour route. Honors can never affect a sequence.
-; Returns with N and Z set from A.
-s3_iso_ok:
- ldaa isolated_kind
- cmpa #K_HONOR
- bcc s3_iso_ok_00
- staa wk_kind
- jsr sanshoku_near
- staa s3_intent
- beq s3_iso_ok_00
- jsr kind_counts_x
- jsr sanshoku_cut
- psha
- jsr kind_counts_x
- inc 0,x
- pula
- cmpa s3_intent
- bcs s3_iso_ok_01
-s3_iso_ok_00:
- ldaa #1
- rts
-s3_iso_ok_01:
- clra
- rts
-
 ; Independent three-colour progress, original or post-discard counts.
 ; At least one full sequence, each suit represented, six of nine kinds.
 ; Bonus = distinct covered kinds - 5 (1..4), best target only.
@@ -2756,7 +2627,6 @@ s3_full: .ds 1 ; 1 when the pattern has a full sequence
 s3_total: .ds 1 ; kinds the pattern covers
 s3_best: .ds 1 ; best pattern value
 s3_n: .ds 1 ; tiles of the suit in the pattern
-s3_intent: .ds 1 ; sanshoku value before the discard
 ; cc_sanshoku is allocated in directpage.asm.
  .bss
 ; dcc_count is allocated in directpage.asm.
@@ -2781,8 +2651,7 @@ wk_left: .ds 1 ; shared work: tanyao yaochu limit (set_intents), toitoi slots le
 
  .bss
 
-isolated_n: .ds 1 ; eligible candidates counted by ad_isolated
-isolated_kind: .ds 1 ; selected isolated or Kokushi middle candidate
+isolated_kind: .ds 1 ; best Kokushi middle candidate (kokushi_mid)
 isolated_kind2: .ds 1 ; second Kokushi middle candidate fallback
 isolated_kind3: .ds 1 ; second distinct middle candidate fallback
 isolated_kind4: .ds 1 ; third distinct middle candidate fallback
@@ -2965,7 +2834,6 @@ tie_policy_01:
  rts
  .bss
 cc_isol_flag: .ds 1 ; 1 for an isolated or lone dora candidate
-cc_focus: .ds 1 ; bit 0 yaochu alternative, bit 1 isolated candidates
 ; lone_dora_kind is allocated in directpage.asm.
 ad_best_ukeire: .ds 1 ; acceptance of the best candidate
 tie_ukeire: .ds 1 ; output of tie_policy: 1 when equal scores compare acceptance
