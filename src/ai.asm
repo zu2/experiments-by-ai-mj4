@@ -2393,6 +2393,9 @@ call_chi_yaku_01:
  beq cflush_yes
  bra call_chi_yaku_03
 call_chi_yaku_02:
+ ; Tanyao needs a hand and furo without yaochu, as in call_yaku_ok.
+ tst pai_yaochu
+ bne call_chi_yaku_03
  jsr call_is_simple
 	beq	call_chi_yaku_03
 	ldaa	ck_a
