@@ -268,7 +268,7 @@
 | `next_` | 次 | 1 | next_zero |
 | `noten_` | 不聴 | 2 | noten_delta noten_pay |
 | `number_` | 数牌 | 1 | number_bias |
-| `off_` | 色の外（off_suit） | 1 | off_suit |
+| `off_` | 色の外（off_suit） | 2 | off_suit off_suit_shape |
 | `open_` | CPU の手を見せる | 3 | open_cur open_mode open_prev |
 | `options_` | call_options の中の見出し | 4 | options_bit options_chi options_ploop options_pnext |
 | `own_` | 人の手番の表示 | 4 | own_hint_str own_hint_x own_hint_y own_kan |
@@ -342,7 +342,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 671 個で、233 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 675 個で、234 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -491,6 +491,7 @@
 | `noten_delta` | 2 |
 | `number_bias` | 2 |
 | `off_suit` | 2 |
+| `off_suit_shape` | 4 |
 | `own_kan` | 3 |
 | `pay_share` | 2 |
 | `payer_amount` | 1 |

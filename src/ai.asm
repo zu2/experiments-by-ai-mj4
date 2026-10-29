@@ -1448,6 +1448,39 @@ ad_flush_cand:
 ad_flush_cand_00:
  ldaa #1
  rts
+; Returns A = 1 if the hand (counts) has a pair of an off-suit kind, or two
+; off-suit tiles of one suit within 2 of each other.
+; Returns with N and Z set from A.
+off_suit_shape:
+ clr wk_kind
+off_suit_shape_00:
+ jsr kind_off_suit
+ beq off_suit_shape_02
+ jsr kind_counts_x
+ ldaa 0,x
+ beq off_suit_shape_02
+ cmpa #2
+ bcc off_suit_shape_03
+ ldaa wk_kind
+ jsr kind_number
+ ; The kind after 9 is a gap (count 0); 8 and 9 have no kind 2 above.
+ ldab 1,x
+ cmpa #8
+ bcc off_suit_shape_01
+ addb 2,x
+off_suit_shape_01:
+ tstb
+ bne off_suit_shape_03
+off_suit_shape_02:
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_HONOR
+ bne off_suit_shape_00
+ clra
+ rts
+off_suit_shape_03:
+ ldaa #1
+ rts
 ; A = kind, returns 1 for a numbered tile outside pai_max_suit, otherwise 0.
 ; Returns with N and Z set from A.
 kind_off_suit:
@@ -2208,6 +2241,10 @@ ai_call_10:
 	jsr	set_intents
  ldaa iw_flush
  staa call_flush
+ ; A flush call needs the off-suit tiles to be isolated.
+ jsr off_suit_shape
+ beq ai_call_20
+ clr call_flush
 ai_call_20:
 	jsr	shanten
 	staa	call_shanten_now
@@ -2334,7 +2371,10 @@ call_yaku_ok:
  cmpa #K_END
  bcc call_yaku_ok_00
  jsr is_yaochu
- bne call_yaku_ok_10
+ beq call_yaku_ok_00
+ ; Calling fixes chanta: only a hand without central shapes calls for it.
+ tst pai_chanta_cut
+ beq call_yaku_ok_10
 call_yaku_ok_00:
  jsr call_flush_ok
  bne call_yaku_ok_10
@@ -2377,6 +2417,8 @@ call_chi_yaku:
  bne cflush_yes
  tst iw_chi
  beq call_chi_yaku_02
+ tst pai_chanta_cut
+ bne call_chi_yaku_02
  ldaa call_kind
  cmpa ck_a
  bls call_chi_yaku_00
