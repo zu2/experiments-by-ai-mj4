@@ -917,9 +917,9 @@ ui_mark_tsumo_01:
  staa mark_top
  ldaa #1
  staa mark_live
- ; A black outline keeps the mark visible over a white river tile.
+ ; A black box behind the mark keeps it visible over a white river tile.
  clr px_ink
- ldaa #3
+ ldaa #7
  ldab #4
  jsr rmark_rows
  inc px_ink
