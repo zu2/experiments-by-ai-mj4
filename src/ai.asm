@@ -390,6 +390,7 @@ least_danger_01:
 ; lower the shanten number.
 best_accept:
 	jsr	flush_filter
+ jsr toi_filter
 	jsr	choose_cands
  jsr ad_rel_build
 	ldaa	cc_order
@@ -474,7 +475,7 @@ cand_loop:
  ldaa wk_kind
  cmpa lone_dora_kind
  beq cand_shape
- jsr ad_flush_cand
+ jsr ad_filter_cand
  beq cand_next
 cand_shape:
  jsr isolated_cand
@@ -1452,14 +1453,53 @@ flush_filter_25:
  inc flush_only
 flush_filter_23:
  rts
-; Returns A = 1 if kind wk_kind may be a candidate under the flush filter.
+; X = &counts[wk_kind]. Returns A = 1 if kind wk_kind may be a candidate
+; under the flush and toitoi filters.
 ; Returns with N and Z set from A.
-ad_flush_cand:
+ad_filter_cand:
  tst flush_only
- beq ad_flush_cand_00
- jmp kind_off_suit
-ad_flush_cand_00:
+ beq ad_filter_cand_00
+ jsr kind_off_suit
+ beq ad_filter_cand_02
+ad_filter_cand_00:
+ tst toi_only
+ beq ad_filter_cand_01
+ ; kind_off_suit keeps X.
+ ldaa 0,x
+ deca
+ bne ad_filter_cand_02
+ad_filter_cand_01:
  ldaa #1
+ rts
+ad_filter_cand_02:
+ clra
+ rts
+
+; Toitoi keeps its pairs and triplets: when a single kind (one tile) that the
+; flush filter allows has sk = min_s, only such kinds are candidates.
+toi_filter:
+ clr toi_only
+ tst iw_toi
+ beq toi_filter_02
+ clr wk_kind
+toi_filter_00:
+ jsr kind_counts_x
+ ldaa 0,x
+ deca
+ bne toi_filter_01
+ ldaa sk-counts,x
+ cmpa min_s
+ bne toi_filter_01
+ jsr ad_filter_cand
+ beq toi_filter_01
+ inc toi_only
+ rts
+toi_filter_01:
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_END
+ bne toi_filter_00
+toi_filter_02:
  rts
 ; Returns A = 1 if the hand (counts) has a pair of an off-suit kind, or two
 ; off-suit tiles of one suit within 2 of each other.
@@ -2494,6 +2534,7 @@ call_shanten_now:	.ds	1 ; shanten before the call
 ; call_kind is allocated in directpage.asm.
 call_flush: .ds 1 ; cached flush call eligibility before pattern trials
 flush_only:	.ds	1 ; output of flush_filter: 1 when only off-suit discards are candidates
+toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
 	.code
 ; Returns A = 1 if another player is in riichi.
 ; Returns with N and Z set from A.

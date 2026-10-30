@@ -50,7 +50,7 @@
 | `ac_` | acceptance（受け入れの計算）とその変数 | 5 | ac_kok_active ac_lower ac_ptr ac_special |
 | `acc_` | acc_mark / acc_search / acc_leaf | 4 | acc_goal acc_leaf acc_mark acc_search |
 | `acceval_` | accept_eval の中の見出し | 2 | acceval_regular acceval_yes |
-| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 9 | ad_allowed ad_best_ukeire ad_flush_cand ad_forbidden_s |
+| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 9 | ad_allowed ad_best_ukeire ad_filter_cand ad_forbidden_s |
 | `ak_` | ai_kan | 1 | ak_before |
 | `al_` | acc_leaf | 19 | al_base al_cap al_ccap al_check |
 | `an_` | analyse | 1 | an_k |
@@ -321,7 +321,7 @@
 | `tile_` | drawtile の中の見出し | 8 | tile_attr tile_colors tile_crow tile_line |
 | `title_` | タイトル画面 | 7 | title title_dragons title_i title_lines |
 | `toggle_` | 切り替える | 1 | toggle_open |
-| `toi_` | トイトイ | 5 | toi_bonus toi_dead toi_live toi_prepare |
+| `toi_` | トイトイ | 7 | toi_bonus toi_dead toi_filter toi_live |
 | `total_` | 点の合計 | 1 | total_tmp |
 | `trip_` | 刻子 | 2 | trip_n trip_n_x |
 | `tsumo_` | ツモ | 1 | tsumo_flag |
@@ -341,7 +341,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 674 個で、232 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 679 個で、233 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -349,7 +349,7 @@
 | `acc_mark` | 3 |
 | `acceptance` | 9 |
 | `ad_allowed` | 1 |
-| `ad_flush_cand` | 1 |
+| `ad_filter_cand` | 3 |
 | `ad_rel_build` | 2 |
 | `ad_s_loop` | 3 |
 | `add_action` | 3 |
@@ -552,6 +552,7 @@
 | `title_wait` | 2 |
 | `tobi` | 2 |
 | `toi_bonus` | 1 |
+| `toi_filter` | 3 |
 | `toi_prepare` | 4 |
 | `turn_loop` | 1 |
 | `ui_call_mark` | 1 |
