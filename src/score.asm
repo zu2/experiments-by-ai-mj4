@@ -1139,13 +1139,6 @@ div8_01:
 	bne	div8_00
 	rts
 
-; Kind attributes: A_YAOCHU, A_HONOR, A_GREEN, A_KIND (0 for the empty
-; kinds between the suits and the honors) and the suit.
-kattr:
- .byte 0,25,24,24,24,24,24,24,24,25
- .byte 0,41,40,40,40,40,40,40,40,41
- .byte 0,73,76,76,76,72,76,72,76,73
- .byte 0,11,11,11,11,11,15,11
 ; Han closed, han open (0 = closed only).
 yaku_han:
 	.byte	1,0,2,0,1,0,1,0,1,0,1,1,1,0,1,1

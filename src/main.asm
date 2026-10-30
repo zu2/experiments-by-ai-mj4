@@ -68,10 +68,18 @@ P_SKIP	.equ	$01
 	.code
 start:
 	bra	start_00
-; greedy reads gd_transitions with a one-byte offset, so the table must not
-; cross a page. Here, right after the entry at $4000, it does not move.
+; greedy reads gd_transitions and kattr_x reads kattr with a one-byte
+; offset, so the tables must not cross a page. Here, right after the entry at
+; $4000, they do not move.
 gd_transitions:
  .byte 0,8,1,9,2,0,0,0,16,1,9,2,10,0,0,0,0,1,9,2,10
+; Kind attributes: A_YAOCHU, A_HONOR, A_GREEN, A_KIND (0 for the empty
+; kinds between the suits and the honors) and the suit.
+kattr:
+ .byte 0,25,24,24,24,24,24,24,24,25
+ .byte 0,41,40,40,40,40,40,40,40,41
+ .byte 0,73,76,76,76,72,76,72,76,73
+ .byte 0,11,11,11,11,11,15,11
 start_00:
 	lds	#$3FFF
 	cli

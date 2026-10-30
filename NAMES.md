@@ -41,6 +41,7 @@
 | `ABORT_` | 途中流局の理由（abortive_draw に渡す番号） |
 | `B_` | ブロックの種類 |
 | `ACT_` | 手番の行動 |
+| `EM_` | em_table の形（EM_N、EM_SIZE、EM_HEAD、EM_STRIDE） |
 
 ## 略語の接頭辞
 名前の数と例は、`src/*.asm` のラベル（番号のラベルを除く）、変数と `.equ` の名前（小文字のもの）から数えた。接頭辞を除いた語そのもの（`smalltile` など）も、その接頭辞の名前に数える。例は、名前の順で初めの 4 つ。
@@ -86,10 +87,11 @@
 | `ed_` | eval_decomp | 4 | ed_pinfu ed_wait ed_wi ed_yhead |
 | `eh_` | each_head | 1 | eh_routine |
 | `el_` | eval_load | 2 | el_dst el_src |
+| `em_` | ev1_discard の間で覚える ev_acceptance の結果（em_begin、em_end、em_value） | 27 | em_begin em_end em_lookup em_value |
 | `ep_` | eval_places | 3 | ep_i ep_kind ep_off |
 | `er_` | erase | 5 | er_cnt er_h er_p er_w |
 | `ev1_` | ev1_discard とその中のルーチン | 4 | ev1_best ev1_discard ev1_draw ev1_fits |
-| `ev_` | ev_discard（聴牌での打牌の評価） | 17 | ev_acceptance ev_base_aka ev_base_dora ev_best |
+| `ev_` | ev_discard（聴牌での打牌の評価） | 21 | ev_acceptance ev_base_aka ev_base_dora ev_best |
 | `evacc_` | ev_acceptance の中の見出し | 4 | evacc_add_points evacc_is_furiten evacc_live_wait evacc_no_carry |
 | `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
 | `evprep_` | ev_prepare の中の見出し | 1 | evprep_clear |
@@ -342,7 +344,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 683 個で、235 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 713 個で、246 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -414,12 +416,22 @@
 | `drawstr` | 2 |
 | `drawtile` | 1 |
 | `each_head` | 3 |
+| `em_begin` | 6 |
+| `em_end` | 7 |
+| `em_keep` | 3 |
+| `em_lookup` | 3 |
+| `em_other` | 1 |
+| `em_set_wait` | 1 |
+| `em_table_x` | 2 |
+| `em_value` | 3 |
+| `em_wait` | 2 |
 | `erase` | 5 |
 | `ev1_best` | 2 |
 | `ev1_discard` | 12 |
 | `ev1_draw` | 16 |
 | `ev1_fits` | 2 |
 | `ev_acceptance` | 3 |
+| `ev_add_pts` | 1 |
 | `ev_discard` | 1 |
 | `ev_prepare` | 3 |
 | `ev_value` | 1 |
@@ -540,6 +552,7 @@
 | `show_result` | 8 |
 | `shuffle` | 1 |
 | `single_bit` | 1 |
+| `sk_exact` | 1 |
 | `sm_turn` | 1 |
 | `smalltile` | 2 |
 | `sort_bytes` | 4 |
