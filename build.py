@@ -19,6 +19,8 @@ subprocess.run(['python3','tools/check_flags.py',*[f'src/{n}.asm' for n in files
 s='\n'.join('\t.code\n'+(ROOT/'src'/f'{n}.asm').read_text() for n in files)+'\n\t.code\n'+Path('data.s').read_text()
 if speech:
  subprocess.run(['python3','tools/voice_pack.py'],check=True)
+ # unpack_voice keeps the trees in one page, above the leaves 0..31.
+ s=s.replace('start_00:\n',Path('voice/trees.s').read_text()+'start_00:\n',1)
  s=s.replace('play:\n', 'play:\n ldaa 0,x\n cmpa #$FF\n beq pcm_play\n',1)
  a=s.index('snd_pon:');b=s.index('\n\t.bss',a)
  s=s[:a]+s[b:]+'\n .code\n'+Path('src/speech.asm').read_text()+'\n .code\n'+Path('src/unpack.asm').read_text()+'\n .code\n'+Path('voice/packed.s').read_text()
@@ -76,6 +78,8 @@ assert (syms['gd_transitions'] & 255)+21 <= 256, 'greedy table crosses page'
 assert syms['gd_smc_read0'] >= 0x4000, 'SMC must be in program RAM'
 for name in ('counts', 'kattr', 'unseen'):
     assert (syms[name] & 255)+38 < 256, name + ' crosses page'
+if speech:
+ assert syms['voice_tree0']>>8==(syms['start_00']-1)>>8 and syms['voice_tree0']&255>=32, 'voice trees cross a page'
 assert syms['ac_yes']-syms['counts'] < 256, 'ac_yes-counts,x out of range'
 assert syms['pai_suit_work']==syms['work']+4, 'flush scores must alias work+4..6'
 assert 0<=syms['pai_suit0']-syms['pai_suit_work']<=255, 'flush physical-count offset out of range'

@@ -161,7 +161,7 @@
 | `tt_` | draw_title | 1 | tt_line |
 | `tx_` | text_px の位置 | 2 | tx_x tx_y |
 | `ui_` | 画面の描画 | 67 | ui_all ui_back_n ui_band ui_big |
-| `up_` | unpack_voice | 9 | up_bits up_dst up_end up_flag |
+| `up_` | unpack_voice | 9 | up_delta up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
 | `wk_` | 共通の作業領域（work）。使う期間が重ならないルーチンが共用する。定義のコメントに使うルーチンを書く | 12 | wk_accept wk_best wk_bonus wk_count |
 | `yao_` | 么九牌 | 5 | yao_kinds yao_offsets yao_pairs yao_ptr |
