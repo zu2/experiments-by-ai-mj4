@@ -1,4 +1,4 @@
-; Per-word lossless delta Huffman expansion into PCM_BUF, one DAC value per sample.
+; Per-word lossless delta Huffman expansion into PCM_BUF in the form of pcm_play.
 ; A delta after a zero delta (and the first) uses voice_tree0, others voice_tree.
 unpack_voice:
  ldaa 1,x
@@ -14,6 +14,7 @@ unpack_voice:
  ldx #PCM_BUF
  stx up_dst
  clr up_bits
+ clr up_k
  ldaa #16
  staa up_prev
  clr up_node+1
@@ -54,10 +55,33 @@ unpack_voice_04:
  adda up_prev
  anda #31
  staa up_prev
- asla
+ tab
+ aslb
+ aslb
+ aslb
+ aslb
+ rol up_hb
  ldx up_dst
+ inc up_k
+ ldaa up_k
+ bita #1
+ beq unpack_voice_05
+ stab 0,x
+ bra unpack_voice_00
+unpack_voice_05:
+ ldaa up_prev
+ anda #$0F
+ oraa 0,x
  staa 0,x
  inx
+ ldaa up_k
+ cmpa #8
+ bne unpack_voice_06
+ ldaa up_hb
+ staa 0,x
+ inx
+ clr up_k
+unpack_voice_06:
  stx up_dst
  cpx up_end
  bne unpack_voice_00
@@ -70,3 +94,5 @@ up_bits: .ds 1 ; bits in up_flag
 up_flag: .ds 1 ; Huffman bit buffer
 up_prev: .ds 1 ; previous sample
 up_node: .ds 2 ; Huffman tree node
+up_k: .ds 1 ; samples of this group written
+up_hb: .ds 1 ; bits 4 of these samples

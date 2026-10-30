@@ -53,12 +53,11 @@ for name, (raw, delta, ctx) in words.items():
     bits += '0' * (-len(bits) % 8)
     packed = bytes(int(bits[i:i+8], 2) for i in range(0, len(bits), 8))
     (root / (name + '.lz')).write_bytes(packed)
-    samples = len(raw) * 8 // 5
-    assert samples <= 0x3300 - 0x2100, 'PCM_BUF overruns the BSS'
-    out += ['snd_' + name + ':', ' .byte $FF', ' .word %d' % samples]
+    assert len(raw) % 5 == 0 and len(raw) <= 0x3300 - 0x2100, 'PCM_BUF overruns the BSS'
+    out += ['snd_' + name + ':', ' .byte $FF', ' .word %d' % len(raw)]
     for i in range(0, len(packed), 16):
         out.append(' .byte ' + ','.join('$%02X' % v for v in packed[i:i+16]))
     total += len(packed)
     print('%s: %d -> %d bytes' % (name, len(raw), len(packed)))
 (root / 'packed.s').write_text('\n'.join(out) + '\n')
-print('compressed total:', total, 'bytes; scratch:', max(len(v[0]) for v in words.values()) * 8 // 5)
+print('compressed total:', total, 'bytes; scratch:', max(len(v[0]) for v in words.values()))

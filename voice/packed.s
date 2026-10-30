@@ -103,7 +103,7 @@ voice_tree_27:
  .word 23,7
 snd_pon:
  .byte $FF
- .word 1784
+ .word 1115
  .byte $FF,$FF,$FF,$FF,$FF,$FF,$6A,$53,$6F,$FE,$F2,$BE,$AD,$75,$6B,$53
  .byte $B3,$6F,$DB,$B6,$56,$5B,$4C,$B2,$1F,$F4,$EC,$F6,$D3,$22,$84,$7E
  .byte $93,$9E,$DA,$64,$77,$C6,$34,$99,$53,$6D,$28,$F7,$78,$63,$FB,$B3
@@ -150,7 +150,7 @@ snd_pon:
  .byte $D5,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$F8
 snd_chi:
  .byte $FF
- .word 2272
+ .word 1420
  .byte $FF,$FF,$FF,$FE,$EB,$FA,$76,$ED,$F4,$D3,$59,$B5,$AD,$D6,$F5,$55
  .byte $2D,$6B,$DB,$2F,$D8,$21,$55,$97,$92,$4B,$34,$87,$A0,$AB,$B6,$D8
  .byte $A3,$B9,$04,$3E,$FA,$96,$96,$27,$1A,$7E,$D1,$BF,$E8,$6D,$8E,$9D
@@ -207,7 +207,7 @@ snd_chi:
  .byte $FF,$FF,$FF,$FF
 snd_kan:
  .byte $FF
- .word 1680
+ .word 1050
  .byte $FF,$FF,$FF,$FF,$FF,$B4,$12,$41,$7A,$BF,$FF,$2B,$13,$34,$71,$43
  .byte $6B,$73,$FD,$98,$FC,$C8,$F9,$3F,$4A,$AE,$7F,$8F,$E2,$66,$8E,$28
  .byte $8E,$B5,$6F,$E6,$08,$E2,$8B,$1B,$E7,$5A,$B7,$E6,$50,$A3,$C2,$92
@@ -253,7 +253,7 @@ snd_kan:
  .byte $FF,$FF,$80
 snd_ron:
  .byte $FF
- .word 2088
+ .word 1305
  .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FD,$2D,$ED,$FD,$34,$FE,$DB,$7F,$4E
  .byte $D4,$E9,$FD,$BB,$7F,$A7,$58,$DF,$CA,$52,$DB,$76,$FE,$9A,$73,$28
  .byte $E5,$56,$DB,$CD,$BA,$52,$9A,$C8,$E6,$1A,$6F,$DC,$59,$15,$2D,$05
@@ -307,7 +307,7 @@ snd_ron:
  .byte $FF,$FF,$FF
 snd_tsumo:
  .byte $FF
- .word 1936
+ .word 1210
  .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$DD,$74,$B7,$FF,$F5,$9D,$A9,$76
  .byte $BF,$B6,$D7,$AD,$6A,$AA,$AD,$6B,$CB,$DB,$DA,$F5,$29,$6B,$D9,$68
  .byte $EF,$B0,$F5,$2B,$65,$ED,$92,$23,$54,$35,$57,$6D,$B6,$D9,$1D,$FA
@@ -358,7 +358,7 @@ snd_tsumo:
  .byte $FF,$FF,$FE,$9B,$5A,$9F,$F6,$A5,$2D,$FF,$FF,$FF,$FF,$FF,$FF
 snd_riichi:
  .byte $FF
- .word 4040
+ .word 2525
  .byte $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FA,$7F,$B5,$BF,$A7,$4F,$DB,$B7,$A6
  .byte $DD,$29,$FF,$6D,$BF,$D3,$BA,$A5,$D6,$B3,$DB,$6D,$D7,$4E,$FC,$FA
  .byte $FF,$55,$DD,$AE,$CB,$7A,$52,$8D,$A4,$4D,$BB,$F6,$BB,$2D,$79,$A5
