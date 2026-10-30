@@ -82,13 +82,13 @@
 | `dst_` | drawstr | 1 | dst_ptr |
 | `dt_` | drawtile | 6 | dt_cnt dt_color dt_dst dt_repeat |
 | `dv_` | div8 | 2 | dv_bits dv_divisor |
-| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 17 | e1_d e1_e e1_ebit e1_ebyte |
+| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 18 | e1_d e1_e e1_ebit e1_ebyte |
 | `ed_` | eval_decomp | 4 | ed_pinfu ed_wait ed_wi ed_yhead |
 | `eh_` | each_head | 1 | eh_routine |
 | `el_` | eval_load | 2 | el_dst el_src |
 | `ep_` | eval_places | 3 | ep_i ep_kind ep_off |
 | `er_` | erase | 5 | er_cnt er_h er_p er_w |
-| `ev1_` | ev1_discard とその中のルーチン | 3 | ev1_best ev1_discard ev1_draw |
+| `ev1_` | ev1_discard とその中のルーチン | 4 | ev1_best ev1_discard ev1_draw ev1_fits |
 | `ev_` | ev_discard（聴牌での打牌の評価） | 17 | ev_acceptance ev_base_aka ev_base_dora ev_best |
 | `evacc_` | ev_acceptance の中の見出し | 4 | evacc_add_points evacc_is_furiten evacc_live_wait evacc_no_carry |
 | `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
@@ -341,7 +341,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 680 個で、234 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 683 個で、235 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -415,8 +415,9 @@
 | `each_head` | 3 |
 | `erase` | 5 |
 | `ev1_best` | 2 |
-| `ev1_discard` | 11 |
+| `ev1_discard` | 12 |
 | `ev1_draw` | 16 |
+| `ev1_fits` | 2 |
 | `ev_acceptance` | 3 |
 | `ev_discard` | 1 |
 | `ev_prepare` | 3 |

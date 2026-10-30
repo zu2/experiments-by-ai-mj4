@@ -276,6 +276,11 @@ ev1_discard_10:
  ldaa #$FF
  staa kk1
  staa kk2
+ ; Pass 2 draws the kinds that fit the intent (ev1_fits) and pass 1 the
+ ; others, so a cutoff leaves out the draws that break the yaku.
+ ldaa #2
+ staa e1_pass
+ev1_discard_14:
  ldaa #4
  staa e1_u
 ev1_discard_11:
@@ -285,6 +290,11 @@ ev1_discard_12:
  jsr unseen_x
  ldaa 0,x
  cmpa e1_u
+ bne ev1_discard_19
+ ldaa e1_e
+ jsr ev1_fits
+ inca
+ cmpa e1_pass
  bne ev1_discard_19
  ; Elapsed frames = seconds * 60 + frames - e1_frame; stop at 180.
 ev1_discard_13:
@@ -315,6 +325,8 @@ ev1_discard_19:
  bne ev1_discard_12
  dec e1_u
  bne ev1_discard_11
+ dec e1_pass
+ bne ev1_discard_14
 ev1_discard_30:
  ldaa e1_kk1
  staa kk1
@@ -350,6 +362,23 @@ ev1_discard_33:
  cpx e1_end
  bne ev1_discard_31
  jmp discard_sk
+
+; A = kind. Returns A = 1 if a draw of the kind fits the intent: the flush
+; suit or an honor with iw_flush, 2-8 with iw_tanyao, any kind otherwise.
+; Returns with N and Z set from A.
+ev1_fits:
+ tst iw_flush
+ beq ev1_fits_00
+ jsr off_suit
+ eora #1
+ rts
+ev1_fits_00:
+ tst iw_tanyao
+ beq ev1_fits_01
+ jmp is_simple
+ev1_fits_01:
+ ldaa #1
+ rts
 
 ; Draw e1_e (unseen[e1_e] = e1_u) for every record whose tenpai draws include
 ; it: best = the largest ev_sum of the tenpai discards d of the hand - i + e.
@@ -554,6 +583,7 @@ e1_i: .ds 1 ; kind of the discard i
 e1_d: .ds 1 ; tenpai discard d
 e1_e: .ds 1 ; draw e
 e1_u: .ds 1 ; unseen copies of the draws in this pass (4 down to 1)
+e1_pass: .ds 1 ; 2: draws that fit the intent, 1: the others
 e1_ebyte: .ds 1 ; byte of e in the tenpai draws
 e1_ebit: .ds 1 ; bit of e in that byte
 e1_tmp: .ds 1 ; seconds * 4
