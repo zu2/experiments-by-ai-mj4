@@ -1852,6 +1852,10 @@ unshown_init_00:
 	inx
 	cpx	#unshown+KN
 	bne	unshown_init_00
+	; Kinds 9, 19 and 29 are not tiles.
+	clr	unshown+9
+	clr	unshown+19
+	clr	unshown+29
 	bra	unshown_dora
 
 ; Opens one more dora indicator and draws it.
