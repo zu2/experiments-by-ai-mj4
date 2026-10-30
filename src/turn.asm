@@ -1052,6 +1052,8 @@ find_waits_01:
  jsr acc_search
  tst nfuro
  bne fw_result
+ tst spec_off
+ bne fw_result
  ; Chiitoi tenpai: the single tile.
  jsr sh_chiitoi
  tsta

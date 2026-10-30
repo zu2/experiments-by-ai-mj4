@@ -332,6 +332,28 @@ ev1_discard_06:
  stx e1_end
  bra ev1_discard_01
 ev1_discard_10:
+ ; A hand - i + e - d + w has at most one more pair and one more yaochu kind
+ ; than the hand: with 4 pairs and 10 yaochu kinds at most, no chiitoi (7
+ ; pairs) or kokushi (13 kinds) can win or be tenpai.
+ ldaa nfuro
+ bne ev1_discard_15
+ jsr spec_prep14
+ ldaa spec_pairs14
+ cmpa #5
+ bcc ev1_discard_16
+ ldaa spec_yao14
+ cmpa #11
+ bcc ev1_discard_16
+ev1_discard_15:
+ inc spec_off
+ev1_discard_16:
+ ; ev_prepare depends on the hand only by ev_base_dora: ev1_draw makes it
+ ; for each hand - i + e from the value of the hand.
+ jsr ev_prepare
+ ldaa ev_base_dora
+ staa e1_dora
+ ldaa ev_base_aka
+ staa e1_aka
  ldaa #$FF
  staa kk1
  staa kk2
@@ -421,6 +443,7 @@ ev1_discard_33:
  cpx e1_end
  bne ev1_discard_31
  jsr em_end
+ clr spec_off
  jmp discard_sk
 
 ; A = kind. Returns A = 1 if a draw of the kind fits the intent: the flush
@@ -497,7 +520,18 @@ ev1_draw_10:
  jsr discard_sk_lim
  tst min_s
  bne ev1_draw_30
- jsr ev_prepare
+ ldx #dora_of_kind
+ ldab e1_e
+ jsr addxb
+ ldaa e1_dora
+ adda 0,x
+ ldx #dora_of_kind
+ ldab e1_i
+ jsr addxb
+ suba 0,x
+ staa ev_base_dora
+ ldaa e1_aka
+ staa ev_base_aka
  ; The discard i is in the river and, if it is the red five, not in the hand.
  ldx #ev_river
  ldab e1_i
@@ -553,6 +587,10 @@ ev1_draw_29:
  ldaa e1_d
  cmpa #K_END
  bne ev1_draw_20
+ ldx #ev_river
+ ldab e1_i
+ jsr addxb
+ dec 0,x
 ev1_draw_30:
  ldab e1_i
  jsr counts_x
@@ -981,6 +1019,8 @@ em_end_09:
  rts
 
  .bss
+e1_dora: .ds 1 ; ev_base_dora of the hand (14 tiles)
+e1_aka: .ds 1 ; ev_base_aka of the hand
 ev_river: .ds KN
 ev_sum: .ds 3 ; 24-bit sum of copies * points/100
 ev_best: .ds 3 ; best ev_sum so far

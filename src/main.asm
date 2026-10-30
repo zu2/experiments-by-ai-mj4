@@ -118,6 +118,8 @@ title:
 	clr	game_active
 	clr	auto_play
 	clr	demo
+	; demo_poll may leave ev1_discard in the middle.
+	clr	spec_off
 	jsr	draw_title
 title_wait_03:
 	ldaa	$0B

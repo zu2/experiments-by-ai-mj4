@@ -319,7 +319,10 @@ discard_sk:
  ldaa #$7F
  staa wk_limit
 discard_sk_lim:
+ tst spec_off
+ bne discard_sk_00
  jsr spec_prep14
+discard_sk_00:
  jsr batch_prepare_lim
 	ldaa	#$7F
 	staa	min_s
@@ -2811,6 +2814,8 @@ spec_before:
  ldaa #8
  tst nfuro
  bne spec_shanten_01
+ tst spec_off
+ bne spec_shanten_01
  ldab 0,x
  decb
  bsr spec_cut
@@ -2873,6 +2878,7 @@ spec_cut_05:
  staa spec_ypair13
  rts
  .bss
+spec_off: .ds 1 ; nonzero while ev1_discard knows no chiitoi or kokushi can be tenpai or win
 spec_pairs14: .ds 1 ; output of spec_prep14: pairs of the 14 tiles
 spec_kinds14: .ds 1 ; output of spec_prep14: kinds of the 14 tiles
 spec_yao14: .ds 1 ; output of spec_prep14: yaochu kinds of the 14 tiles

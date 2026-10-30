@@ -95,6 +95,8 @@ score_hand:
 	jsr	find_yakuman
 	tst	nfuro
 	bne	score_hand_01
+	tst	spec_off
+	bne	score_hand_01
 	jsr	sh_chiitoi
 	inca
 	bne	score_hand_00
@@ -175,6 +177,8 @@ yakuman_first:
 	jsr	add_ym
 yakuman_kokushi:
 	tst	nfuro
+	bne	yakuman_dragons
+	tst	spec_off
 	bne	yakuman_dragons
 	jsr	is_kokushi
 	beq	yakuman_dragons

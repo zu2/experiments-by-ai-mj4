@@ -83,7 +83,7 @@
 | `dst_` | drawstr | 1 | dst_ptr |
 | `dt_` | drawtile | 6 | dt_cnt dt_color dt_dst dt_repeat |
 | `dv_` | div8 | 2 | dv_bits dv_divisor |
-| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 18 | e1_d e1_e e1_ebit e1_ebyte |
+| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 20 | e1_aka e1_d e1_dora e1_e |
 | `ed_` | eval_decomp | 4 | ed_pinfu ed_wait ed_wi ed_yhead |
 | `eh_` | each_head | 1 | eh_routine |
 | `el_` | eval_load | 2 | el_dst el_src |
@@ -151,7 +151,7 @@
 | `sk_` | 打牌の後の向聴数の表 sk（discard_sk が作る） | 2 | sk sk_exact |
 | `sm_` | smalltile | 14 | sm_align sm_bits sm_dst sm_flags |
 | `snd_` | 効果音のデータ | 8 | snd_chi snd_discard snd_kan snd_pon |
-| `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 12 | spec_before spec_cut spec_kinds13 spec_kinds14 |
+| `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 13 | spec_before spec_cut spec_kinds13 spec_kinds14 |
 | `sr_` | show_result | 3 | sr_i sr_id sr_row |
 | `ss_` | setup_score | 5 | ss_count ss_flag_if ss_furo ss_i |
 | `ta_` | textaddr | 1 | ta_p |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 741 個で、252 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 744 個で、253 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -406,6 +406,7 @@
 | `danger_one` | 9 |
 | `dealer_top` | 3 |
 | `demo_poll` | 1 |
+| `discard_sk` | 1 |
 | `discard_step` | 6 |
 | `div8` | 2 |
 | `dora_cut_cost` | 5 |
@@ -429,7 +430,7 @@
 | `em_wait` | 2 |
 | `erase` | 5 |
 | `ev1_best` | 2 |
-| `ev1_discard` | 16 |
+| `ev1_discard` | 18 |
 | `ev1_draw` | 16 |
 | `ev1_fits` | 2 |
 | `ev_acceptance` | 3 |
