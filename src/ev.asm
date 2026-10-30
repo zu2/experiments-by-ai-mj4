@@ -446,6 +446,7 @@ ev1_fits_01:
 ; hand - d + e - i is the same; a record earlier than i already has it. Then
 ; total += e1_u * best for every record.
 ev1_draw:
+ jsr demo_poll
  ldaa e1_e
  tab
  lsrb

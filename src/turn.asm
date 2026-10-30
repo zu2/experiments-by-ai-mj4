@@ -27,6 +27,7 @@ RINSHAN_POS	.equ	135
 
 ; Plays a hand: the player in turn draws and acts until the wall runs out.
 turn_loop:
+	jsr	demo_poll
 	tst	draws_left
 	bne	turn_loop_00
 	jmp	ryukyoku

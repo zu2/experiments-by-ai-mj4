@@ -629,6 +629,20 @@ ui_scores_04:
  ldaa ui_sp
  cmpa #4
  bne ui_scores_00
+ tst demo
+ beq ui_scores_05
+ ldaa #24
+ staa posx
+ ldaa #18
+ staa posy
+ ldx #s_demo_key
+ jsr drawstr
+ ldaa #24
+ staa posx
+ inc posy
+ ldx #s_demo_end
+ jmp drawstr
+ui_scores_05:
  rts
 wind_names:
  .word s_ton,s_nan,s_sha,s_pe

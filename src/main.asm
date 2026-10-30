@@ -116,14 +116,34 @@ clear_directpage:
 ; Title screen. Waits for space and starts a title_wait_00.
 title:
 	clr	game_active
+	clr	auto_play
+	clr	demo
 	jsr	draw_title
+title_wait_03:
+	ldaa	$0B
+	staa	title_sec
 title_wait:
 	jsr	scan_keys
 	jsr	rand
 	ldaa	knew
 	bita	#KEY_SPACE
-	beq	title_wait
-
+	bne	title_wait_00
+	tsta
+	bne	title_wait_03
+	; D (column 2, bit 1), or 30 seconds without a key, starts a demo game of
+	; four CPU players.
+	ldaa	$0B
+	suba	title_sec
+	cmpa	#30
+	bcc	title_wait_02
+	ldaa	#2
+	staa	KEYPORT
+	ldaa	KEYPORT
+	bita	#$02
+	bne	title_wait
+title_wait_02:
+	inc	auto_play
+	inc	demo
 title_wait_00:
 	clra
 title_wait_01:
@@ -222,7 +242,13 @@ win_show:
 	ldx	#snd_tsumo
 win_tsumo_00:
 	jsr	play
+	tst	demo
+	beq	win_tsumo_24
+	jsr	reveal_hands
+	bra	win_tsumo_25
+win_tsumo_24:
 	jsr	ui_win_reveal
+win_tsumo_25:
 	; The existing river ▲ already identifies the ron tile. Keep it in place.
 	tst	tsumo_flag
 	beq	win_tsumo_20
@@ -231,8 +257,9 @@ win_tsumo_00:
 	jsr ui_mark_tsumo
 win_tsumo_20:
 	clr	reveal
- tst turn
- beq win_tsumo_21
+	ldaa	turn
+	oraa	demo
+	beq	win_tsumo_21
 	jsr	wait_space
 win_tsumo_21:
 	jsr	show_result
@@ -278,7 +305,13 @@ draw_sound:
 abortive_draw:
 	staa	abort_reason
 	clr	game_active
+	tst	demo
+	beq	abortive_draw_00
+	jsr	reveal_hands
+	bra	abortive_draw_01
+abortive_draw_00:
 	jsr	redraw_hands
+abortive_draw_01:
 	clr	posx
 	clr	posy
 	ldaa	#22
@@ -1877,6 +1910,24 @@ image_of_kind:
 frame:
 	wai
 	jsr	rand
+	jsr	scan_keys
+; In a demo game, space held now returns to the title. Called often enough
+; while the CPU players think.
+demo_poll:
+	tst	demo
+	beq	demo_poll_00
+	ldaa	#11
+	staa	KEYPORT
+	ldaa	KEYPORT
+	bita	#$01
+	bne	demo_poll_00
+	; The title sees this press as held, not as a new one.
+	ldaa	#KEY_SPACE
+	staa	kprev
+	lds	#$3FFF
+	jmp	title
+demo_poll_00:
+	rts
 ; Reads the keys without waiting a frame (sets knew).
 scan_keys:
 	clr	open_cur
@@ -1960,12 +2011,19 @@ wait_frames_00:
 	bne	wait_frames_00
 	rts
 
-; Waits until space is pressed.
+; Waits until space is pressed (5 seconds in a demo game).
 wait_space:
+	tst	demo
+	beq	wait_space_00
+	ldaa	#150
+	jsr	wait_frames
+	ldaa	#150
+	jmp	wait_frames
+wait_space_00:
 	jsr	frame
 	ldaa	knew
 	bita	#KEY_SPACE
-	beq	wait_space
+	beq	wait_space_00
 	rts
 
 ; xorshift24 (shifts 8, 1, 11; period 2^24-1; the state must not be 0).
@@ -2099,6 +2157,8 @@ shf_pj:	.ds	2 ; &wall[j]
 honba:	.ds	1 ; honba counter
 ; kyotaku is allocated in directpage.asm.
 ; title_i is allocated in directpage.asm.
+title_sec:	.ds	1 ; $0B (seconds) when the title began to wait
+demo:	.ds	1 ; nonzero in a demo game (D at the title; auto_play is set too)
 open_mode:	.ds	1 ; nonzero when CPU hands are shown
 game_active:	.ds	1 ; nonzero during a hand
 result_active:	.ds	1 ; nonzero on a result page

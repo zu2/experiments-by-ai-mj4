@@ -84,6 +84,9 @@ unpack_voice_05:
  ldaa up_hb
  staa 0,x
  inx
+ stx up_dst
+ jsr demo_poll
+ ldx up_dst
  clr up_k
 unpack_voice_06:
  stx up_dst

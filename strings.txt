@@ -9,6 +9,8 @@ s_ryukyoku	リューキョク
 s_tenpai	テンパイ
 s_noten	ノーテン
 s_end	シューリョー
+s_demo_key	スペース:
+s_demo_end	タイトルニモドル
 s_tsumo	ツモ
 s_ron	ロン
 s_han	ハン

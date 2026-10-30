@@ -1684,6 +1684,7 @@ candidate_acceptance:
 ; of unseen tiles that lower the shanten number, and sets bit (k & 7) of
 ; ac_lower[k >> 3] for every such kind k.
 acceptance:
+	jsr	demo_poll
  ldaa min_s
  jsr acc_mark
  clr wk_accept

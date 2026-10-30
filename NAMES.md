@@ -322,7 +322,7 @@
 | `text_` | 文字列 | 1 | text_px |
 | `tie_` | 同点 | 2 | tie_policy tie_ukeire |
 | `tile_` | drawtile の中の見出し | 8 | tile_attr tile_colors tile_crow tile_line |
-| `title_` | タイトル画面 | 7 | title title_dragons title_i title_lines |
+| `title_` | タイトル画面 | 8 | title title_dragons title_i title_lines |
 | `toggle_` | 切り替える | 1 | toggle_open |
 | `toi_` | トイトイ | 7 | toi_bonus toi_dead toi_filter toi_live |
 | `total_` | 点の合計 | 1 | total_tmp |
@@ -344,9 +344,10 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 732 個で、249 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 741 個で、252 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
+| `abortive_draw` | 2 |
 | `ac_special` | 9 |
 | `acc_leaf` | 5 |
 | `acc_mark` | 3 |
@@ -404,6 +405,7 @@
 | `danger` | 2 |
 | `danger_one` | 9 |
 | `dealer_top` | 3 |
+| `demo_poll` | 1 |
 | `discard_step` | 6 |
 | `div8` | 2 |
 | `dora_cut_cost` | 5 |
@@ -568,7 +570,7 @@
 | `su_bits` | 2 |
 | `text_px` | 1 |
 | `tie_policy` | 2 |
-| `title_wait` | 2 |
+| `title_wait` | 4 |
 | `tobi` | 2 |
 | `toi_bonus` | 1 |
 | `toi_filter` | 3 |
@@ -586,13 +588,14 @@
 | `ui_river_draw` | 2 |
 | `ui_river_tile` | 1 |
 | `ui_river_y` | 1 |
-| `ui_scores` | 5 |
+| `ui_scores` | 6 |
 | `ui_stick` | 1 |
 | `unpack_voice` | 8 |
 | `unshown_init` | 1 |
 | `unshown_kind` | 1 |
 | `wait_frames` | 1 |
-| `win_tsumo` | 5 |
+| `wait_space` | 1 |
+| `win_tsumo` | 7 |
 | `yaku_han_of` | 4 |
 | `yakuhai_call` | 2 |
 | `yakuman_basic` | 1 |
