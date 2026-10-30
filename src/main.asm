@@ -694,12 +694,19 @@ show_result_03:
 	staa	posx
 	ldaa	sr_row
 	staa	posy
-	ldaa	sr_id
-	asla
-	tab
-	ldx	#yaku_names
-	jsr	addxb
- jsr drawstr_x
+	; Skip sr_id names of yaku_text.
+	ldab	sr_id
+	ldx	#yaku_text
+	bra	show_result_10
+show_result_09:
+	ldaa	0,x
+	inx
+	cmpa	#255
+	bne	show_result_09
+show_result_10:
+	decb
+	bpl	show_result_09
+	jsr	drawstr
 	ldaa	#17
 	staa	posx
 	jsr	yaku_han_of

@@ -101,14 +101,17 @@ def main():
         label, text = line.split("\t", 1)
         if label == "yaku":
             num, text = text.split("\t", 1)
-            label = "y_%s" % num
-            yaku[int(num)] = label
         if any(c not in codes for c in text):
             sys.exit("missing glyph in " + label)
-        strings.append((label, text))
-    # Share identical strings and suffixes, including their terminator.
-    strings.append(("y_none", ""))
-    roots = []
+        if label == "yaku":
+            yaku[int(num)] = text
+        else:
+            strings.append((label, text))
+    # yaku_text holds the yaku names in the order of their numbers (an empty
+    # name for a number without one). The other strings share identical
+    # strings and suffixes, including their terminator.
+    roots = [(yaku.get(n, ""), {}) for n in range(max(yaku) + 1)]
+    roots[0][1][0] = ["yaku_text"]
     for label, text in sorted(strings, key=lambda item: -len(item[1])):
         root = next((r for r in roots if r[0].endswith(text)), None)
         if root is None:
@@ -119,9 +122,6 @@ def main():
         for offset, value in enumerate([codes[c] for c in text]+[255]):
             out.extend(label+":" for label in aliases.get(offset, []))
             out += byte_lines([value])
-    out.append("yaku_names:")
-    for n in range(max(yaku) + 1):
-        out.append("\t.word\t%s" % yaku.get(n, "y_none"))
     open(sys.argv[2], "w").write("\n".join(out) + "\n")
 
 
