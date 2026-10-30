@@ -280,18 +280,23 @@ ai_discard_05:
  adda minkou_n-minshun_n,x
  adda minkan_n-minshun_n,x
  beq ai_discard_07
+ ; sk above min_s is not exact (sk_exact); best_accept then needs every sk.
+ clr wk_count
  clr wk_kind
 ai_discard_08:
- jsr kind_counts_x
- ldaa sk-counts,x
- cmpa #1
+ jsr ad_allowed
  beq ai_discard_09
+ jsr sk_exact
+ cmpa #1
+ bne ai_discard_09
+ staa wk_count
+ai_discard_09:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_END
  bne ai_discard_08
- bra ai_discard_07
-ai_discard_09:
+ ldaa wk_count
+ beq ai_discard_07
  staa min_s
 ai_discard_06:
 	jsr	set_intents
@@ -342,6 +347,24 @@ ad_s_loop_02:
 	ldaa	wk_kind
 	cmpa	#K_END
 	bne	ad_s_loop
+ rts
+
+; discard_sk keeps sk exact only up to min_s: batch_leaf skips the leaves
+; above wk_limit. For an open hand (no chiitoi or kokushi), makes sk of the
+; allowed kind wk_kind exact. Returns A = sk.
+sk_exact:
+ jsr kind_counts_x
+ ldaa sk-counts,x
+ cmpa min_s
+ ble sk_exact_00
+ dec 0,x
+ jsr sh_general
+ psha
+ jsr kind_counts_x
+ inc 0,x
+ pula
+ staa sk-counts,x
+sk_exact_00:
  rts
 
 ; Returns A = 1 if kind wk_kind is in the hand and may be discarded, and
@@ -1436,8 +1459,9 @@ flush_filter_22:
 flush_filter_24:
  jsr kind_off_suit
  beq flush_filter_25
- jsr kind_counts_x
- ldaa sk-counts,x
+ jsr ad_allowed
+ beq flush_filter_25
+ jsr sk_exact
  cmpa wk_count
  bcc flush_filter_25
  staa wk_count

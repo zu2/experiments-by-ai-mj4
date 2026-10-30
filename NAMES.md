@@ -146,6 +146,7 @@
 | `sh_` | shanten | 3 | sh_best sh_chiitoi sh_general |
 | `shf_` | shuffle | 3 | shf_left shf_pi shf_pj |
 | `showdraw_` | show_draw の中の見出し | 5 | showdraw_amount showdraw_gain showdraw_no_pay showdraw_noten |
+| `sk_` | 打牌の後の向聴数の表 sk（discard_sk が作る） | 1 | sk_exact |
 | `sm_` | smalltile | 14 | sm_align sm_bits sm_dst sm_flags |
 | `snd_` | 効果音のデータ | 8 | snd_chi snd_discard snd_kan snd_pon |
 | `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 12 | spec_before spec_cut spec_kinds13 spec_kinds14 |
