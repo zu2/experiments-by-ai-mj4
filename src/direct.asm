@@ -15,8 +15,8 @@ sg_init_00:
  ldaa sg_best
  rts
 
-; Search the compact 37-byte shanten array. One zero slot separates suits,
-; so sequence lookahead cannot cross a suit boundary. Honors start at 30.
+; Search the shanten array by kind. The kinds that are not tiles separate
+; the suits, so sequence lookahead cannot cross a suit boundary.
 ; The operand of sg_restore_x holds X of the current kind.
 sg_entry_set:
  inc sets_n
@@ -31,7 +31,7 @@ sg_entry_x_00:
  bne sg_found
 sg_advance:
  inx
- cpx #counts+37
+ cpx #counts+KN
  bne sg_entry_x_00
  bra sg_leaf_call
  ; Four sets may leave a head in fourteen-tile callers.
@@ -47,7 +47,7 @@ sg_four_00:
  cmpa #2
  bcc sg_four_01
  inx
- cpx #counts+37
+ cpx #counts+KN
  bne sg_four_00
  bra sg_leaf_call
 sg_four_01:
@@ -76,7 +76,7 @@ sg_found:
  staa 0,x
 sg_call_leaf_00:
  ldaa sg_restore_x+2
- cmpa #<[counts+30]
+ cmpa #<[counts+K_HONOR]
  bcc sg_call_leaf_01
  tst 1,x
  beq sg_call_leaf_01
@@ -273,7 +273,7 @@ acc_leaf:
  clr al_part
  ldx #leaf_part_taatsu
  stx al_gptr
- ldx #counts
+ ldx #counts+K_FIRST
  stx al_end
 acc_leaf_00:
  stx al_base
@@ -317,15 +317,15 @@ al_try:
  suba #<counts
  staa al_j
  ldab 0,x
- cmpa #30
+ cmpa #K_HONOR
  bcc al_try_02
- cmpa #2
+ cmpa #K_FIRST+2
  bcs al_try_00
  dex
  dex
  bra al_try_01
 al_try_00:
- ldx #counts
+ ldx #counts+K_FIRST
 al_try_01:
  ldaa 0,x
  oraa 1,x
@@ -480,16 +480,16 @@ al_value_00:
  rts
 ; Taatsu of each part of counts in leaf_part_taatsu, total in A and leaf_taatsu.
 leaf_parts:
- ldx #counts
+ ldx #counts+K_FIRST
  jsr greedy
  staa leaf_part_taatsu
- ldx #counts+10
+ ldx #counts+K_FIRST+10
  jsr greedy
  staa leaf_part_taatsu+1
- ldx #counts+20
+ ldx #counts+K_FIRST+20
  jsr greedy
  staa leaf_part_taatsu+2
- ldx #counts+30
+ ldx #counts+K_HONOR
  jsr honor_pairs
  staa leaf_part_taatsu+3
  adda leaf_part_taatsu
@@ -533,7 +533,7 @@ batch_prepare:
 batch_prepare_00:
  staa sk-counts,x
  inx
- cpx #counts+37
+ cpx #counts+KN
  bne batch_prepare_00
  ldx #batch_leaf
  stx sg_call_leaf+1
@@ -576,17 +576,17 @@ batch_leaf_00:
  sba
  bra batch_evaluate
 batch_man:
- ldx #counts
+ ldx #counts+K_FIRST
  jsr greedy
  suba leaf_part_taatsu
  bra batch_add_total
 batch_pin:
- ldx #counts+10
+ ldx #counts+K_FIRST+10
  jsr greedy
  suba leaf_part_taatsu+1
  bra batch_add_total
 batch_sou:
- ldx #counts+20
+ ldx #counts+K_FIRST+20
  jsr greedy
  suba leaf_part_taatsu+2
 batch_add_total:
@@ -620,7 +620,7 @@ batch_leaf_12:
  inx
  inc ba_k
  ldaa ba_k
- cmpa #37
+ cmpa #K_END
  bne batch_leaf_00
 batch_leaf_13:
  rts

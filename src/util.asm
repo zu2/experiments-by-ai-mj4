@@ -120,14 +120,12 @@ kind_number:
  cmpa #20
  bcs kind_number_00
  suba #20
- inca
  rts
 kind_number_00:
  cmpa #10
  bcs kind_number_01
  suba #10
 kind_number_01:
- inca
  rts
 ; A=suited kind, returns 0/1/2 (honors return 3). Preserve B and X.
 kind_suit:

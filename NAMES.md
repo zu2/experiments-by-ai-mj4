@@ -308,7 +308,7 @@
 | `shanten_` | シャンテン数 | 3 | shanten shanten_furo shanten_lim |
 | `short_` | 候補の順 | 1 | short_conn |
 | `show_` | 表示する | 6 | show_draw show_kan_hint show_own_hint show_result |
-| `shuffle_` | 牌山を混ぜる | 4 | shuffle shuffle_honor shuffle_kind shuffle_put |
+| `shuffle_` | 牌山を混ぜる | 5 | shuffle shuffle_honor shuffle_kind shuffle_next |
 | `single_` | 1 ビット | 1 | single_bit |
 | `small_` | smalltile の中の見出し | 6 | small_aligned small_next_row small_row_bits small_row_turned |
 | `smalltile_` | 小さい牌（12×12）を描く | 2 | smalltile smalltile_advance |
@@ -341,7 +341,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 679 個で、233 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 680 個で、234 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -546,6 +546,7 @@
 | `spec_shanten` | 2 |
 | `ss_flag_if` | 1 |
 | `ss_furo` | 7 |
+| `start` | 1 |
 | `stick_draw` | 3 |
 | `text_px` | 1 |
 | `tie_policy` | 2 |

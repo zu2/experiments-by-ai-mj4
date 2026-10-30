@@ -2463,17 +2463,6 @@ sk:	.ds	KN ; shanten after discarding each kind ($7F = not allowed)
 rel:	.ds	KN ; kinds that can lower the shanten (sum of nearby tiles)
 unseen: .ds KN ; tiles of each kind the computer cannot see (ai_unseen)
 ac_yes: .ds KN ; acc_mark result per kind: 0 no, 1 asked, 2 lowers the shanten
-cc_insert_x:	.ds	2 ; cc_order slot to insert at
-; cc_key is allocated in directpage.asm.
-cc_slot:	.ds	1 ; cc_order slot being scored
-cc_limit:	.ds	1 ; active shortlist size, 4..6 (zero defaults to 4)
-; cc_order, cc_ranks, cc_bonus and cc_costs are read as offsets from a
-; cc_order entry (cc_ranks-cc_order,x and so on).
-cc_order:	.ds	6 ; up to 6 candidate kinds ($FF = none)
-cc_ranks: .ds 6 ; their ranks
-cc_bonus: .ds 6 ; their discard_bonus values
-cc_costs: .ds 6 ; their dora costs
-cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
 ; scan_pai clears pai_acc_start..pai_acc_end. pai_block0..2 follow
 ; pai_suit0..2 (written as pai_block0-pai_suit0,x).
 pai_acc_start:
@@ -2500,6 +2489,19 @@ pai_dora_use: .ds 1 ; usable dora tiles (paired or with a tile within 2)
 pai_dora_tan: .ds 1 ; usable simple dora kinds
 pai_chanta_cut: .ds 1 ; tiles chanta must cut (a non-chanta block counts 3)
 pai_acc_end:
+; The candidate list sits after the pai_ block: pai_suit0-pai_suit_work,x
+; must stay within 255.
+cc_insert_x:	.ds	2 ; cc_order slot to insert at
+; cc_key is allocated in directpage.asm.
+cc_slot:	.ds	1 ; cc_order slot being scored
+cc_limit:	.ds	1 ; active shortlist size, 4..6 (zero defaults to 4)
+; cc_order, cc_ranks, cc_bonus and cc_costs are read as offsets from a
+; cc_order entry (cc_ranks-cc_order,x and so on).
+cc_order:	.ds	6 ; up to 6 candidate kinds ($FF = none)
+cc_ranks: .ds 6 ; their ranks
+cc_bonus: .ds 6 ; their discard_bonus values
+cc_costs: .ds 6 ; their dora costs
+cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
 ; set_intents clears intent_flags..intent_flags_end.
 intent_flags:
 iw_toi: .ds 1 ; toitoi intent

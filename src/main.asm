@@ -28,20 +28,22 @@ KEY_K	.equ	$20
 KEY_P	.equ	$40
 KEY_C	.equ	$80
 
-; Compact kinds: suits 0..8,10..18,20..28; honors 30..36.
-; A tile is kind*2, plus 1 for a red five.
-K_FIRST .equ 0
-K_FIVE_M .equ 4
-K_FIVE_P .equ 14
-K_FIVE_S .equ 24
-K_EAST .equ 30
-K_NORTH .equ 33
-K_HAKU .equ 34
-K_HATSU .equ 35
-K_CHUN .equ 36
+; Kinds: suit * 10 + rank (1m..9m = 1..9, 1p..9p = 11..19, 1s..9s = 21..29),
+; honors 31..37 (E S W N, haku hatsu chun). Kinds 0, 10, 20 and 30 are not
+; tiles: every array indexed by kind holds 0 there, so a sequence or
+; neighbour lookup cannot cross a suit. A tile is kind*2, plus 1 for a red five.
+K_FIRST .equ 1
+K_FIVE_M .equ 5
+K_FIVE_P .equ 15
+K_FIVE_S .equ 25
+K_EAST .equ 31
+K_NORTH .equ 34
+K_HAKU .equ 35
+K_HATSU .equ 36
+K_CHUN .equ 37
 K_HONOR	.equ	K_EAST
-K_END .equ 37
-KN .equ 37
+K_END .equ 38
+KN .equ 38
 
 ; Player area.
 P_COUNT	.equ	0
@@ -1839,10 +1841,10 @@ img_of_00:
  ldaa 0,x
  rts
 image_of_kind:
- .byte 0,1,2,3,4,5,6,7,8,37
- .byte 9,10,11,12,13,14,15,16,17,37
- .byte 18,19,20,21,22,23,24,25,26,37
- .byte 27,28,29,30,31,32,33
+ .byte 37,0,1,2,3,4,5,6,7,8
+ .byte 37,9,10,11,12,13,14,15,16,17
+ .byte 37,18,19,20,21,22,23,24,25,26
+ .byte 37,27,28,29,30,31,32,33
 
 ; ---------------------------------------------------------------- misc
 
@@ -2016,12 +2018,14 @@ shuffle_put:
 	inx
 	cmpa	#K_HONOR
 	bcc	shuffle_honor
-	inca
+	; After a 9 comes the kind that is not a tile.
 	psha
 	jsr	kind_number
-	cmpa	#10
+	cmpa	#9
 	pula
-	bne	shuffle_kind
+	bne	shuffle_next
+	inca
+shuffle_next:
 	inca
 	bra	shuffle_kind
 shuffle_honor:

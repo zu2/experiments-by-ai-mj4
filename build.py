@@ -74,7 +74,7 @@ for n,v in renames.items():
  if v in syms:syms[n]=syms[v]
 assert (syms['gd_transitions'] & 255)+21 <= 256, 'greedy table crosses page'
 assert syms['gd_smc_read0'] >= 0x4000, 'SMC must be in program RAM'
-assert (syms['counts'] & 255)+37 < 256, 'counts crosses page'
+assert (syms['counts'] & 255)+38 < 256, 'counts crosses page'
 assert syms['ac_yes']-syms['counts'] < 256, 'ac_yes-counts,x out of range'
 assert syms['pai_suit_work']==syms['work']+4, 'flush scores must alias work+4..6'
 assert 0<=syms['pai_suit0']-syms['pai_suit_work']<=255, 'flush physical-count offset out of range'
