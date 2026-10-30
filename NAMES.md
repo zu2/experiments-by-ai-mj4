@@ -313,7 +313,7 @@
 | `show_` | 表示する | 6 | show_draw show_kan_hint show_own_hint show_result |
 | `shuffle_` | 牌山を混ぜる | 5 | shuffle shuffle_honor shuffle_kind shuffle_next |
 | `single_` | 1 ビット | 1 | single_bit |
-| `small_` | smalltile の中の見出し | 6 | small_aligned small_next_row small_row_bits small_row_turned |
+| `small_` | smalltile の中の見出し | 8 | small_aligned small_img small_next_row small_row_bits |
 | `smalltile_` | 小さい牌（12×12）を描く | 2 | smalltile smalltile_advance |
 | `sort_` | 並べ替え | 4 | sort_base sort_best sort_bytes sort_n |
 | `start_` | 始め | 3 | start start_yaku start_yaku_clr |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 726 個で、247 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 732 個で、249 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -555,6 +555,7 @@
 | `single_bit` | 1 |
 | `sk_exact` | 1 |
 | `sm_turn` | 1 |
+| `small_unpack` | 4 |
 | `smalltile` | 2 |
 | `sort_bytes` | 4 |
 | `spec_cut` | 6 |
@@ -564,6 +565,7 @@
 | `ss_furo` | 7 |
 | `start` | 1 |
 | `stick_draw` | 3 |
+| `su_bits` | 2 |
 | `text_px` | 1 |
 | `tie_policy` | 2 |
 | `title_wait` | 2 |

@@ -95,6 +95,7 @@ clear_directpage:
 	inx
 	cpx #DP_END
 	bne clear_directpage
+ jsr small_unpack
 	ldaa	#1
 	staa	MP1710
 	ldaa	#$C0

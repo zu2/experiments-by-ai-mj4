@@ -45,19 +45,43 @@ def tile(k):
  if red:d.polygon([(0,0),(2,0),(0,2)],fill=0)
  return im
 
+# small_unpack expands small_lz into the 12 rows of 38 tiles. Per row: 0 and
+# the 11 face bits (column 11 is 0), or 1, 9 bits of the first row copied and
+# 3 bits of rows to copy - 2.
+LZ_FROM=9
+LZ_LEN=3
 def assembly():
- rows=[];ids={};sprites=[]
+ rows=[]
  for i in range(38):
-  im=tile(i);sprite=[]
+  im=tile(i)
   for y in range(12):
-   bits=sum((1<<(15-x)) for x in range(12) if im.getpixel((x,y)))
-   if bits not in ids:ids[bits]=len(rows);rows.append(bits)
-   sprite.append(ids[bits])
-  sprites.append(sprite)
- assert len(rows)<128
- out=[]
- for i,sprite in enumerate(sprites):
-  out += ['small%d:'%i,'\t.byte\t'+','.join(str(v) for v in sprite)]
- out.append('small_rows:')
- out += ['\t.byte\t$%02X,$%02X'%(v>>8,v&255) for v in rows]
+   assert not im.getpixel((11,y))
+   rows.append(sum((1<<(10-x)) for x in range(11) if im.getpixel((x,y))))
+ n=len(rows)
+ assert n<=1<<LZ_FROM
+ # The shortest code by dynamic programming.
+ cost=[0]+[None]*n
+ step=[None]*(n+1)
+ for i in range(n):
+  c=cost[i]+12
+  if cost[i+1] is None or c<cost[i+1]:cost[i+1]=c;step[i+1]=('lit',i)
+  for j in range(i):
+   k=0
+   while i+k<n and k<(1<<LZ_LEN)+1 and rows[j+k]==rows[i+k]:
+    k+=1
+    if k>=2:
+     c=cost[i]+1+LZ_FROM+LZ_LEN
+     if cost[i+k] is None or c<cost[i+k]:cost[i+k]=c;step[i+k]=('copy',i,j,k)
+ codes=[];i=n
+ while i:
+  s=step[i];codes.append(s);i=s[1]
+ bits=''
+ for s in reversed(codes):
+  if s[0]=='lit':bits+='0'+format(rows[s[1]],'011b')
+  else:bits+='1'+format(s[2],'0%db'%LZ_FROM)+format(s[3]-2,'0%db'%LZ_LEN)
+ bits+='0'*(-len(bits)%8)
+ data=[int(bits[k:k+8],2) for k in range(0,len(bits),8)]
+ out=['small_lz:']
+ for k in range(0,len(data),16):
+  out.append('\t.byte\t'+','.join('$%02X'%v for v in data[k:k+16]))
  return '\n'.join(out)+'\n'

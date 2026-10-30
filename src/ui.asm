@@ -641,12 +641,92 @@ smalltile_advance:
  staa sm_x
  rts
 
+; Expands small_lz (made by tools/small.py) into small_img: 12 rows of 2 bytes
+; for each of the 38 small tiles.
+small_unpack:
+ ldx #small_lz
+ stx su_src
+ ldx #small_img
+ stx su_dst
+small_unpack_00:
+ ldab #1
+ bsr su_bits
+ bne small_unpack_02
+ ; A row: the 11 face bits, then column 11 and the low 4 bits are 0.
+ ldab #11
+ bsr su_bits
+ ldab #5
+small_unpack_01:
+ asl su_w+1
+ rol su_w
+ decb
+ bne small_unpack_01
+ ldx #su_w
+ ldab #2
+ bra small_unpack_03
+small_unpack_02:
+ ; Copy rows from row su_w of small_img.
+ ldab #9
+ bsr su_bits
+ ldaa su_w+1
+ ldab su_w
+ asla
+ rolb
+ adda #<small_img
+ adcb #>small_img
+ staa su_from+1
+ stab su_from
+ ldab #3
+ bsr su_bits
+ ldab su_w+1
+ addb #2
+ aslb
+ ldx su_from
+small_unpack_03:
+ ldaa 0,x
+ inx
+ stx su_from
+ ldx su_dst
+ staa 0,x
+ inx
+ stx su_dst
+ ldx su_from
+ decb
+ bne small_unpack_03
+ ldx su_dst
+ cpx #small_img+912
+ bne small_unpack_00
+ rts
+; B = bits. Returns su_w = the next B bits of su_src, with Z set from the low
+; byte. su_acc holds the bits not used yet, then a 1 (0 after clear_bss: no bits).
+su_bits:
+ clr su_w
+ clr su_w+1
+su_bits_00:
+ asl su_acc
+ bne su_bits_01
+ ldx su_src
+ ldaa 0,x
+ inx
+ stx su_src
+ sec
+ rola
+ staa su_acc
+su_bits_01:
+ rol su_w+1
+ rol su_w
+ decb
+ bne su_bits_00
+ tst su_w+1
+ rts
+
 ; 12 rows * 12 pixels. Generic unaligned bit writer, preserves sm_x/sm_y.
 smalltile:
  stab sm_flags
- jsr mul12
- addb #<small0
- adca #>small0
+ ldab #24
+ jsr mul8
+ addb #<small_img
+ adca #>small_img
  staa sm_src
  stab sm_src+1
  ldaa sm_flags
@@ -668,12 +748,11 @@ smalltile_00:
  bita #RF_RIICHI
  bne small_row_turned
  ldx sm_src
- ldab 0,x
+ inx
  inx
  stx sm_src
- aslb
- ldx #small_rows
- jsr addxb
+ dex
+ dex
  bra small_row_bits
 small_row_turned:
  ldab sm_row
@@ -730,14 +809,11 @@ sm_turn:
  stab sm_n
 turn90_fetch:
  ldx sm_src
- ldab 0,x
- inx
- stx sm_src
- aslb
- ldx #small_rows
- jsr addxb
  ldaa 0,x
  ldab 1,x
+ inx
+ inx
+ stx sm_src
  ldx sm_tp
  staa 0,x
  stab 1,x
@@ -867,6 +943,12 @@ ui_erase_px_04:
  .bss
 ; sm_x is allocated in directpage.asm.
 ; sm_y is allocated in directpage.asm.
+small_img: .ds 912 ; 12 rows of 2 bytes of each small tile (small_unpack)
+su_src: .ds 2 ; next byte of small_lz
+su_acc: .ds 1 ; bits of su_src not used yet, then a 1
+su_dst: .ds 2 ; next byte of small_img
+su_from: .ds 2 ; next byte copied
+su_w: .ds 2 ; bits read by su_bits
 ; sm_src is allocated in directpage.asm.
 sm_bits: .ds 2 ; row bits
 sm_row: .ds 1 ; row index
