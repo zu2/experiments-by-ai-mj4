@@ -2,17 +2,25 @@
 wall_x:
 	ldx	#wall
 	bra	addxb
+; kattr, unseen and counts do not cross a page (build.py): only the low
+; byte is added.
 kattr_x:
-	ldx	#kattr
-	bra	addxb
+ addb #<kattr
+ stab kattr_x_ldx+2
+kattr_x_ldx:
+ ldx #kattr
+ rts
 btype_x:
 	ldx	#btype
 	bra	addxb
 kind_unseen_x:
  ldab wk_kind
 unseen_x:
-	ldx	#unseen
-	bra	addxb
+ addb #<unseen
+ stab unseen_x_ldx+2
+unseen_x_ldx:
+ ldx #unseen
+ rts
 ry_bits4_x:
  ldab loop_p
 bits4_x:
@@ -27,7 +35,11 @@ trip_n_x:
 kind_counts_x:
  ldab wk_kind
 counts_x:
-	ldx	#counts
+ addb #<counts
+ stab counts_x_ldx+2
+counts_x_ldx:
+ ldx #counts
+ rts
 ; X = X + B
 addxb:
 	stx	addxb_tmp

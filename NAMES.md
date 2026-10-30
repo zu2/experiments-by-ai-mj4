@@ -53,7 +53,7 @@
 | `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 9 | ad_allowed ad_best_ukeire ad_filter_cand ad_forbidden_s |
 | `ak_` | ai_kan | 1 | ak_before |
 | `al_` | acc_leaf | 19 | al_base al_cap al_ccap al_check |
-| `an_` | analyse | 1 | an_k |
+| `an_` | analyse | 1 | an_x |
 | `ara_` | rel_adjust | 1 | ara_last |
 | `attr_` | 牌の属性 | 2 | attr_and attr_or |
 | `ba_` | batch_leaf | 4 | ba_bound ba_cap ba_k ba_ptr |
@@ -111,7 +111,7 @@
 | `iw_` | set_intents（手の狙い）とその結果 | 9 | iw_bias iw_chi iw_chiitoi iw_flush |
 | `iyk_` | is_yakuhai | 1 | iyk_kind |
 | `kans_` | 槓 | 1 | kans_done |
-| `kattr_` | 牌の種類の属性の表（kind attribute） | 2 | kattr kattr_x |
+| `kattr_` | 牌の種類の属性の表（kind attribute） | 3 | kattr kattr_x kattr_x_ldx |
 | `ko_` | kan_options | 1 | ko_k |
 | `ku_` | kuikae_ok | 1 | ku_ok |
 | `kv_` | keep_value | 1 | kv_base |
@@ -142,7 +142,7 @@
 | `s3_` | 三色（sanshoku_near） | 6 | s3_best s3_full s3_kind s3_n |
 | `sbt_` | sort_bytes | 1 | sbt_swapped |
 | `se_` | search | 3 | se_block se_counts_x se_kind |
-| `sg_` | sh_general | 17 | sg_advance sg_batch sg_best sg_call_head |
+| `sg_` | sh_general | 18 | sg_advance sg_batch sg_best sg_call_head |
 | `sh_` | shanten | 3 | sh_best sh_chiitoi sh_general |
 | `shf_` | shuffle | 3 | shf_left shf_pi shf_pj |
 | `showdraw_` | show_draw の中の見出し | 5 | showdraw_amount showdraw_gain showdraw_no_pay showdraw_noten |
@@ -206,7 +206,7 @@
 | `clear_` | 消す | 6 | clear_bss clear_directpage clear_ippatsu clear_kk |
 | `closed_` | 門前 | 1 | closed_flag |
 | `count_` | 数える | 1 | count_yaochu |
-| `counts_` | 手牌の数え上げ | 2 | counts counts_x |
+| `counts_` | 手牌の数え上げ | 3 | counts counts_x counts_x_ldx |
 | `cpu_` | CPU | 1 | cpu_turn |
 | `cur_` | 今調べている分け方の役と点 | 4 | cur_fu cur_han cur_n cur_y |
 | `cursor_` | カーソル | 2 | cursor cursor_icon |
@@ -328,7 +328,7 @@
 | `turn90_` | sm_turn（牌を 90 度回す）の中の見出し | 3 | turn90_align_w turn90_col turn90_fetch |
 | `turn_` | 手番 | 4 | turn turn_eval_load turn_loop turn_player |
 | `unpack_` | 展開 | 1 | unpack_voice |
-| `unseen_` | 考えている人から見えていない牌（unshown − 手牌。ai_unseen が作る） | 2 | unseen unseen_x |
+| `unseen_` | 考えている人から見えていない牌（unshown − 手牌。ai_unseen が作る） | 3 | unseen unseen_x unseen_x_ldx |
 | `unshown_` | 場にまだ見せていない牌（全員に共通。出来事のときに更新する） | 5 | unshown unshown_dora unshown_init unshown_kind |
 | `ura_` | 裏ドラ | 1 | ura_n |
 | `wait_` | 待つ | 2 | wait_frames wait_space |

@@ -8,6 +8,8 @@ sg_init:
  clr heads_n
  ldaa #8
  staa sg_best
+ ldaa #$80
+ staa sg_stop
  ldx #counts
  stx sg_restore_x+1
  jsr sg_entry_x
@@ -25,15 +27,7 @@ sg_entry_x:
  psha
  ldaa sets_n
  cmpa #4
- beq sg_four
-sg_entry_x_00:
- tst 0,x
- bne sg_found
-sg_advance:
- inx
- cpx #counts+KN
  bne sg_entry_x_00
- bra sg_leaf_call
  ; Four sets may leave a head in fourteen-tile callers.
 sg_four:
  ldaa sg_batch
@@ -57,6 +51,12 @@ sg_call_head:
  .word sg_leaf
  dec heads_n
  bra sg_ret
+sg_advance:
+ inx
+sg_entry_x_00:
+ ldaa 0,x
+ beq sg_advance
+ bpl sg_found
 sg_leaf_call:
 sg_call_leaf:
  .byte $BD
@@ -64,7 +64,6 @@ sg_call_leaf:
  bra sg_ret
 sg_found:
  stx sg_restore_x+1
- ldaa 0,x
  cmpa #3
  bcs sg_call_leaf_00
  suba #3

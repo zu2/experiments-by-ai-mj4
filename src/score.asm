@@ -137,14 +137,13 @@ analyse:
 	ldaa	#$FF
 	staa	attr_and
 	clr	attr_or
-	clr	an_k
+	ldx	#work+K_FIRST
 analyse_00:
-	ldx	#work
-	ldab	an_k
-	jsr	addxb
 	tst	0,x
 	beq	analyse_01
-	ldab	an_k
+	stx	an_x
+	ldab	an_x+1
+	subb	#<work
 	jsr	kattr_x
 	ldaa	0,x
 	tab
@@ -152,10 +151,10 @@ analyse_00:
 	staa	attr_and
 	orab	attr_or
 	stab	attr_or
+	ldx	an_x
 analyse_01:
-	inc	an_k
-	ldaa	an_k
-	cmpa	#K_END
+	inx
+	cpx	#work+K_END
 	bne	analyse_00
 	rts
 
@@ -1170,7 +1169,7 @@ best_y:	.ds	16 ; yaku of the best result
 closed_flag:	.ds	1 ; 1 when the hand is closed
 nkan:	.ds	1 ; kans
 ; attr_and is allocated in directpage.asm.
-an_k:	.ds	1 ; kind analyse checks
+an_x:	.ds	2 ; work entry analyse checks
 fy_trip:	.ds	1 ; wind triplets
 fy_pair:	.ds	1 ; wind pairs
 ym_n:	.ds	1 ; yakuman found

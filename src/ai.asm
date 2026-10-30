@@ -2455,6 +2455,7 @@ is_simple_00:
 ; as counts-unshown,x, and make_tot writes work as work-counts,x.
 unshown: .ds KN ; tiles of each kind not yet shown on the table (turn.asm)
 counts: .ds KN ; tiles of each kind in the closed hand (eval_load)
+sg_stop: .ds 1 ; sg_init sets $80: the end of counts for sg_entry_x
 work: .ds 4 ; make_tot scratch: 37 contiguous bytes in total
 pai_suit_work: .ds 3 ; scan-only suit scores; alias inside work, no added RAM
  .ds KN-7
