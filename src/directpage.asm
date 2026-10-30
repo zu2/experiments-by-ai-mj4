@@ -112,7 +112,6 @@ al_x .equ $00E6 ; &counts[draw]
 ch_src .equ $00E8 ; font address of the character
 sm_src .equ $00EA ; image address
 wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept)
-lone_dora_kind .equ $00EE ; output of lone_dora: lone dora kind reserved as a candidate ($FF = none)
 cop_pat .equ $00EF ; chi pattern call_options checks
 wk_limit .equ $00F0 ; shared work: shanten limit (ai_discard -> least_danger; batch_prepare low)
 dc_p .equ $00F1 ; player who discarded

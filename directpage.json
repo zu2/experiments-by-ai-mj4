@@ -678,12 +678,6 @@
     "static_references": 4
   },
   {
-    "name": "lone_dora_kind",
-    "address": 238,
-    "bytes": 1,
-    "static_references": 4
-  },
-  {
     "name": "cop_pat",
     "address": 239,
     "bytes": 1,

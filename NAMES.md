@@ -198,7 +198,7 @@
 | `btype_` | ブロックの種類 | 2 | btype btype_x |
 | `call_` | 鳴き | 32 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
 | `can_` | できること | 3 | can_riichi can_ron can_win |
-| `cand_` | choose_cands の中の見出し | 5 | cand_clear_order cand_loop cand_next cand_priority |
+| `cand_` | choose_cands の中の見出し | 4 | cand_clear_order cand_loop cand_next cand_priority |
 | `candidate_` | 候補 | 1 | candidate_acceptance |
 | `chankan_` | 槍槓 | 1 | chankan_f |
 | `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 4 | char_at char_line char_no_carry char_px |
@@ -258,7 +258,7 @@
 | `least_` | 最も小さい | 1 | least_danger |
 | `let_` | 文字 | 1 | let_n |
 | `limit_` | 満貫以上の名前 | 1 | limit_name |
-| `lone_` | 孤立 | 2 | lone_dora lone_dora_kind |
+| `lone_` | 孤立 | 0 |  |
 | `loop_` | いくつかのルーチンが使うループの番号 | 1 | loop_p |
 | `make_` | 作る | 1 | make_tot |
 | `mark_` | ▲（河の捨て牌とツモの印） | 6 | mark_clear mark_live mark_rows mark_tip |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 731 個で、254 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 726 個で、253 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -392,7 +392,7 @@
 | `chi_step` | 5 |
 | `chi_valid` | 4 |
 | `chii_sh` | 1 |
-| `choose_cands` | 2 |
+| `choose_cands` | 1 |
 | `choose_chi` | 4 |
 | `clear_ippatsu` | 1 |
 | `clear_letters` | 1 |
@@ -497,7 +497,6 @@
 | `kyuushu_check` | 3 |
 | `least_danger` | 2 |
 | `limit_name` | 3 |
-| `lone_dora` | 4 |
 | `make_tot` | 1 |
 | `move_cursor` | 5 |
 | `mul8` | 2 |

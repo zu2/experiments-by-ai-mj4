@@ -504,7 +504,6 @@ choose_cands_limit_low_ok:
  ldaa #CC_LIMIT_MAX
  staa cc_limit
 choose_cands_limit_ok:
- jsr lone_dora
  ldx #cc_order
  ldab cc_limit
  ldaa #$FF
@@ -520,19 +519,10 @@ cand_loop:
  ldaa sk-counts,x
  cmpa min_s
  bne cand_next
- ldaa wk_kind
- cmpa lone_dora_kind
- beq cand_shape
  jsr ad_filter_cand
  beq cand_next
-cand_shape:
  jsr isolated_cand
  staa cc_isol_flag
- ldaa wk_kind
- cmpa lone_dora_kind
- bne choose_cands_00
- inc cc_isol_flag
-choose_cands_00:
  jsr kind_counts_x
  jsr sanshoku_cut
  staa cc_sanshoku
@@ -1369,9 +1359,12 @@ ibn_two:
  ; Original 14-tile counts. dcc_cost and wk_bonus (toitoi) were
  ; computed by candidate ranking; cc_sanshoku is the 13-tile sanshoku value.
  ; A = complete final-score adjustment, cached with the shortlisted kind.
+ ; A dora lost (dcc_cost) counts as two tiles of acceptance.
 discard_bonus:
+ ldab dcc_cost
+ aslb
  ldaa #46
- suba dcc_cost
+ sba
  adda wk_bonus
  adda cc_sanshoku
  staa wk_bonus
@@ -1634,43 +1627,6 @@ isolated_cand:
  rts
 isolated_cand_00:
  clra
- rts
-
-; Record the only geometric singleton when it is a dora.
-; Count all isolated kinds, including those that cannot be discarded.
-; sk = min_s is still required by choose_cands. Never an instant cut.
-lone_dora:
- ldaa #$FF
- staa lone_dora_kind
- clr wk_kind
-lone_dora_00:
- jsr kind_counts_x
- ldaa 0,x
- cmpa #1
- bne lone_dora_01
- jsr connection
- cmpa #1
- bne lone_dora_01
- ldaa lone_dora_kind
- cmpa #$FF
- bne lone_dora_02
- ldaa wk_kind
- staa lone_dora_kind
-lone_dora_01:
- inc wk_kind
- ldaa wk_kind
- cmpa #K_END
- bne lone_dora_00
- ldaa lone_dora_kind
- cmpa #$FF
- beq lone_dora_03
- staa wk_kind
- jsr dora_cut_cost
- bne lone_dora_03
-lone_dora_02:
- ldaa #$FF
- staa lone_dora_kind
-lone_dora_03:
  rts
 
 ; wk_kind = discard. Count its acceptance in wk_score, then restore counts
@@ -2961,8 +2917,7 @@ tie_policy_00:
 tie_policy_01:
  rts
  .bss
-cc_isol_flag: .ds 1 ; 1 for an isolated or lone dora candidate
-; lone_dora_kind is allocated in directpage.asm.
+cc_isol_flag: .ds 1 ; 1 for an isolated candidate
 ad_best_ukeire: .ds 1 ; acceptance of the best candidate
 tie_ukeire: .ds 1 ; output of tie_policy: 1 when equal scores compare acceptance
  .code
