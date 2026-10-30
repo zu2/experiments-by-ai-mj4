@@ -1,8 +1,12 @@
 ; Heads and sets of counts, and the residual incomplete sets: the lowest
 ; shanten number of the decompositions is left in sg_best.
 sh_general:
+ ldaa #8
+ jsr sg_lmax_set
+sh_general_lim:
  clr sg_batch
 sg_init:
+ clr sg_left
  ldaa nfuro
  staa sets_n
  clr heads_n
@@ -24,6 +28,8 @@ sg_entry_set:
  inc sets_n
 sg_entry_x:
  ldaa sg_restore_x+2
+ psha
+ ldaa sg_left
  psha
  ldaa sets_n
  cmpa #4
@@ -91,10 +97,10 @@ sg_call_leaf_00:
  inc 2,x
 sg_call_leaf_01:
  tst heads_n
- bne sg_advance
+ bne sg_skip
  ldaa 0,x
  cmpa #2
- bcs sg_advance
+ bcs sg_skip
  suba #2
  staa 0,x
  inc heads_n
@@ -102,8 +108,16 @@ sg_call_leaf_01:
  dec heads_n
  inc 0,x
  inc 0,x
- bra sg_advance
+; The tiles left at this kind stay out of every set and head below.
+sg_skip:
+ ldaa 0,x
+ adda sg_left
+ staa sg_left
+ cmpa sg_lmax
+ bls sg_advance
 sg_ret:
+ pula
+ staa sg_left
  pula
  staa sg_restore_x+2
 sg_restore_x:
@@ -142,6 +156,7 @@ sg_leaf_03:
  cmpa sg_best
  bge sg_leaf_04
  staa sg_best
+ jmp sg_lmax_set
 sg_leaf_04:
  rts
 
@@ -213,6 +228,8 @@ se_block:
  .bss
 ; se_kind is allocated in directpage.asm.
 sg_batch: .ds 1 ; 3 while batch_prepare searches
+sg_left: .ds 1 ; tiles left out of the sets and heads so far
+sg_lmax: .ds 1 ; sg_entry_x stops when sg_left goes above it
 ; heads_n is allocated in directpage.asm.
 ; sg_best is allocated in directpage.asm.
 ; sg_cap is allocated in directpage.asm.
@@ -247,10 +264,12 @@ acc_mark_02:
 ; A = goal, ac_yes already made. Marks the asked draws that lower the value.
 acc_search:
  staa acc_goal
+ inca
+ jsr sg_lmax_set
  ldx #acc_leaf
  stx sg_call_leaf+1
  stx sg_call_head+1
- jsr sh_general
+ jsr sh_general_lim
  ldx #sg_leaf
  stx sg_call_leaf+1
  stx sg_call_head+1
@@ -528,6 +547,11 @@ al_gptr: .ds 2 ; leaf_part_taatsu entry of the part
 batch_prepare:
  ldaa #$7F
  staa wk_limit
+batch_prepare_lim:
+ ldaa wk_limit
+ inca
+ jsr sg_lmax_set
+ ldaa #$7F
  ldx #counts
 batch_prepare_00:
  staa sk-counts,x
@@ -613,6 +637,8 @@ batch_leaf_10:
  cmpb kk2
  beq batch_leaf_11
  staa wk_limit
+ inca
+ jsr sg_lmax_set
 batch_leaf_11:
  inc 0,x
 batch_leaf_12:
@@ -622,6 +648,20 @@ batch_leaf_12:
  cmpa #K_END
  bne batch_leaf_00
 batch_leaf_13:
+ rts
+; A = G. sg_lmax = 3 * G (255 if G > 84). A leaf of at most 14 tiles whose
+; 4 - sets_n - heads_n is below G leaves at most 3 * G tiles out of its sets
+; and heads: G is sg_best for sh_general, wk_limit + 1 for batch_leaf and
+; acc_goal + 1 for acc_leaf.
+sg_lmax_set:
+ cmpa #85
+ bcs sg_lmax_set_00
+ ldaa #85
+sg_lmax_set_00:
+ tab
+ asla
+ aba
+ staa sg_lmax
  rts
  .bss
 ba_cap: .ds 1 ; taatsu cap (4 - sets_n)

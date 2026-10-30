@@ -316,8 +316,11 @@ ai_discard_07:
 ; counts = 14 tiles. Sets sk of every kind (shanten after discarding it, $7F if
 ; not allowed by kk1/kk2), min_s (lowest of them) and ad_forbidden_s.
 discard_sk:
+ ldaa #$7F
+ staa wk_limit
+discard_sk_lim:
  jsr spec_prep14
- jsr batch_prepare
+ jsr batch_prepare_lim
 	ldaa	#$7F
 	staa	min_s
  staa ad_forbidden_s

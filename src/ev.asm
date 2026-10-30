@@ -492,7 +492,8 @@ ev1_draw_10:
  ldab e1_e
  jsr unseen_x
  dec 0,x
- jsr discard_sk
+ clr wk_limit
+ jsr discard_sk_lim
  tst min_s
  bne ev1_draw_30
  jsr ev_prepare

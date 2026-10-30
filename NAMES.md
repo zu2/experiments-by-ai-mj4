@@ -87,12 +87,12 @@
 | `ed_` | eval_decomp | 4 | ed_pinfu ed_wait ed_wi ed_yhead |
 | `eh_` | each_head | 1 | eh_routine |
 | `el_` | eval_load | 2 | el_dst el_src |
-| `em_` | ev1_discard の間で覚える ev_acceptance の結果（em_begin、em_end、em_value） | 27 | em_begin em_end em_lookup em_value |
+| `em_` | ev1_discard の間で覚える ev_acceptance の結果（em_begin、em_end、em_value） | 28 | em_begin em_count em_e em_end |
 | `ep_` | eval_places | 3 | ep_i ep_kind ep_off |
 | `er_` | erase | 5 | er_cnt er_h er_p er_w |
 | `ev1_` | ev1_discard とその中のルーチン | 4 | ev1_best ev1_discard ev1_draw ev1_fits |
-| `ev_` | ev_discard（聴牌での打牌の評価） | 21 | ev_acceptance ev_base_aka ev_base_dora ev_best |
-| `evacc_` | ev_acceptance の中の見出し | 4 | evacc_add_points evacc_is_furiten evacc_live_wait evacc_no_carry |
+| `ev_` | ev_discard（聴牌での打牌の評価） | 21 | ev_acceptance ev_add_pts ev_base_aka ev_base_dora |
+| `evacc_` | ev_acceptance の中の見出し | 4 | evacc_is_furiten evacc_live_wait evacc_no_slot evacc_score |
 | `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
 | `evprep_` | ev_prepare の中の見出し | 1 | evprep_clear |
 | `fc_` | fi_copy | 2 | fc_i fc_src |
@@ -122,7 +122,7 @@
 | `ot_` | 表示している手牌の位置 | 2 | ot_hand_tile_x ot_i |
 | `ownkan_` | own_kan の中の見出し | 3 | ownkan_chankan ownkan_kakan ownkan_no_rob |
 | `p0_` | プレイヤー 0（人） | 1 | p0_hand_at |
-| `pcm_` | 音声の再生（pcm_play） | 3 | pcm_phase pcm_play |
+| `pcm_` | 音声の再生（pcm_play） | 3 | pcm_hb pcm_phase pcm_play |
 | `pl_` | play（音を鳴らす） | 3 | pl_delay pl_p pl_waves |
 | `pn_` | print_num | 2 | pn_buf pn_p |
 | `pscore_` | print_score の中の見出し | 1 | pscore_zero |
@@ -144,11 +144,11 @@
 | `s3_` | 三色（sanshoku_near） | 6 | s3_best s3_full s3_kind s3_n |
 | `sbt_` | sort_bytes | 1 | sbt_swapped |
 | `se_` | search | 3 | se_block se_counts_x se_kind |
-| `sg_` | sh_general | 18 | sg_advance sg_batch sg_best sg_call_head |
-| `sh_` | shanten | 3 | sh_best sh_chiitoi sh_general |
+| `sg_` | sh_general | 22 | sg_advance sg_batch sg_best sg_call_head |
+| `sh_` | shanten | 4 | sh_best sh_chiitoi sh_general sh_general_lim |
 | `shf_` | shuffle | 3 | shf_left shf_pi shf_pj |
 | `showdraw_` | show_draw の中の見出し | 5 | showdraw_amount showdraw_gain showdraw_no_pay showdraw_noten |
-| `sk_` | 打牌の後の向聴数の表 sk（discard_sk が作る） | 1 | sk_exact |
+| `sk_` | 打牌の後の向聴数の表 sk（discard_sk が作る） | 2 | sk sk_exact |
 | `sm_` | smalltile | 14 | sm_align sm_bits sm_dst sm_flags |
 | `snd_` | 効果音のデータ | 8 | snd_chi snd_discard snd_kan snd_pon |
 | `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 12 | spec_before spec_cut spec_kinds13 spec_kinds14 |
@@ -189,7 +189,7 @@
 | `ask_` | 聞く | 1 | ask_ron |
 | `auto_` | 自動対局 | 1 | auto_play |
 | `base_` | 基本 | 12 | base_chankan base_ippatsu base_last base_last_add |
-| `batch_` | まとめて | 7 | batch_add_total batch_evaluate batch_leaf batch_man |
+| `batch_` | まとめて | 8 | batch_add_total batch_evaluate batch_leaf batch_man |
 | `best_` | 最もよい結果の役と点 | 7 | best_accept best_fu best_han best_n |
 | `bias_` | intent_bias（狙いによる打牌の補正）の中の見出し | 8 | bias_addc_chi bias_addc_flush bias_addc_kok bias_chanta |
 | `bits4_` | bits4（4 ビットの表示） | 2 | bits4 bits4_x |
@@ -217,7 +217,7 @@
 | `deal_` | 配牌 | 2 | deal_cnt deal_player |
 | `dealer_` | 親 | 3 | dealer dealer_flag dealer_top |
 | `decomp_` | 分け方 | 20 | decomp_all decomp_ankou decomp_chanta decomp_chanta2 |
-| `discard_` | 打牌 | 4 | discard discard_bonus discard_sk discard_step |
+| `discard_` | 打牌 | 5 | discard discard_bonus discard_sk discard_sk_lim |
 | `do_` | 行う | 1 | do_call |
 | `dora_` | ドラ | 9 | dora_cnt dora_cut_cost dora_hits dora_kind_at |
 | `draw_` | 描く | 13 | draw_arrow draw_hand draw_hands draw_info |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 722 個で、246 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 723 個で、247 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -544,6 +544,7 @@
 | `sg_four` | 2 |
 | `sg_init` | 1 |
 | `sg_leaf` | 3 |
+| `sg_lmax_set` | 1 |
 | `sh_chiitoi` | 3 |
 | `shanten` | 4 |
 | `shanten_lim` | 1 |
