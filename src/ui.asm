@@ -49,15 +49,10 @@ ui_cpu_erase:
  ldaa dh_i
  jsr mul12
  stab sm_x
- ldaa #180
- suba sm_x
- staa ui_width
- ldaa #12
- jsr ui_erase_px
 ui_cpu_tiles:
  ldaa dh_i
  cmpa ht_n
- beq ui_cpu_furo
+ beq ui_cpu_tail
  ldaa #IMG_BACK
  tst ui_faces
  beq ui_cpu_face
@@ -70,10 +65,43 @@ ui_cpu_face:
  jsr smalltile_advance
  inc dh_i
  bra ui_cpu_tiles
+; The tiles and the furo are drawn over the old ones. Erases only the places
+; that can become empty: after a new furo, all after the hand; else the place
+; between the hand and the furo.
+ui_cpu_tail:
+ ldaa ht_p
+ jsr player
+ ldaa P_NFURO,x
+ ldx #ui_furo_n
+ ldab ht_p
+ jsr addxb
+ ldab 0,x
+ staa 0,x
+ cba
+ beq ui_cpu_gap
+ ldaa #180
+ bra ui_cpu_tail_00
+ui_cpu_gap:
+ tab
+ bsr ui_furo_x
+ui_cpu_tail_00:
+ suba sm_x
+ beq ui_cpu_furo
+ staa ui_width
+ ldaa #12
+ jsr ui_erase_px
 ui_cpu_furo:
  ldaa ht_p
  jsr player
  ldab P_NFURO,x
+ bsr ui_furo_x
+ staa sm_x
+ jsr ui_furo
+ tst ui_refresh
+ bne ui_hand_done
+ jmp ui_scores
+; B = number of the furo of a CPU. Returns A = x of the furo (168 - 36 * B).
+ui_furo_x:
  aslb
  aslb
  ldaa #168
@@ -82,11 +110,7 @@ ui_cpu_furo:
  aslb
  aslb
  sba
- staa sm_x
- jsr ui_furo
- tst ui_refresh
- bne ui_hand_done
- jmp ui_scores
+ rts
 ; Draws the own hand (large when ui_big is set).
 ui_human:
  ldaa #ROW_OWN_HAND
@@ -321,8 +345,13 @@ ui_furo_face:
  cmpa #M_MINKAN
  bne ui_furo_flat
  ; An open kan shows its turned tile one row lower than a pon: the empty
- ; row is above the tile instead of below it.
+ ; row is above the tile instead of below it. A kakan makes it from a pon.
+ ldaa #12
+ staa ui_width
+ ldaa #1
+ jsr ui_erase_px
  inc sm_y
+ ldab #RF_RIICHI
 ui_furo_flat:
  pula
  jsr smalltile_advance
@@ -497,15 +526,14 @@ redraw_all_01:
 ; Redraws the header and the scores.
 draw_info:
 draw_nokori:
-draw_nokori_00:
  jsr ui_header
  jmp ui_scores
-; Draws the round, the honba and the dora indicators.
+; Draws the round, the honba and the dora indicators over the old ones. Each
+; item keeps its place and width, and the stick of the deposits and the dora
+; indicators only increase in a round (clear_screen starts each round).
 ui_header:
  clr posx
  clr posy
- ldaa #32
- jsr erase1
  ldx #s_ton
  ldaa round
  cmpa #4
@@ -609,14 +637,13 @@ ui_scores_02:
  staa posy
  ldaa #23
  staa posx
- ldaa #9
- jsr erase1
- ldaa ui_sp
- cmpa turn
+ ldaa #CH_SP
+ ldab ui_sp
+ cmpb turn
  bne ui_scores_03
  ldaa #CH_TURN
- jsr drawchar
 ui_scores_03:
+ jsr drawchar
  inc posx
  jsr draw_seat_wind
  ldaa ui_sp
@@ -1097,6 +1124,7 @@ ui_bytes: .ds 1 ; whole bytes
  .bss
 ui_refresh: .ds 1 ; nonzero to redraw revealed hands
 ui_back_n: .ds 4 ; hidden tiles drawn for each player ($FF = none)
+ui_furo_n: .ds 4 ; furo drawn for each CPU
 
  .bss
 ui_first: .ds 1 ; pixels before the first whole byte

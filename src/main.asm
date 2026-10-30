@@ -1618,6 +1618,8 @@ title_lines:
  .word s_call_help
  .byte 7*8,18*8
  .word s_start_help
+ .byte 28*8,23*8
+ .word s_build
  .byte $FF
 
 ; Clears the screen and the hand caches.

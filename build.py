@@ -6,7 +6,13 @@ os.chdir(ROOT)
 TOOLS=Path(os.environ.get('BMJR_TOOLS',ROOT/'tools/bin'))
 if not (TOOLS/'as6800').is_file() or not (TOOLS/'ld6800').is_file():
  subprocess.run(['python3','tools/setup_tools.py','--output',str(TOOLS)],check=True)
-subprocess.run(['python3','tools/gen.py','strings.txt','data.s'],check=True)
+# The title shows s_build: 4 digits from the sources, to tell the binaries apart.
+import zlib
+Path('build').mkdir(exist_ok=True)
+crc=0
+for f in sorted(ROOT.glob('src/*.asm'))+[ROOT/'strings.txt']:crc=zlib.crc32(f.read_bytes(),crc)
+Path('build/strings.txt').write_text(Path('strings.txt').read_text()+f's_build\t{crc%10000:04d}\n')
+subprocess.run(['python3','tools/gen.py','build/strings.txt','data.s'],check=True)
 speech='--no-speech' not in sys.argv
 # With speech, PCM_BUF ($2100) holds 5 bytes per 8 samples below the BSS: at most
 # $2F00-$2100 = 3584 bytes (riichi has 2525; tools/voice_pack.py checks the same limit); the stack
