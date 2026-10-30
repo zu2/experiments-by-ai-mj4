@@ -182,7 +182,7 @@
 | `aka_` | 赤五 | 1 | aka_n |
 | `all_` | すべて | 1 | all_yaochu |
 | `ankan_` | 暗槓子 | 1 | ankan_n |
-| `any_` | どれか | 1 | any_riichi |
+| `any_` | どれか | 2 | any_riichi any_threat |
 | `append_` | 列の末尾に加える | 1 | append_yaku |
 | `apply_` | 当てる | 1 | apply_open |
 | `arrow_` | 矢印（draw_arrow、select_arrow） | 3 | arrow_done arrow_full arrow_width |
@@ -196,7 +196,7 @@
 | `block_` | ブロック | 1 | block_fu |
 | `bss_` | BSS の範囲 | 2 | bss_all_end bss_start |
 | `btype_` | ブロックの種類 | 2 | btype btype_x |
-| `call_` | 鳴き | 32 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
+| `call_` | 鳴き | 33 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
 | `can_` | できること | 3 | can_riichi can_ron can_win |
 | `cand_` | choose_cands の中の見出し | 4 | cand_clear_order cand_loop cand_next cand_priority |
 | `candidate_` | 候補 | 1 | candidate_acceptance |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 726 個で、253 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 728 個で、253 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -360,7 +360,7 @@
 | `add_set_fu` | 1 |
 | `addxb` | 1 |
 | `after_draw` | 5 |
-| `ai_call` | 5 |
+| `ai_call` | 6 |
 | `ai_discard` | 10 |
 | `ai_kan` | 5 |
 | `ai_riichi` | 1 |
@@ -371,7 +371,7 @@
 | `al_value` | 1 |
 | `all_yaochu` | 5 |
 | `analyse` | 2 |
-| `any_riichi` | 3 |
+| `any_riichi` | 4 |
 | `apply_open` | 2 |
 | `ask_ron` | 1 |
 | `base_yaku` | 2 |

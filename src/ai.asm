@@ -131,14 +131,37 @@ call_shanten:
  jsr batch_prepare
  ldaa wk_limit
  cmpa call_shanten_now
- bne call_shanten_restore
+ bne call_shanten_other
  jsr call_after_ukeire
- bne call_shanten_equal
+ beq call_shanten_worse
+ ldaa call_shanten_now
+ bra call_shanten_restore
+ ; A call to a tenpai with 4 winning tiles or fewer counts as worse than a
+ ; wide no-call hand (16 tiles of acceptance or more).
+call_shanten_other:
+ tsta
+ bne call_shanten_restore
+ ldab call_pre_acc
+ cmpb #16
+ bcs call_shanten_restore
+ ldaa min_s
+ psha
+ pshb
+ clr min_s
+ ldaa #5
+ staa call_pre_acc
+ jsr call_after_ukeire
+ pulb
+ stab call_pre_acc
+ pulb
+ stab min_s
+ tsta
+ beq call_shanten_worse
+ clra
+ bra call_shanten_restore
+call_shanten_worse:
  ldaa call_shanten_now
  inca
- bra call_shanten_restore
-call_shanten_equal:
- ldaa call_shanten_now
 call_shanten_restore:
  psha
  dec nfuro
@@ -189,6 +212,7 @@ call_acc_yes:
 
  .bss
 call_pre_acc: .ds 1
+threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
 
 ; Returns A = 1 if the computer declares riichi with the tile ai_tile.
@@ -2206,6 +2230,16 @@ ai_call:
 	ldaa	rp_pon
 	oraa	rp_chi
 	beq	ca_none
+ ; A call from 4 tiles leaves one tile (hadaka tanki), which cannot defend:
+ ; only when nobody has a riichi or two furo.
+ ldaa ai_player
+ jsr player
+ ldaa P_LEN,x
+ cmpa #4
+ bne ai_call_01
+ jsr any_threat
+ bne ca_none
+ai_call_01:
 	ldaa	dc_tile
 	lsra
 	staa	call_kind
@@ -2555,9 +2589,15 @@ call_flush: .ds 1 ; cached flush call eligibility before pattern trials
 flush_only:	.ds	1 ; output of flush_filter: 1 when only off-suit discards are candidates
 toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
 	.code
-; Returns A = 1 if another player is in riichi.
-; Returns with N and Z set from A.
+; Returns A = 1 if another player has a riichi (any_riichi), or a riichi or
+; two furo (any_threat). Returns with N and Z set from A.
 any_riichi:
+ ldaa #5
+ bra any_riichi_03
+any_threat:
+ ldaa #2
+any_riichi_03:
+ staa threat_furo
 	ldab	#3
 any_riichi_00:
 	cmpb	ai_player
@@ -2566,6 +2606,9 @@ any_riichi_00:
 	jsr	player
 	tst	P_FLAG,x
 	bmi	any_riichi_02
+ ldaa P_NFURO,x
+ cmpa threat_furo
+ bcc any_riichi_02
 any_riichi_01:
 	decb
 	bpl	any_riichi_00
