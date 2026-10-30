@@ -89,6 +89,10 @@ for item in directpage:
  assert not (set(range(a,a+size)) & used)
  used.update(range(a,a+size));syms[item['name']]=a
 syms['DP_FIRST']=0x72;syms['DP_END']=0xf2
-Path('build/symbols.h').write_text(''.join(f'#define S_{n} 0x{v:04x}\n' for n,v in syms.items()))
+# Export the constants of main.asm (tile kinds, player layout) so that the harnesses do not copy them.
+consts={}
+for n,e in re.findall(r'(?m)^([A-Za-z_][A-Za-z_0-9]*)[ \t]+\.equ[ \t]+([^;\n]+?)[ \t]*$',Path('src/main.asm').read_text()):
+ consts[n]=eval(re.sub(r'\b[A-Za-z_][A-Za-z_0-9]*',lambda m:str(consts[m[0]]),e.replace('$','0x')))
+Path('build/symbols.h').write_text(''.join(f'#define S_{n} 0x{v:04x}\n' for n,v in syms.items())+''.join(f'#define {n} {v}\n' for n,v in consts.items()))
 Path('build/symbols.json').write_text(json.dumps(syms,indent=2))
 print(f'MC6800 start=$4000, {len(raw)} bytes, end=${0x4000+len(raw)-1:04X}, BSS end=${syms["bss_all_end"]:04X}')
