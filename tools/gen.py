@@ -119,7 +119,10 @@ def main():
             roots.append(root)
         root[1].setdefault(len(root[0])-len(text), []).append(label)
     for text, aliases in roots:
-        for offset, value in enumerate([codes[c] for c in text]+[255]):
+        # The last character has bit 7; an empty string is one 255.
+        values = [codes[c] for c in text] or [255]
+        values[-1] |= 128
+        for offset, value in enumerate(values):
             out.extend(label+":" for label in aliases.get(offset, []))
             out += byte_lines([value])
     open(sys.argv[2], "w").write("\n".join(out) + "\n")

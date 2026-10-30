@@ -701,8 +701,7 @@ show_result_03:
 show_result_09:
 	ldaa	0,x
 	inx
-	cmpa	#255
-	bne	show_result_09
+	bpl	show_result_09
 show_result_10:
 	decb
 	bpl	show_result_09
@@ -1747,7 +1746,8 @@ tile_crow:
 	bne	tile_crow
 	rts
 
-; X = string of character codes ending with $FF, at posx/posy.
+; X = string of character codes, the last with bit 7 (or one $FF for an
+; empty string), at posx/posy.
 drawstr_x:
  ldx 0,x
 drawstr:
@@ -1759,9 +1759,13 @@ drawstr_00:
 	beq	drawstr_01
 	inx
 	stx	dst_ptr
+	psha
+	anda	#$7F
 	jsr	drawchar
 	inc	posx
-	bra	drawstr_00
+	pula
+	tsta
+	bpl	drawstr_00
 drawstr_01:
 	rts
 
@@ -1784,19 +1788,23 @@ drawchar:
 	staa	COLORREG
 	staa	0,x
 	rts
-; X = string ending with $FF, A = pixel row, B = pixel column (a multiple of 8).
+; X = string (not empty) whose last character has bit 7, A = pixel row, B =
+; pixel column (a multiple of 8).
 text_px:
  staa tx_y
  stab tx_x
 text_px_00:
  ldaa 0,x
- cmpa #$FF
- beq char_at_00
  inx
  stx dst_ptr
+ psha
+ anda #$7F
  bsr char_px
  ldx dst_ptr
- bra text_px_00
+ pula
+ tsta
+ bpl text_px_00
+ rts
 ; A = character. Draws it at tx_x, tx_y and moves tx_x to the next character.
 char_px:
  psha
