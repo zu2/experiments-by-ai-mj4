@@ -97,7 +97,10 @@ score_hand:
 	bne	score_hand_01
 	tst	spec_off
 	bne	score_hand_01
-	jsr	sh_chiitoi
+	jsr	spec_count
+	ldaa	SP_PAIRS,x
+	ldab	SP_KINDS,x
+	jsr	chii_sh
 	inca
 	bne	score_hand_00
  jsr start_yaku_clr
@@ -108,8 +111,13 @@ score_hand:
 	staa	cur_fu
 	jsr	finish
 score_hand_00:
-	jsr	is_kokushi
-	beq	score_hand_01
+	ldaa	spec_cnt+SP_YAO
+	ldab	spec_cnt+SP_YPAIRS
+	jsr	kok_sh
+	inca
+	bne	score_hand_01
+	ldaa	#Y_KOKUSHI
+	jsr	add_ym
  jsr start_yaku_clr
 	jsr	finish
 score_hand_01:
@@ -166,24 +174,16 @@ find_yakuman:
 	clr	ym_n
 	ldaa	sflags
 	bita	#F_FIRST
-	beq	yakuman_kokushi
+	beq	yakuman_dragons
 	tst	tsumo_flag
-	beq	yakuman_kokushi
+	beq	yakuman_dragons
 	ldaa	#Y_TENHOU
 	tst	dealer_flag
 	bne	yakuman_first
 	ldaa	#Y_CHIIHOU
 yakuman_first:
 	jsr	add_ym
-yakuman_kokushi:
-	tst	nfuro
-	bne	yakuman_dragons
-	tst	spec_off
-	bne	yakuman_dragons
-	jsr	is_kokushi
-	beq	yakuman_dragons
-	ldaa	#Y_KOKUSHI
-	jsr	add_ym
+; Kokushi is added by score_hand.
 yakuman_dragons:
 	ldaa	work+K_HAKU
 	cmpa	#3

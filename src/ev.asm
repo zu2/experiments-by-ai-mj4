@@ -338,10 +338,10 @@ ev1_discard_10:
  ldaa nfuro
  bne ev1_discard_15
  jsr spec_prep14
- ldaa spec_pairs14
+ ldaa spec14+SP_PAIRS
  cmpa #5
  bcc ev1_discard_16
- ldaa spec_yao14
+ ldaa spec14+SP_YAO
  cmpa #11
  bcc ev1_discard_16
 ev1_discard_15:

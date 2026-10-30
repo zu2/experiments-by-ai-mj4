@@ -77,7 +77,6 @@ dcc_cost .equ $00BE ; dora cost of the candidate
 dh_i .equ $00BF ; hand tile index being drawn
 dcl_kind .equ $00C0 ; kind of the called tile
 df_type .equ $00C1 ; offset of the furo in P_FURO
-chiitoi_kinds .equ $00C2 ; kinds in counts
 mark_tip .equ $00C3 ; x of the marker tip
 react_pat .equ $00C4 ; chi pattern of react_act
 wk_first .equ $00C5 ; shared work: first kind changed (ad_rel_build, rel_restore)
@@ -86,12 +85,10 @@ al_j .equ $00C7 ; kind index of the draw
 sr_row .equ $00C8 ; text row of the result page
 title_i .equ $00C9 ; title tile index
 win_kind .equ $00CA ; kind of the winning tile
-yao_kinds .equ $00CB ; yaochu kinds in counts
 pay_amt .equ $00CC ; points one payer pays
 wk_unseen .equ $00CE ; shared work: unseen copies of wk_draw (acceptance, ev_acceptance)
 aka_n .equ $00CF ; red fives in the hand
 best_n .equ $00D0 ; yaku of the best result
-chiitoi_pairs .equ $00D1 ; kinds with 2 or more tiles in counts
 chi_pat .equ $00D2 ; chi pattern the human chose
 df_j .equ $00D3 ; tile index in the furo
 dv_divisor .equ $00D4 ; divisor of div8
@@ -114,7 +111,6 @@ ura_n .equ $00E5 ; ura dora in the hand
 al_x .equ $00E6 ; &counts[draw]
 ch_src .equ $00E8 ; font address of the character
 sm_src .equ $00EA ; image address
-yao_pairs .equ $00EC ; yaochu kinds with 2 or more
 wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept)
 lone_dora_kind .equ $00EE ; output of lone_dora: lone dora kind reserved as a candidate ($FF = none)
 cop_pat .equ $00EF ; chi pattern call_options checks

@@ -145,13 +145,13 @@
 | `sbt_` | sort_bytes | 1 | sbt_swapped |
 | `se_` | search | 3 | se_block se_counts_x se_kind |
 | `sg_` | sh_general | 22 | sg_advance sg_batch sg_best sg_call_head |
-| `sh_` | shanten | 4 | sh_best sh_chiitoi sh_general sh_general_lim |
+| `sh_` | shanten | 3 | sh_best sh_general sh_general_lim |
 | `shf_` | shuffle | 3 | shf_left shf_pi shf_pj |
 | `showdraw_` | show_draw の中の見出し | 5 | showdraw_amount showdraw_gain showdraw_no_pay showdraw_noten |
 | `sk_` | 打牌の後の向聴数の表 sk（discard_sk が作る） | 2 | sk sk_exact |
 | `sm_` | smalltile | 14 | sm_align sm_bits sm_dst sm_flags |
 | `snd_` | 効果音のデータ | 8 | snd_chi snd_discard snd_kan snd_pon |
-| `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 13 | spec_before spec_cut spec_kinds13 spec_kinds14 |
+| `spec_` | 特別な形（七対子・国士無双）の値（spec_prep14、spec_cut、spec_shanten） | 17 | spec_add spec_before spec_cnt spec_count |
 | `sr_` | show_result | 3 | sr_i sr_id sr_row |
 | `ss_` | setup_score | 5 | ss_count ss_flag_if ss_furo ss_i |
 | `ta_` | textaddr | 1 | ta_p |
@@ -164,7 +164,7 @@
 | `up_` | unpack_voice | 9 | up_delta up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
 | `wk_` | 共通の作業領域（work）。使う期間が重ならないルーチンが共用する。定義のコメントに使うルーチンを書く | 12 | wk_accept wk_best wk_bonus wk_count |
-| `yao_` | 么九牌 | 5 | yao_kinds yao_offsets yao_pairs yao_ptr |
+| `yao_` | 么九牌 | 2 | yao_offsets yao_ptr |
 | `ym_` | 役満 | 3 | ym_extra ym_n ym_y |
 
 ## 単語の接頭辞
@@ -204,11 +204,11 @@
 | `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 4 | char_at char_line char_no_carry char_px |
 | `check_` | 確かめる | 1 | check_win |
 | `chi_` | チー | 10 | chi_forbidden chi_i1 chi_i2 chi_key |
-| `chiitoi_` | 七対子 | 2 | chiitoi_kinds chiitoi_pairs |
+| `chiitoi_` | 七対子 | 0 |  |
 | `choose_` | 選ぶ | 4 | choose_cands choose_cands_limit_low_ok choose_cands_limit_ok choose_chi |
 | `clear_` | 消す | 6 | clear_bss clear_directpage clear_ippatsu clear_kk |
 | `closed_` | 門前 | 1 | closed_flag |
-| `count_` | 数える | 1 | count_yaochu |
+| `count_` | 数える | 0 |  |
 | `counts_` | 手牌の数え上げ | 3 | counts counts_x counts_x_ldx |
 | `cpu_` | CPU | 1 | cpu_turn |
 | `cur_` | 今調べている分け方の役と点 | 4 | cur_fu cur_han cur_n cur_y |
@@ -245,7 +245,7 @@
 | `img_` | 画像 | 2 | img_of img_of_b |
 | `in_` | 中にある | 1 | in_opp_river |
 | `intent_` | 手の狙い | 21 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
-| `is_` | 判定（A = 0 か 1） | 7 | is_agari is_closed is_dora_kind is_kokushi |
+| `is_` | 判定（A = 0 か 1） | 6 | is_agari is_closed is_dora_kind is_simple |
 | `isolated_` | 孤立牌（isolated_cand） | 1 | isolated_cand |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
 | `keep_` | 残す | 10 | keep_check_flush keep_chiitoi keep_honor keep_honor_old |
@@ -341,14 +341,14 @@
 | `wind_` | 風 | 2 | wind_kinds wind_names |
 | `yaku_` | 役 | 2 | yaku_han yaku_han_of |
 | `yakuhai_` | 役牌 | 1 | yakuhai_call |
-| `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
+| `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 744 個で、253 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 731 個で、254 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
-| `ac_special` | 9 |
+| `ac_special` | 2 |
 | `acc_leaf` | 5 |
 | `acc_mark` | 3 |
 | `acceptance` | 9 |
@@ -391,6 +391,7 @@
 | `chi_kinds` | 3 |
 | `chi_step` | 5 |
 | `chi_valid` | 4 |
+| `chii_sh` | 1 |
 | `choose_cands` | 2 |
 | `choose_chi` | 4 |
 | `clear_ippatsu` | 1 |
@@ -398,7 +399,6 @@
 | `collect` | 7 |
 | `concealed` | 2 |
 | `connection` | 1 |
-| `count_yaochu` | 3 |
 | `cp_position` | 2 |
 | `cpu_turn` | 3 |
 | `cv_check` | 1 |
@@ -445,7 +445,7 @@
 | `fi_copy` | 2 |
 | `fi_limit` | 4 |
 | `final_scores` | 1 |
-| `find_waits` | 10 |
+| `find_waits` | 9 |
 | `find_yakuman` | 1 |
 | `finish` | 1 |
 | `flush_filter` | 5 |
@@ -480,7 +480,6 @@
 | `intent_bonus` | 2 |
 | `is_agari` | 1 |
 | `is_closed` | 3 |
-| `is_kokushi` | 1 |
 | `is_simple` | 1 |
 | `is_yakuhai` | 5 |
 | `is_yaochu` | 1 |
@@ -490,6 +489,7 @@
 | `keep_value` | 3 |
 | `kind_number` | 2 |
 | `kind_suit` | 3 |
+| `kok_sh` | 1 |
 | `kuikae_ok` | 3 |
 | `kv_base` | 2 |
 | `kyoku` | 5 |
@@ -548,9 +548,8 @@
 | `sg_init` | 1 |
 | `sg_leaf` | 3 |
 | `sg_lmax_set` | 1 |
-| `sh_chiitoi` | 3 |
-| `shanten` | 4 |
-| `shanten_lim` | 1 |
+| `shanten` | 2 |
+| `shanten_lim` | 2 |
 | `short_conn` | 3 |
 | `show_draw` | 2 |
 | `show_result` | 10 |
@@ -561,9 +560,11 @@
 | `small_unpack` | 4 |
 | `smalltile` | 2 |
 | `sort_bytes` | 4 |
-| `spec_cut` | 6 |
-| `spec_prep14` | 1 |
-| `spec_shanten` | 2 |
+| `spec_before` | 1 |
+| `spec_count` | 4 |
+| `spec_prep14` | 2 |
+| `spec_shanten` | 1 |
+| `spec_step` | 2 |
 | `ss_flag_if` | 1 |
 | `ss_furo` | 7 |
 | `start` | 1 |

@@ -319,6 +319,8 @@ discard_sk:
  ldaa #$7F
  staa wk_limit
 discard_sk_lim:
+ ldaa #8
+ staa spec_low
  tst spec_off
  bne discard_sk_00
  jsr spec_prep14
@@ -1762,8 +1764,8 @@ acceptance_05:
 
  ; Acceptance needs only to know whether the shanten value drops.
 accept_eval:
- tst nfuro
- bne acceval_regular
+ tst spec_near
+ beq acceval_regular
  jmp ac_special
 acceval_regular:
  ldx ac_ptr
@@ -1804,12 +1806,20 @@ ad_rel_build_01:
 relevant:
  dec 0,x
  clr ac_kok_active
+ clr spec_near
  tst nfuro
  bne relevant_00
+ ; A draw lowers a special shape by one at most, and no shape of the 13
+ ; tiles is below min_s: only a special shape at min_s can go below.
  jsr ad_spec_values
- ldaa #13
- suba spec_yao13
- suba spec_ypair13
+ ldx #spec13
+ jsr spec_shanten
+ cmpa min_s
+ bne relevant_00
+ inc spec_near
+ ldaa spec13+SP_YAO
+ ldab spec13+SP_YPAIRS
+ jsr kok_sh
  cmpa min_s
  bne relevant_00
  inc ac_kok_active
@@ -1861,6 +1871,7 @@ rel_restore_03:
  .bss
 ad_rel_delta: .ds 1 ; +1 or -1 for rel
 ac_kok_active: .ds 1 ; 1 when kokushi is tied for best
+spec_near: .ds 1 ; 1 when a special shape of the 13 tiles is at min_s
  .code
 
 ; Tenpai scoring uses only rel[j] != 0, so reuse raw neighborhood sums.
@@ -2784,155 +2795,143 @@ wk_left: .ds 1 ; shared work: tanyao yaochu limit (set_intents), toitoi slots le
 iw_number_exempt: .ds 1 ; nonzero when a special route keeps its own tile order
 
  .code
- ; Count special-shape features once for the original fourteen-tile hand.
+ ; Special-shape values of a hand, a set of 4 bytes: kinds held, yaochu kinds
+; held, kinds with 2 or more tiles, yaochu kinds with 2 or more tiles.
+SP_KINDS .equ 0
+SP_YAO .equ 1
+SP_PAIRS .equ 2
+SP_YPAIRS .equ 3
+; spec14 of the 14 tiles of ai_discard (spec_prep14), spec13 after the
+; discard of wk_kind (spec_cut), spec_drawn after one more draw (spec_add).
 spec_prep14:
+ ldaa #8
  tst nfuro
  bne spec_prep14_00
- jsr sh_chiitoi
- ldaa chiitoi_pairs
- staa spec_pairs14
- ldaa chiitoi_kinds
- staa spec_kinds14
- jsr count_yaochu
- ldaa yao_kinds
- staa spec_yao14
- ldaa yao_pairs
- staa spec_ypairs14
+ jsr spec_count
+ ldab #4
+spec_prep14_01:
+ ldaa 0,x
+ staa 4,x
+ inx
+ decb
+ bne spec_prep14_01
+ ldx #spec14
+ jsr spec_shanten
 spec_prep14_00:
+ staa spec_low
  rts
 
-; Special shapes (chiitoi, kokushi) of the 13 tiles after discarding wk_kind,
-; from the 14-tile values of spec_prep14. counts is not changed.
-; relevant and ac_special read the 13-tile values; shanten_lim reads A.
+; Makes spec13 for the discard of wk_kind (counts has the 13 tiles).
 ad_spec_values:
  jsr kind_counts_x
  ldab 0,x
+ ldaa wk_kind
  bra spec_cut
 ; X = &counts[wk_kind] of the 14 tiles. Returns A = special-shape shanten
 ; after discarding one tile of wk_kind (8 with a furo). Keeps X.
 spec_before:
  ldaa #8
  tst nfuro
- bne spec_shanten_01
+ bne spec_before_00
  tst spec_off
- bne spec_shanten_01
+ bne spec_before_00
+ stx spec_x
  ldab 0,x
  decb
+ ldaa wk_kind
  bsr spec_cut
-; Returns A = special-shape shanten of spec_*13 (no furo). Keeps X.
-spec_shanten:
- ldaa #6
- suba spec_pairs13
- ldab #7
- subb spec_kinds13
- bls spec_shanten_00
- aba
-spec_shanten_00:
- ldab #13
- subb spec_yao13
- subb spec_ypair13
- cba
- ble spec_shanten_01
- tba
-spec_shanten_01:
+ ldx #spec13
+ bsr spec_shanten
+ ldx spec_x
+spec_before_00:
  rts
-; B = tiles of wk_kind left after the discard. Makes spec_*13. Keeps X.
+; X = a set. Returns A = the lower of the chiitoi and kokushi shanten. Keeps X.
+spec_shanten:
+ ldaa SP_YAO,x
+ ldab SP_YPAIRS,x
+ jsr kok_sh
+ psha
+ ldaa SP_PAIRS,x
+ ldab SP_KINDS,x
+ jsr chii_sh
+ pulb
+ cba
+ ble spec_shanten_00
+ tba
+spec_shanten_00:
+ rts
+; A = kind, B = its tiles left after one of them is discarded. spec13 =
+; spec14 without that tile.
 spec_cut:
- ldaa spec_pairs14
- cmpb #1
- bne spec_cut_00
- ; A pair of the kind is broken.
- deca
-spec_cut_00:
- staa spec_pairs13
- ldaa spec_kinds14
- tstb
- bne spec_cut_01
- ; The kind is gone.
- deca
-spec_cut_01:
- staa spec_kinds13
- jsr kind_is_yaochu
- bne spec_cut_02
- ldaa spec_yao14
- staa spec_yao13
- ldaa spec_ypairs14
- bra spec_cut_04
-spec_cut_02:
- ldaa spec_yao14
- tstb
- bne spec_cut_03
- deca
-spec_cut_03:
- staa spec_yao13
- ldaa spec_ypairs14
- cmpb #1
- bne spec_cut_04
- deca
-spec_cut_04:
- ; spec_ypair13 is 1 when a yaochu pair is left.
- tsta
- beq spec_cut_05
+ psha
+ ldaa #-1
+ ldx #spec14
+ bra spec_step
+; A = kind, B = its tiles before one more is drawn. spec_drawn = spec13 with
+; that tile.
+spec_add:
+ psha
  ldaa #1
-spec_cut_05:
- staa spec_ypair13
+ ldx #spec13
+; X = set, A = 1 or -1 on the stack the kind, B = tiles of the kind without
+; the tile. The set at 4,x is the set at X with the tile added or removed.
+spec_step:
+ staa spec_delta
+ stab spec_tiles
+ stx spec_save
+ pula
+ jsr is_yaochu
+ staa spec_yaochu
+ ldab #4
+spec_step_00:
+ ldaa 0,x
+ staa 4,x
+ inx
+ decb
+ bne spec_step_00
+ ldx spec_save
+ ; The kind (and yaochu kind) count changes with 0 other tiles of the kind,
+ ; the pair (and yaochu pair) count with 1.
+ ldab spec_tiles
+ cmpb #1
+ bhi spec_step_01
+ aslb
+ jsr addxb
+ ldaa 4+SP_KINDS,x
+ adda spec_delta
+ staa 4+SP_KINDS,x
+ tst spec_yaochu
+ beq spec_step_01
+ ldaa 4+SP_YAO,x
+ adda spec_delta
+ staa 4+SP_YAO,x
+spec_step_01:
  rts
  .bss
 spec_off: .ds 1 ; nonzero while ev1_discard knows no chiitoi or kokushi can be tenpai or win
-spec_pairs14: .ds 1 ; output of spec_prep14: pairs of the 14 tiles
-spec_kinds14: .ds 1 ; output of spec_prep14: kinds of the 14 tiles
-spec_yao14: .ds 1 ; output of spec_prep14: yaochu kinds of the 14 tiles
-spec_ypairs14: .ds 1 ; output of spec_prep14: yaochu pairs of the 14 tiles
-spec_pairs13: .ds 1 ; output of spec_cut: pairs of the 13 tiles
-spec_kinds13: .ds 1 ; output of spec_cut: kinds of the 13 tiles
-spec_yao13: .ds 1 ; output of spec_cut: yaochu kinds of the 13 tiles
-spec_ypair13: .ds 1 ; output of spec_cut: 1 when the 13 tiles have a yaochu pair
+; spec_cnt, spec14, spec13 and spec_drawn are in this order: spec_prep14 and
+; spec_step write at 4,x.
+spec_cnt: .ds 4 ; special-shape values of counts (spec_count)
+spec14: .ds 4 ; special-shape values of the 14 tiles (SP_*)
+spec13: .ds 4 ; ... after the discard of wk_kind
+spec_drawn: .ds 4 ; ... after one more draw
+spec_low: .ds 1 ; special-shape shanten of spec14: no discard goes below it
+spec_save: .ds 2 ; the set of spec_step
+spec_x: .ds 2 ; X kept by spec_before
+spec_delta: .ds 1 ; 1 or -1 in spec_step
+spec_tiles: .ds 1 ; tiles of the kind without the tile in spec_step
+spec_yaochu: .ds 1 ; 1 if the kind of spec_step is yaochu
  .code
 ; Compute special shanten after this draw from cached thirteen-tile counts.
 ac_special:
+ ; With the draw (counts at ac_ptr has it).
  ldx ac_ptr
  ldab 0,x
- ldaa #6
- suba spec_pairs13
- cmpb #2
- bne ac_special_00
- deca
-ac_special_00:
- psha
- ldaa #7
- suba spec_kinds13
- cmpb #1
- bne ac_special_01
- deca
-ac_special_01:
- tsta
- ble ac_special_02
- pulb
- aba
- bra ac_special_03
-ac_special_02:
- pula
-ac_special_03:
- cmpa min_s
- blt ac_special_08
+ decb
  ldaa wk_draw
- jsr is_yaochu
- beq ac_special_07
- ldx ac_ptr
- ldab 0,x
- ldaa #13
- suba spec_yao13
- cmpb #1
- bne ac_special_04
- deca
-ac_special_04:
- tst spec_ypair13
- bne ac_special_05
- cmpb #2
- bcs ac_special_06
-ac_special_05:
- deca
-ac_special_06:
+ bsr spec_add
+ ldx #spec_drawn
+ bsr spec_shanten
  cmpa min_s
  blt ac_special_08
 ac_special_07:

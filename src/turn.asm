@@ -485,8 +485,8 @@ kyuushu_check:
  bita #P_FIRST
  beq kyuushu_check_01
  jsr turn_eval_load
- jsr count_yaochu
- ldaa yao_kinds
+ jsr spec_count
+ ldaa SP_YAO,x
  cmpa #9
  bcs kyuushu_check_01
  tst turn
@@ -496,7 +496,7 @@ kyuushu_check:
 kyuushu_check_00:
  cmpa #9
  bne kyuushu_check_01
- ldaa yao_pairs
+ ldaa spec_cnt+SP_YPAIRS
  beq kyuushu_check_02
 kyuushu_check_01:
  clra
@@ -1055,8 +1055,10 @@ find_waits_01:
  tst spec_off
  bne fw_result
  ; Chiitoi tenpai: the single tile.
- jsr sh_chiitoi
- tsta
+ jsr spec_count
+ ldaa SP_PAIRS,x
+ ldab SP_KINDS,x
+ jsr chii_sh
  bne fw_kokushi
  ldx #counts
 find_waits_10:
@@ -1071,21 +1073,16 @@ find_waits_11:
  bne find_waits_10
 fw_kokushi:
  ; Kokushi tenpai: every yaochu kind without a pair, or the missing kind.
- jsr count_yaochu
- ldaa #13
- suba yao_kinds
- tst yao_pairs
- beq find_waits_20
- deca
-find_waits_20:
- tsta
+ ldaa spec_cnt+SP_YAO
+ ldab spec_cnt+SP_YPAIRS
+ jsr kok_sh
  bne fw_result
  ldx #yao_offsets
 find_waits_21:
  stx yao_ptr
  ldab 0,x
  jsr counts_x
- tst yao_pairs
+ tst spec_cnt+SP_YPAIRS
  beq find_waits_22
  tst 0,x
  bne find_waits_23
