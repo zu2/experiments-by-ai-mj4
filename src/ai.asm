@@ -410,7 +410,7 @@ least_danger_01:
 	rts
 
 ; Sets ad_pick to the kind with sk = min_s that leaves the most tiles that
-; lower the shanten number.
+; lower the shanten number, and cc_lower to ac_lower of each candidate.
 best_accept:
 	jsr	flush_filter
  jsr toi_filter
@@ -430,6 +430,23 @@ best_accept_10:
 	staa	wk_kind
  ; Evaluate and restore this discard before adding its policy bonus.
  jsr candidate_acceptance
+ ; ev1_discard reads ac_lower of this slot from cc_lower.
+ ldab cc_slot
+ aslb
+ aslb
+ addb cc_slot
+ ldx #cc_lower
+ jsr addxb
+ ldaa ac_lower
+ staa 0,x
+ ldaa ac_lower+1
+ staa 1,x
+ ldaa ac_lower+2
+ staa 2,x
+ ldaa ac_lower+3
+ staa 3,x
+ ldaa ac_lower+4
+ staa 4,x
  ldx #cc_bonus
  ldab cc_slot
  jsr addxb
@@ -2526,6 +2543,7 @@ cc_order:	.ds	6 ; up to 6 candidate kinds ($FF = none)
 cc_ranks: .ds 6 ; their ranks
 cc_bonus: .ds 6 ; their discard_bonus values
 cc_costs: .ds 6 ; their dora costs
+cc_lower: .ds 6*5 ; ac_lower of each cc_order slot that best_accept evaluated
 cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
 ; set_intents clears intent_flags..intent_flags_end.
 intent_flags:

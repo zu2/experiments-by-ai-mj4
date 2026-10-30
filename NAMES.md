@@ -61,7 +61,7 @@
 | `ca_` | ai_call | 1 | ca_none |
 | `calc_` | 計算 | 1 | calc_fu |
 | `calldisc_` | call_discard の中の見出し | 1 | calldisc_cpu |
-| `cc_` | choose_cands | 14 | cc_bonus cc_cand_bonus cc_costs cc_insert_x |
+| `cc_` | choose_cands | 15 | cc_bonus cc_cand_bonus cc_costs cc_insert_x |
 | `cflush_` | call_flush_ok の中の見出し | 1 | cflush_yes |
 | `ch_` | drawchar と char_at | 3 | ch_cnt ch_dst ch_src |
 | `ck_` | チーに使う手の 2 種類（chi_kinds） | 2 | ck_a ck_b |
@@ -122,7 +122,7 @@
 | `ot_` | 表示している手牌の位置 | 2 | ot_hand_tile_x ot_i |
 | `ownkan_` | own_kan の中の見出し | 3 | ownkan_chankan ownkan_kakan ownkan_no_rob |
 | `p0_` | プレイヤー 0（人） | 1 | p0_hand_at |
-| `pcm_` | 音声の再生（pcm_play） | 2 | pcm_phase pcm_play |
+| `pcm_` | 音声の再生（pcm_play） | 3 | pcm_phase pcm_play |
 | `pl_` | play（音を鳴らす） | 3 | pl_delay pl_p pl_waves |
 | `pn_` | print_num | 2 | pn_buf pn_p |
 | `pscore_` | print_score の中の見出し | 1 | pscore_zero |
@@ -161,7 +161,7 @@
 | `tt_` | draw_title | 1 | tt_line |
 | `tx_` | text_px の位置 | 2 | tx_x tx_y |
 | `ui_` | 画面の描画 | 67 | ui_all ui_back_n ui_band ui_big |
-| `up_` | unpack_voice | 7 | up_bits up_dst up_end up_flag |
+| `up_` | unpack_voice | 9 | up_bits up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
 | `wk_` | 共通の作業領域（work）。使う期間が重ならないルーチンが共用する。定義のコメントに使うルーチンを書く | 12 | wk_accept wk_best wk_bonus wk_count |
 | `yao_` | 么九牌 | 5 | yao_kinds yao_offsets yao_pairs yao_ptr |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 713 個で、246 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 722 個で、246 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -427,7 +427,7 @@
 | `em_wait` | 2 |
 | `erase` | 5 |
 | `ev1_best` | 2 |
-| `ev1_discard` | 12 |
+| `ev1_discard` | 16 |
 | `ev1_draw` | 16 |
 | `ev1_fits` | 2 |
 | `ev_acceptance` | 3 |
@@ -508,7 +508,7 @@
 | `own_kan` | 3 |
 | `pay_share` | 2 |
 | `payer_amount` | 1 |
-| `pcm_play` | 4 |
+| `pcm_play` | 7 |
 | `pick_kan` | 2 |
 | `play` | 5 |
 | `print_num` | 2 |
@@ -585,7 +585,7 @@
 | `ui_river_y` | 1 |
 | `ui_scores` | 5 |
 | `ui_stick` | 1 |
-| `unpack_voice` | 5 |
+| `unpack_voice` | 7 |
 | `unshown_init` | 1 |
 | `unshown_kind` | 1 |
 | `wait_frames` | 1 |

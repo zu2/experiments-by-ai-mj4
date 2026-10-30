@@ -288,20 +288,42 @@ ev1_discard_01:
 ev1_discard_02:
  staa e1_i
  staa wk_kind
+ ; best_accept, just before, kept ac_lower of the kinds in cc_order.
+ ldx #cc_order
+ clrb
+ev1_discard_03:
+ ldaa 0,x
+ cmpa e1_i
+ beq ev1_discard_05
+ cmpa #$FF
+ beq ev1_discard_04
+ inx
+ incb
+ cmpb cc_limit
+ bne ev1_discard_03
+ev1_discard_04:
  jsr candidate_acceptance
+ ldx #ac_lower
+ bra ev1_discard_06
+ev1_discard_05:
+ tba
+ asla
+ asla
+ aba
+ tab
+ ldx #cc_lower
+ jsr addxb
+ev1_discard_06:
+ stx em_ptr
  ldx e1_end
  ldaa e1_i
  staa 0,x
- ldaa ac_lower
- staa 1,x
- ldaa ac_lower+1
- staa 2,x
- ldaa ac_lower+2
- staa 3,x
- ldaa ac_lower+3
- staa 4,x
- ldaa ac_lower+4
- staa 5,x
+ inx
+ stx em_q
+ ldx em_ptr
+ ldab #5
+ jsr em_move
+ ldx e1_end
  clr 6,x
  clr 7,x
  clr 8,x
