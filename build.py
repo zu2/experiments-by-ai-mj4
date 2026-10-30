@@ -9,9 +9,9 @@ if not (TOOLS/'as6800').is_file() or not (TOOLS/'ld6800').is_file():
 subprocess.run(['python3','tools/gen.py','strings.txt','data.s'],check=True)
 speech='--no-speech' not in sys.argv
 # With speech, PCM_BUF ($2100) holds 5 bytes per 8 samples below the BSS: at most
-# $3300-$2100 = 4608 bytes (riichi has 2525; tools/voice_pack.py checks the same limit); the stack
+# $3000-$2100 = 3840 bytes (riichi has 2525; tools/voice_pack.py checks the same limit); the stack
 # stays above STACK_LIMIT.
-BSS_SPEECH=0x3300
+BSS_SPEECH=0x3000
 STACK_LIMIT=0x3c00
 files=['directpage','main','turn','ai','ev','eval','shgen','score','sound','ui','settle','util','direct']
 # Callers branch on N and Z after routines marked "N and Z set from A" without TSTA.
