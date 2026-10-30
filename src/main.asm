@@ -65,6 +65,12 @@ P_SKIP	.equ	$01
 
 	.code
 start:
+	bra	start_00
+; greedy reads gd_transitions with a one-byte offset, so the table must not
+; cross a page. Here, right after the entry at $4000, it does not move.
+gd_transitions:
+ .byte 0,8,1,9,2,0,0,0,16,1,9,2,10,0,0,0,0,1,9,2,10
+start_00:
 	lds	#$3FFF
 	cli
 	ldx	#bss_start

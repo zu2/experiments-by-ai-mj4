@@ -121,10 +121,6 @@ shanten_lim:
 shanten_lim_00:
  rts
 
-; greedy reads it with a one-byte offset, so it must not cross a page.
-gd_transitions:
- .byte 0,8,1,9,2,0,0,0,16,1,9,2,10,0,0,0,0,1,9,2,10
-
 ; X = counts of one suit. Returns A = taatsu; X unchanged.
 ; Tiles match their lowest free partner.
 greedy:
