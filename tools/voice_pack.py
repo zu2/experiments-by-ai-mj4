@@ -4,15 +4,15 @@ from collections import Counter
 import heapq
 root = Path(__file__).resolve().parents[1] / 'voice'
 words = {}
-# The code of a delta depends on the previous delta: voice_tree0 after a zero
-# delta (and for the first sample), voice_tree otherwise.
+# The code of a delta depends on the previous delta: voice_tree0 after 0, 1 or
+# 31 (and for the first sample), voice_tree otherwise.
 counts = [Counter(), Counter()]
 for name in ('pon', 'chi', 'kan', 'ron', 'tsumo', 'riichi'):
     raw = (root / (name + '.pcm')).read_bytes()
     bits = ''.join(f'{v:08b}' for v in raw)
     q = [int(bits[i:i+5], 2) for i in range(0, len(bits), 5)]
     delta = [(v - (q[i-1] if i else 16)) & 31 for i, v in enumerate(q)]
-    ctx = [0] + [1 if d else 0 for d in delta[:-1]]
+    ctx = [0] + [0 if d in (0, 1, 31) else 1 for d in delta[:-1]]
     words[name] = (raw, delta, ctx)
     for c, d in zip(ctx, delta):
         counts[c][d] += 1

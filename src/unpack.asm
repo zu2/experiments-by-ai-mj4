@@ -1,5 +1,5 @@
 ; Per-word lossless delta Huffman expansion into PCM_BUF in the form of pcm_play.
-; A delta after a zero delta (and the first) uses voice_tree0, others voice_tree.
+; A delta after 0, 1 or 31 (and the first) uses voice_tree0, others voice_tree.
 unpack_voice:
  ldaa 1,x
  ldab 2,x
@@ -20,11 +20,15 @@ unpack_voice:
  staa up_prev
  clr up_delta
 unpack_voice_00:
- ldaa up_flag
- ldx #voice_tree
- tst up_delta
- bne unpack_voice_01
  ldx #voice_tree0
+ ldab up_delta
+ incb
+ andb #31
+ cmpb #3
+ bcs unpack_voice_07
+ ldx #voice_tree
+unpack_voice_07:
+ ldaa up_flag
  ; up_flag holds the bits not used yet, then a 1.
 unpack_voice_01:
  asla

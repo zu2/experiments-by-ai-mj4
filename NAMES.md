@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 16 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 723 個で、247 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 724 個で、247 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `ac_special` | 9 |
@@ -586,7 +586,7 @@
 | `ui_river_y` | 1 |
 | `ui_scores` | 5 |
 | `ui_stick` | 1 |
-| `unpack_voice` | 7 |
+| `unpack_voice` | 8 |
 | `unshown_init` | 1 |
 | `unshown_kind` | 1 |
 | `wait_frames` | 1 |
