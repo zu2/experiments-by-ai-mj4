@@ -26,9 +26,9 @@ s_baiman	バイマン
 s_haneman	ハネマン
 s_mangan	マンガン
 yaku	0	リーチ
-yaku	1	ダブルリーチ
+yaku	1	ダブリー
 yaku	2	イッパツ
-yaku	3	メンゼンツモ
+yaku	3	ツモ
 yaku	4	ピンフ
 yaku	5	タンヤオ
 yaku	6	イーペーコー
@@ -40,7 +40,7 @@ yaku	11	ジカゼ
 yaku	12	リンシャンカイホー
 yaku	13	チャンカン
 yaku	14	ハイテイ
-yaku	15	ホーテイ
+yaku	15	ホウテイ
 yaku	16	サンショク
 yaku	17	イッツー
 yaku	18	チャンタ
@@ -60,7 +60,7 @@ yaku	31	アカドラ
 yaku	32	ウラドラ
 yaku	40	テンホー
 yaku	41	チーホー
-yaku	42	コクシムソー
+yaku	42	コクシムソウ
 yaku	43	スーアンコー
 yaku	44	ダイサンゲン
 yaku	45	ツーイーソー
