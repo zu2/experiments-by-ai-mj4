@@ -163,6 +163,16 @@ call_shanten_worse:
  ldaa call_shanten_now
  inca
 call_shanten_restore:
+ ; A call after which ai_discard would fold, or would fold on danger, is
+ ; worse.
+ psha
+ jsr fold_check
+ cmpa #FC_DANGER
+ pula
+ bcs call_shanten_00
+ ldaa call_shanten_now
+ inca
+call_shanten_00:
  psha
  dec nfuro
  jsr pair_restore
@@ -215,6 +225,7 @@ call_pre_acc: .ds 1
 ft_n: .ds 1 ; furo_threat: result
 ft_left: .ds 1 ; furo_threat: furo left
 ft_x: .ds 2 ; furo_threat: furo being read
+fc_r: .ds 1 ; fold_check: shanten in, result out
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
 
@@ -256,19 +267,11 @@ ai_discard_00:
  staa e1_sec
  stab e1_frame
  jsr discard_sk
- ; draws_left / 4 draws are left for this player: fewer than min_s cannot
- ; reach tenpai without a call, so it only defends.
- ldaa draws_left
- lsra
- lsra
- cmpa min_s
- bcs ai_discard_02
- ; A riichi or two furo: defend as against a riichi.
-	jsr	any_threat
+ ldaa min_s
+ jsr fold_check
 	beq	ai_discard_05
-	ldaa	min_s
-	cmpa	#2
-	blt	ai_discard_03
+ cmpa #FC_FOLD
+	bcs	ai_discard_03
 ai_discard_02:
 	ldaa	#$7F
 	staa	wk_limit
@@ -291,17 +294,9 @@ ai_discard_10:
 	ldaa	min_s
 	staa	wk_limit
  jsr least_danger
-ai_discard_11:
- ; Against a riichi, after the early part (fewer than 40 draws left), a
- ; 1-shanten hand folds when every discard that keeps it has danger 5 or more.
- ldaa min_s
- cmpa #1
+ ldaa fc_r
+ cmpa #FC_DANGER
  bne ai_discard_07
- jsr any_riichi
- beq ai_discard_07
- ldaa draws_left
- cmpa #40
- bcc ai_discard_07
  ldaa wk_best
  cmpa #5
  bcc ai_discard_02
@@ -2626,6 +2621,48 @@ toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
 	.code
 ; Returns A = 1 if another player has a riichi (any_riichi), or a riichi or
 ; two furo (any_threat). Returns with N and Z set from A.
+; A = shanten of the hand ai_player keeps. Returns A = fc_r with N and Z:
+; FC_ATTACK  nobody is a threat (any_threat).
+; FC_PUSH    a threat, but the hand is near: push with the least danger.
+; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left: fold when
+;            every discard that keeps the shanten has danger 5 or more.
+; FC_FOLD    fold: draws_left / 4 draws cannot reach tenpai, or a threat
+;            and 2-shanten or more.
+; ai_discard and ai_call (call_shanten) both use it, so a call never makes
+; a hand that folds. X and B are scratch.
+FC_ATTACK .equ 0
+FC_PUSH .equ 1
+FC_DANGER .equ 2
+FC_FOLD .equ 3
+fold_check:
+ staa fc_r
+ ldab draws_left
+ lsrb
+ lsrb
+ ldaa #FC_FOLD
+ cmpb fc_r
+ bcs fold_check_01
+ jsr any_threat
+ beq fold_check_01
+ ldab fc_r
+ ldaa #FC_FOLD
+ cmpb #2
+ bcc fold_check_01
+ ldaa #FC_PUSH
+ decb
+ bne fold_check_01
+ jsr any_riichi
+ beq fold_check_00
+ ldaa draws_left
+ cmpa #40
+ ldaa #FC_DANGER
+ bcs fold_check_01
+fold_check_00:
+ ldaa #FC_PUSH
+fold_check_01:
+ staa fc_r
+ rts
+
 any_riichi:
  ldaa #5
  bra any_riichi_03
