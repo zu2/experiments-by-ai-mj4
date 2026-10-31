@@ -96,10 +96,7 @@ ui_cpu_furo:
  ldab P_NFURO,x
  bsr ui_furo_x
  staa sm_x
- jsr ui_furo
- tst ui_refresh
- bne ui_hand_done
- jmp ui_scores
+ jmp ui_furo
 ; B = number of the furo of a CPU. Returns A = x of the furo (168 - 36 * B).
 ui_furo_x:
  aslb
@@ -525,9 +522,12 @@ redraw_all_01:
  jmp ui_scores
 ; Redraws the header and the scores.
 draw_info:
-draw_nokori:
  jsr ui_header
  jmp ui_scores
+; After a draw: the tiles left and the turn marks.
+draw_nokori:
+ jsr ui_nokori
+ jmp ui_turn
 ; Draws the round, the honba and the dora indicators over the old ones. Each
 ; item keeps its place and width, and the stick of the deposits and the dora
 ; indicators only increase in a round (clear_screen starts each round).
@@ -552,13 +552,7 @@ ui_header_00:
  jsr print_byte_num
  ldx #s_honba
  jsr drawstr
- ldaa #9
- staa posx
- ldx #s_nokori
- jsr drawstr
- ldaa draws_left
- ldab #2
- jsr print_byte_num
+ jsr ui_nokori
  tst kyotaku
  beq ui_header_dora
  ldaa #120
@@ -624,26 +618,7 @@ ui_scores:
  clr ui_sp
 ui_scores_00:
  ldaa ui_sp
- beq ui_scores_01
- jsr ui_band
- adda #7
- lsra
- lsra
- lsra
- bra ui_scores_02
-ui_scores_01:
- ldaa #16
-ui_scores_02:
- staa posy
- ldaa #23
- staa posx
- ldaa #CH_SP
- ldab ui_sp
- cmpb turn
- bne ui_scores_03
- ldaa #CH_TURN
-ui_scores_03:
- jsr drawchar
+ jsr ui_turn_mark
  inc posx
  jsr draw_seat_wind
  ldaa ui_sp
@@ -673,6 +648,52 @@ ui_scores_05:
  rts
 wind_names:
  .word s_ton,s_nan,s_sha,s_pe
+; Draws the turn marks of the four players.
+ui_turn:
+ clr ui_sp
+ui_turn_00:
+ ldaa ui_sp
+ jsr ui_turn_mark
+ inc ui_sp
+ ldaa ui_sp
+ cmpa #4
+ bne ui_turn_00
+ rts
+; A = player. Draws his turn mark (CH_TURN in turn, else a space) at the
+; start of his line of the scores, and leaves posx and posy there.
+ui_turn_mark:
+ psha
+ tsta
+ beq ui_turn_mark_00
+ jsr ui_band
+ adda #7
+ lsra
+ lsra
+ lsra
+ bra ui_turn_mark_01
+ui_turn_mark_00:
+ ldaa #16
+ui_turn_mark_01:
+ staa posy
+ ldaa #23
+ staa posx
+ pulb
+ ldaa #CH_SP
+ cmpb turn
+ bne ui_turn_mark_02
+ ldaa #CH_TURN
+ui_turn_mark_02:
+ jmp drawchar
+; Draws the tiles left in the header.
+ui_nokori:
+ clr posy
+ ldaa #9
+ staa posx
+ ldx #s_nokori
+ jsr drawstr
+ ldaa draws_left
+ ldab #2
+ jmp print_byte_num
 
 ; Draw one small tile, then move to the next tile position.
 smalltile_advance:

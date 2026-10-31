@@ -1613,8 +1613,7 @@ docall_add:
 	ldaa	turn
 	jsr	draw_hand
 	jsr	draw_arrow
-	jsr	ui_scores
-	rts
+ jmp ui_turn
 
 ; Clears the first-turn and ippatsu flags of all players.
 clear_ippatsu:
