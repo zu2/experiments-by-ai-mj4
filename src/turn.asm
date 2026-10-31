@@ -333,6 +333,25 @@ react_ron_none:
 react_more:
  jmp react_four
 react_stick:
+ ; The discard passed: no riichi player (bit of riichi_passed) can ron it.
+ ldab #3
+react_stick_00:
+ tba
+ jsr player
+ ldaa P_FLAG,x
+ asla
+ rol rp_bits
+ decb
+ bpl react_stick_00
+ ldaa dc_tile
+ lsra
+ tab
+ ldx #riichi_passed
+ jsr addxb
+ ldaa rp_bits
+ anda #$0F
+ oraa 0,x
+ staa 0,x
 	tst	decl
 	beq	react_call
 	clr	decl
@@ -1987,6 +2006,8 @@ kans_done:	.ds	1 ; kans in this hand
 rinshan:	.ds	1 ; nonzero after a kan draw
 pending_dora:	.ds	1 ; kan dora to open after the discard
 ; Cleared at the start of a hand from dora_of_kind to furo_facts_end.
+riichi_passed:	.ds	KN ; bit p: a discard of the kind passed after the riichi of player p
+rp_bits:	.ds	1 ; react_stick: riichi players
 dora_of_kind:	.ds	KN ; open dora indicators that point to each kind (unshown_dora)
 ; Facts of the furo of each player (index = player), in this order:
 ; ai_furo_x and furo_upgrade read them as offsets from minshun_n.

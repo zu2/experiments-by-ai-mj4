@@ -2194,9 +2194,22 @@ danger_one_08:
 	ldaa	#2
 	rts
 
-; A = kind. Z = 0 if player 0 discarded it.
+; A = kind. Returns A = 1 if the riichi player danger_player cannot ron it:
+; it is in his river, or it passed after his riichi (riichi_passed).
+; Returns with N and Z set from A.
 in_opp_river:
 	staa	ir_kind
+ tab
+ ldx #riichi_passed
+ jsr addxb
+ ldaa 0,x
+ ldab danger_player
+ incb
+in_opp_river_03:
+ lsra
+ decb
+ bne in_opp_river_03
+ bcs in_opp_river_02
 	ldaa	danger_player
 	jsr	player
 	ldab	P_RLEN,x

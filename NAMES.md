@@ -137,7 +137,7 @@
 | `rk_` | scan_keys | 2 | rk_bit rk_data |
 | `rn_` | ron_ok | 2 | rn_n rn_x |
 | `rnd_` | rand | 2 | rnd_t0 rnd_t1 |
-| `rp_` | 鳴ける形（rp_pon、rp_kan、rp_chi） | 3 | rp_chi rp_kan rp_pon |
+| `rp_` | 鳴ける形（rp_pon、rp_kan、rp_chi） | 4 | rp_bits rp_chi rp_kan rp_pon |
 | `rr_` | ui_river_draw | 2 | rr_k rr_p |
 | `rvt_` | ui_river_tile | 5 | rvt_flag rvt_img rvt_index rvt_player |
 | `ry_` | 流局（settle_draw と表示） | 5 | ry_bits4_x ry_n ry_score_before ry_tenpai |
@@ -291,7 +291,7 @@
 | `redraw_` | 描き直す | 2 | redraw_all redraw_hands |
 | `result_` | 結果の画面 | 1 | result_active |
 | `reveal_` | 手を見せる | 2 | reveal reveal_hands |
-| `riichi_` | リーチ | 9 | riichi_allowed riichi_hint_live riichi_hint_x riichi_mode |
+| `riichi_` | リーチ | 10 | riichi_allowed riichi_hint_live riichi_hint_x riichi_mode |
 | `rinshan_` | 嶺上 | 2 | rinshan rinshan_draw |
 | `river_` | 河 | 3 | river_footer river_mark river_mark_done |
 | `rmark_` | ▲ を描く（river_mark、mark_clear、ui_mark_tsumo） | 2 | rmark_pixels rmark_rows |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 731 個で、254 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 733 個で、255 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -475,7 +475,7 @@
 | `ibn_flush` | 1 |
 | `ibn_kokushi` | 1 |
 | `img_of` | 1 |
-| `in_opp_river` | 3 |
+| `in_opp_river` | 4 |
 | `intent_bias` | 1 |
 | `intent_bonus` | 2 |
 | `is_agari` | 1 |
@@ -517,6 +517,7 @@
 | `print_score` | 1 |
 | `print_win_pts` | 2 |
 | `react` | 8 |
+| `react_stick` | 1 |
 | `redraw_all` | 2 |
 | `reg_yaku_han` | 1 |
 | `rel_restore` | 4 |
