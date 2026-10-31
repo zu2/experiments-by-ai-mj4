@@ -1403,6 +1403,21 @@ discard:
 	ldab	dc_tile
 	stab	0,x
 	jsr	unshown_tile
+ ; The kind is in the river of dc_p (river_bits, bit dc_p + 4).
+ ldab dc_p
+ jsr player_bit
+ asla
+ asla
+ asla
+ asla
+ psha
+ ldab dc_tile
+ lsrb
+ ldx #river_bits
+ jsr addxb
+ pula
+ oraa 0,x
+ staa 0,x
 	ldaa	dc_p
 	jsr	draw_hand
 	ldaa	dc_p

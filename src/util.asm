@@ -158,3 +158,15 @@ kind_suit_01:
 kind_suit_02:
  ldaa #3
  rts
+
+; B = player. Returns A = 1 shifted left by B.
+player_bit:
+ ldaa #1
+ tstb
+ beq player_bit_01
+player_bit_00:
+ asla
+ decb
+ bne player_bit_00
+player_bit_01:
+ rts

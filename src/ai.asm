@@ -2194,40 +2194,23 @@ danger_one_08:
 	ldaa	#2
 	rts
 
-; A = kind. Returns A = 1 if the riichi player danger_player cannot ron it:
-; it is in his river, or it passed after his riichi (riichi_passed).
+; A = kind. Returns A nonzero if the riichi player danger_player cannot ron
+; it: it is in his river, or it passed after his riichi (river_bits).
 ; Returns with N and Z set from A.
 in_opp_river:
-	staa	ir_kind
  tab
- ldx #riichi_passed
+ ldx #river_bits
  jsr addxb
  ldaa 0,x
  ldab danger_player
- incb
-in_opp_river_03:
+ beq in_opp_river_01
+in_opp_river_00:
  lsra
  decb
- bne in_opp_river_03
- bcs in_opp_river_02
-	ldaa	danger_player
-	jsr	player
-	ldab	P_RLEN,x
-	beq	in_opp_river_01
-in_opp_river_00:
-	ldaa	P_RIVER,x
-	lsra
-	cmpa	ir_kind
-	beq	in_opp_river_02
-	inx
-	decb
-	bne	in_opp_river_00
+ bne in_opp_river_00
 in_opp_river_01:
-	clra
-	rts
-in_opp_river_02:
-	ldaa	#1
-	rts
+ anda #$11
+ rts
 
 ; unseen[k] = tiles of kind k the computer cannot see: unshown[k] less
 ; its own tiles. Made once from the 14-tile hand; the thinking changes counts
@@ -2615,7 +2598,6 @@ iyk_kind:	.ds	1 ; kind is_yakuhai checks
 dg_rank:	.ds	1 ; rank of wk_kind (1..9)
 dg_suji:	.ds	1 ; suji sides already discarded
 dg_sides:	.ds	1 ; suji sides that exist
-ir_kind:	.ds	1 ; kind in_opp_river looks for
 call_shanten_now:	.ds	1 ; shanten before the call
 ; call_kind is allocated in directpage.asm.
 call_flush: .ds 1 ; cached flush call eligibility before pattern trials

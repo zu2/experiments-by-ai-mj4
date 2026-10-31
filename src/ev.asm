@@ -102,35 +102,14 @@ ev_prepare:
  ldaa #F_RIICHI+F_DOUBLE
  staa sflags
 ev_prepare_00:
- ldx #ev_river
- ldab #KN
-evprep_clear:
- clr 0,x
- inx
- decb
- bne evprep_clear
- ; Called-away own discards still count for furiten; ignore their flags.
- ldaa ai_player
- jsr player
- ldaa P_RLEN,x
- staa ev_river_n
- ldab #P_RIVER
- jsr addxb
-ev_prepare_10:
- tst ev_river_n
- beq ev_prepare_20
- ldaa 0,x
- inx
- stx ev_ptr
- lsra
- tab
- ldx #ev_river
- jsr addxb
- inc 0,x
- ldx ev_ptr
- dec ev_river_n
- bra ev_prepare_10
-ev_prepare_20:
+ ; Furiten: the own discards are in river_bits (bit ai_player + 4).
+ ldab ai_player
+ jsr player_bit
+ asla
+ asla
+ asla
+ asla
+ staa ev_own_bit
  rts
 
 ; counts is the 13-tile hand after discarding wk_kind. A dead wait is
@@ -161,10 +140,11 @@ ev_acceptance_00:
  staa wk_unseen
  adda wk_accept
  staa wk_accept
- ldx #ev_river
+ ldx #river_bits
  ldab wk_draw
  jsr addxb
- tst 0,x
+ ldaa 0,x
+ anda ev_own_bit
  bne evacc_is_furiten
  ldaa wk_draw
  cmpa wk_kind
@@ -533,10 +513,13 @@ ev1_draw_10:
  ldaa e1_aka
  staa ev_base_aka
  ; The discard i is in the river and, if it is the red five, not in the hand.
- ldx #ev_river
+ ldx #river_bits
  ldab e1_i
  jsr addxb
- inc 0,x
+ ldaa 0,x
+ staa e1_river
+ oraa ev_own_bit
+ staa 0,x
  ldaa e1_i
  staa wk_kind
  jsr ai_hand_pick
@@ -587,10 +570,11 @@ ev1_draw_29:
  ldaa e1_d
  cmpa #K_END
  bne ev1_draw_20
- ldx #ev_river
+ ldx #river_bits
  ldab e1_i
  jsr addxb
- dec 0,x
+ ldaa e1_river
+ staa 0,x
 ev1_draw_30:
  ldab e1_i
  jsr counts_x
@@ -1021,7 +1005,8 @@ em_end_09:
  .bss
 e1_dora: .ds 1 ; ev_base_dora of the hand (14 tiles)
 e1_aka: .ds 1 ; ev_base_aka of the hand
-ev_river: .ds KN
+ev_own_bit: .ds 1 ; ev_prepare: bit of the computer's own discards in river_bits
+e1_river: .ds 1 ; river_bits of e1_i before ev1_draw sets the own bit
 ev_sum: .ds 3 ; 24-bit sum of copies * points/100
 ev_best: .ds 3 ; best ev_sum so far
 ev_best_waits: .ds 1 ; its acceptance
@@ -1031,9 +1016,7 @@ ev_base_dora: .ds 1 ; dora of the 14 tiles
 ev_hand_dora: .ds 1 ; input of ev_acceptance: dora after the discard
 ev_hand_aka: .ds 1 ; input of ev_acceptance: red fives after the discard
 ev_base_aka: .ds 1 ; red fives of the 14 tiles
-ev_ptr: .ds 2 ; next river tile
 ev_wait_ptr: .ds 2 ; &waits[wk_draw] (ev_acceptance)
-ev_river_n: .ds 1 ; river tiles left
 e1_rec: .ds 14*E1_SIZE ; records of ev1_discard (at most 14 kinds in a hand)
 e1_end: .ds 2 ; end of the records
 e1_j: .ds 2 ; record of the discard i being tried

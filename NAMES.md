@@ -83,7 +83,7 @@
 | `dst_` | drawstr | 1 | dst_ptr |
 | `dt_` | drawtile | 6 | dt_cnt dt_color dt_dst dt_repeat |
 | `dv_` | div8 | 2 | dv_bits dv_divisor |
-| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 20 | e1_aka e1_d e1_dora e1_e |
+| `e1_` | ev1_discard（1 向聴の打点の評価）の局所変数 | 21 | e1_aka e1_d e1_dora e1_e |
 | `ed_` | eval_decomp | 4 | ed_pinfu ed_wait ed_wi ed_yhead |
 | `eh_` | each_head | 1 | eh_routine |
 | `el_` | eval_load | 2 | el_dst el_src |
@@ -91,10 +91,10 @@
 | `ep_` | eval_places | 3 | ep_i ep_kind ep_off |
 | `er_` | erase | 5 | er_cnt er_h er_p er_w |
 | `ev1_` | ev1_discard とその中のルーチン | 4 | ev1_best ev1_discard ev1_draw ev1_fits |
-| `ev_` | ev_discard（聴牌での打牌の評価） | 21 | ev_acceptance ev_add_pts ev_base_aka ev_base_dora |
+| `ev_` | ev_discard（聴牌での打牌の評価） | 19 | ev_acceptance ev_add_pts ev_base_aka ev_base_dora |
 | `evacc_` | ev_acceptance の中の見出し | 4 | evacc_is_furiten evacc_live_wait evacc_no_slot evacc_score |
 | `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
-| `evprep_` | ev_prepare の中の見出し | 1 | evprep_clear |
+| `evprep_` | ev_prepare の中の見出し | 0 |  |
 | `fc_` | fi_copy | 2 | fc_i fc_src |
 | `fcn_` | furo_counts | 3 | fcn_dst fcn_n fcn_src |
 | `fi_` | finish（点の計算の仕上げ） | 8 | fi_basic fi_better fi_copy fi_fu |
@@ -109,7 +109,7 @@
 | `ht_` | 描く手牌（ht_p、ht_n） | 2 | ht_n ht_p |
 | `ib_` | intent_bias | 1 | ib_kind |
 | `ibn_` | intent_bonus | 6 | ibn_best ibn_chanta ibn_chiitoi ibn_flush |
-| `ir_` | in_opp_river | 1 | ir_kind |
+| `ir_` | in_opp_river | 0 |  |
 | `iw_` | set_intents（手の狙い）とその結果 | 9 | iw_bias iw_chi iw_chiitoi iw_flush |
 | `iyk_` | is_yakuhai | 1 | iyk_kind |
 | `kans_` | 槓 | 1 | kans_done |
@@ -283,7 +283,7 @@
 | `pending_` | あとで開くドラ | 1 | pending_dora |
 | `pick_` | 選ぶ | 1 | pick_kan |
 | `pixel_` | ピクセル | 2 | pixel_address pixel_masks |
-| `player_` | プレイヤーの領域 | 2 | player player_base |
+| `player_` | プレイヤーの領域 | 3 | player player_base player_bit |
 | `posy_` | 行 | 2 | posy posy_textaddr |
 | `print_` | 数を表示する | 6 | print_a2 print_byte_num print_num print_score |
 | `push_` | 積む | 1 | push_block |
@@ -291,9 +291,9 @@
 | `redraw_` | 描き直す | 2 | redraw_all redraw_hands |
 | `result_` | 結果の画面 | 1 | result_active |
 | `reveal_` | 手を見せる | 2 | reveal reveal_hands |
-| `riichi_` | リーチ | 10 | riichi_allowed riichi_hint_live riichi_hint_x riichi_mode |
+| `riichi_` | リーチ | 9 | riichi_allowed riichi_hint_live riichi_hint_x riichi_mode |
 | `rinshan_` | 嶺上 | 2 | rinshan rinshan_draw |
-| `river_` | 河 | 3 | river_footer river_mark river_mark_done |
+| `river_` | 河 | 4 | river_bits river_footer river_mark river_mark_done |
 | `rmark_` | ▲ を描く（river_mark、mark_clear、ui_mark_tsumo） | 2 | rmark_pixels rmark_rows |
 | `ron_` | ロン | 3 | ron_no ron_ok ron_yes |
 | `round_` | 場風 | 2 | round round_kind |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 733 個で、255 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 731 個で、256 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -436,7 +436,7 @@
 | `ev_acceptance` | 3 |
 | `ev_add_pts` | 1 |
 | `ev_discard` | 1 |
-| `ev_prepare` | 3 |
+| `ev_prepare` | 1 |
 | `ev_value` | 1 |
 | `eval_decomp` | 6 |
 | `eval_load` | 1 |
@@ -475,7 +475,7 @@
 | `ibn_flush` | 1 |
 | `ibn_kokushi` | 1 |
 | `img_of` | 1 |
-| `in_opp_river` | 4 |
+| `in_opp_river` | 2 |
 | `intent_bias` | 1 |
 | `intent_bonus` | 2 |
 | `is_agari` | 1 |
@@ -513,6 +513,7 @@
 | `pcm_play` | 7 |
 | `pick_kan` | 2 |
 | `play` | 5 |
+| `player_bit` | 2 |
 | `print_num` | 2 |
 | `print_score` | 1 |
 | `print_win_pts` | 2 |
