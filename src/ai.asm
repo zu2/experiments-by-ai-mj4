@@ -212,6 +212,9 @@ call_acc_yes:
 
  .bss
 call_pre_acc: .ds 1
+ft_n: .ds 1 ; furo_threat: result
+ft_left: .ds 1 ; furo_threat: furo left
+ft_x: .ds 2 ; furo_threat: furo being read
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
 
@@ -2638,7 +2641,9 @@ any_riichi_00:
 	jsr	player
 	tst	P_FLAG,x
 	bmi	any_riichi_02
- ldaa P_NFURO,x
+ pshb
+ jsr furo_threat
+ pulb
  cmpa threat_furo
  bcc any_riichi_02
 any_riichi_01:
@@ -2649,6 +2654,41 @@ any_riichi_01:
 any_riichi_02:
 	ldaa	#1
 	rts
+
+; X = player. Returns A = his furo, one more with a pon or an open kan of a
+; dora. X and B are scratch.
+furo_threat:
+ ldab P_NFURO,x
+ stab ft_left
+ stab ft_n
+ beq furo_threat_02
+ ldab #P_FURO
+ jsr addxb
+furo_threat_00:
+ ldaa 0,x
+ anda #3
+ beq furo_threat_01
+ cmpa #M_ANKAN
+ beq furo_threat_01
+ ldab 1,x
+ stx ft_x
+ ldx #dora_of_kind
+ jsr addxb
+ ldaa 0,x
+ ldx ft_x
+ tsta
+ beq furo_threat_01
+ inc ft_n
+ bra furo_threat_02
+furo_threat_01:
+ inx
+ inx
+ inx
+ dec ft_left
+ bne furo_threat_00
+furo_threat_02:
+ ldaa ft_n
+ rts
 
 ; Returns A = highest danger of discarding wk_kind over the riichi players
 ; and the players with furo.
@@ -2662,8 +2702,11 @@ danger_00:
 	ldaa	danger_player
 	jsr	player
  ; A riichi or two furo counts in full, one furo as half; a closed hand
- ; without riichi not at all.
- ldab P_NFURO,x
+ ; without riichi not at all. A pon of a dora counts as one more furo.
+ jsr furo_threat
+ tab
+	ldaa	danger_player
+	jsr	player
  tst P_FLAG,x
  bmi danger_02
  tstb
