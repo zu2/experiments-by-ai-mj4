@@ -225,6 +225,11 @@ call_pre_acc: .ds 1
 ft_n: .ds 1 ; furo_threat: result
 ft_left: .ds 1 ; furo_threat: furo left
 ft_x: .ds 2 ; furo_threat: furo being read
+oc_mask: .ds 4 ; oc_build: suits of half danger, per player
+oc_p: .ds 1 ; oc_build: player
+oc_s: .ds 1 ; oc_build: suit S
+oc_n: .ds 1 ; oc_build: furo left, then tiles of S in the river
+oc_x: .ds 2 ; oc_build: the player
 fc_r: .ds 1 ; fold_check: shanten in, result out
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
@@ -434,6 +439,7 @@ ad_allowed_00:
 
 ; Sets ad_pick to the kind with sk <= wk_limit and the lowest danger.
 least_danger:
+ jsr oc_build
 	ldaa	#$FF
 	staa	wk_best
 	clr	wk_kind
@@ -2621,6 +2627,93 @@ toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
 	.code
 ; Returns A = 1 if another player has a riichi (any_riichi), or a riichi or
 ; two furo (any_threat). Returns with N and Z set from A.
+; oc_mask[p] = suits whose danger from player p is half. For a player
+; without riichi, with 10 river tiles or more, whose furo of numbered tiles
+; are all of one suit S: 0 to 2 tiles of S in his river make the other two
+; suits half (he may be on a one-suit hand), 3 or more make S half.
+oc_build:
+ ldaa #3
+oc_build_00:
+ staa oc_p
+ clrb
+ cmpa ai_player
+ beq oc_build_06
+ jsr player
+ tst P_FLAG,x
+ bmi oc_build_06
+ ldaa P_RLEN,x
+ cmpa #10
+ bcs oc_build_06
+ ldaa P_NFURO,x
+ beq oc_build_06
+ staa oc_n
+ stx oc_x
+ ; B = S, $FF while only honor furo are read.
+ ldab #$FF
+oc_build_01:
+ ldaa P_FURO+1,x
+ jsr kind_suit
+ cmpa #3
+ beq oc_build_02
+ tstb
+ bmi oc_build_03
+ cba
+ bne oc_build_05
+oc_build_03:
+ tab
+oc_build_02:
+ inx
+ inx
+ inx
+ dec oc_n
+ bne oc_build_01
+ tstb
+ bmi oc_build_05
+ stab oc_s
+ ; oc_n = tiles of S in the river.
+ ldx oc_x
+ ldab P_RLEN,x
+oc_build_04:
+ ldaa P_RIVER,x
+ lsra
+ jsr kind_suit
+ cmpa oc_s
+ bne oc_build_07
+ inc oc_n
+oc_build_07:
+ inx
+ decb
+ bne oc_build_04
+ ldaa #1
+ ldab oc_s
+ beq oc_build_09
+oc_build_08:
+ asla
+ decb
+ bne oc_build_08
+oc_build_09:
+ ldab oc_n
+ cmpb #3
+ bcc oc_build_10
+ eora #7
+oc_build_10:
+ tab
+ bra oc_build_06
+oc_build_05:
+ clrb
+oc_build_06:
+ ; oc_mask[oc_p] = B.
+ pshb
+ ldab oc_p
+ ldx #oc_mask
+ jsr addxb
+ pulb
+ stab 0,x
+ ldaa oc_p
+ deca
+ bpl oc_build_00
+ rts
+
 ; A = shanten of the hand ai_player keeps. Returns A = fc_r with N and Z:
 ; FC_ATTACK  nobody is a threat (any_threat).
 ; FC_PUSH    a threat, but the hand is near: push with the least danger.
@@ -2761,6 +2854,23 @@ danger_02:
  bne danger_03
  lsra
 danger_03:
+ ; oc_mask: suits whose danger from this player is half. kind_suit gives 3
+ ; for an honor, a bit that oc_mask never has.
+ psha
+ ldab danger_player
+ ldx #oc_mask
+ jsr addxb
+ ldab 0,x
+ ldaa wk_kind
+ jsr kind_suit
+danger_05:
+ lsrb
+ deca
+ bpl danger_05
+ pula
+ bcc danger_06
+ lsra
+danger_06:
 	cmpa	danger_max
 	bls	danger_01
 	staa	danger_max
