@@ -95,7 +95,6 @@ clear_directpage:
 	inx
 	cpx #DP_END
 	bne clear_directpage
- jsr small_unpack
 	ldaa	#1
 	staa	MP1710
 	ldaa	#$C0
@@ -1754,8 +1753,15 @@ tile_line:
  bra tile_row_lookup
 tile_read_row:
  ldx dt_src
+tile_read_row_00:
  ldab 0,x
  inx
+ ; TILE_JUMP and an address: the rest of the rows are read from there.
+ cmpb #TILE_JUMP
+ bne tile_read_row_01
+ ldx 0,x
+ bra tile_read_row_00
+tile_read_row_01:
  stx dt_src
  tstb
  bpl tile_row_once
@@ -1868,12 +1874,10 @@ char_px:
  pula
 ; A = character. Draws its 7 rows at ch_dst and clears the row below.
 char_at:
-	ldab	#7
-	jsr	mul8
-	addb	#<font
-	adca	#>font
-	staa	ch_src
-	stab	ch_src+1
+ ldx #font_set
+ jsr tile_image
+ ldx #img_rows
+ stx ch_src
 	ldab	#7
 	stab	ch_cnt
 char_line:

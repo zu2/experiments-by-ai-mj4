@@ -703,94 +703,119 @@ smalltile_advance:
  staa sm_x
  rts
 
-; Expands small_lz (made by tools/small.py) into small_img: 12 rows of 2 bytes
-; for each of the 38 small tiles.
-small_unpack:
- ldx #small_lz
- stx su_src
- ldx #small_img
- stx su_dst
-small_unpack_00:
- ldab #1
- bsr su_bits
- bne small_unpack_02
- ; A row: the 11 face bits, then column 11 and the low 4 bits are 0.
- ldab #11
- bsr su_bits
- ldab #5
-small_unpack_01:
- asl su_w+1
- rol su_w
- decb
- bne small_unpack_01
- ldx #su_w
- ldab #2
- bra small_unpack_03
-small_unpack_02:
- ; Copy rows from row su_w of small_img.
- ldab #9
- bsr su_bits
- ldaa su_w+1
- ldab su_w
+; A = image, X = set (huff.py): rows, width (1 or 2 bytes), group table,
+; TD_COUNTS counts of codes of each length, dictionary of rows. Writes the
+; rows of the image to img_rows.
+TD_COUNTS .equ 10
+tile_image:
+ psha
+ ldab 0,x
+ stab td_n
+ ldab 1,x
+ stab td_wide
+ stx td_cp
+ ldx 2,x
+ lsra
+ lsra
+ lsra
  asla
- rolb
- adda #<small_img
- adcb #>small_img
- staa su_from+1
- stab su_from
- ldab #3
- bsr su_bits
- ldab su_w+1
- addb #2
- aslb
- ldx su_from
-small_unpack_03:
+ tab
+ jsr addxb
+ ldx 0,x
+ stx td_src
+ ldx td_cp
+ ldab #4
+ jsr addxb
+ stx td_counts
+ ; td_skip = rows of the images before it in its group of 8.
+ pula
+ anda #7
+ ldab td_n
+ jsr mul8
+ stab td_skip
+ clr td_acc
+ ldx #img_rows
+ stx td_dst
+tile_image_00:
+ ; td_code = the code read so far less the first code of its length;
+ ; td_base = the codes shorter than it.
+ clr td_code
+ clr td_base
+ ldx td_counts
+tile_image_01:
+ ; td_acc holds the bits not used yet, then a 1.
+ asl td_acc
+ bne tile_image_02
+ stx td_cp
+ ldx td_src
  ldaa 0,x
  inx
- stx su_from
- ldx su_dst
- staa 0,x
- inx
- stx su_dst
- ldx su_from
- decb
- bne small_unpack_03
- ldx su_dst
- cpx #small_img+912
- bne small_unpack_00
- rts
-; B = bits. Returns su_w = the next B bits of su_src, with Z set from the low
-; byte. su_acc holds the bits not used yet, then a 1 (0 after clear_bss: no bits).
-su_bits:
- clr su_w
- clr su_w+1
-su_bits_00:
- asl su_acc
- bne su_bits_01
- ldx su_src
- ldaa 0,x
- inx
- stx su_src
+ stx td_src
+ ldx td_cp
  sec
  rola
- staa su_acc
-su_bits_01:
- rol su_w+1
- rol su_w
- decb
- bne su_bits_00
- tst su_w+1
+ staa td_acc
+tile_image_02:
+ rol td_code
+ ldaa td_code
+ suba 0,x
+ bcs tile_image_03
+ staa td_code
+ ldaa td_base
+ adda 0,x
+ staa td_base
+ inx
+ bra tile_image_01
+tile_image_03:
+ tst td_skip
+ beq tile_image_04
+ dec td_skip
+ bra tile_image_00
+tile_image_04:
+ ldab td_code
+ addb td_base
+ tst td_wide
+ beq tile_image_05
+ aslb
+tile_image_05:
+ addb #TD_COUNTS
+ ldx td_counts
+ jsr addxb
+ ldaa 0,x
+ ldab 1,x
+ ldx td_dst
+ tst td_wide
+ beq tile_image_07
+ ; Bit 0 of the second byte: the row before again (huff.REPEAT).
+ bitb #1
+ beq tile_image_06
+ dex
+ dex
+ ldaa 0,x
+ ldab 1,x
+ inx
+ inx
+tile_image_06:
+ stab 1,x
+tile_image_07:
+ staa 0,x
+ inx
+ tst td_wide
+ beq tile_image_08
+ inx
+tile_image_08:
+ stx td_dst
+ dec td_n
+ bne tile_image_00
  rts
 
 ; 12 rows * 12 pixels. Generic unaligned bit writer, preserves sm_x/sm_y.
 smalltile:
  stab sm_flags
- ldab #24
- jsr mul8
- addb #<small_img
- adca #>small_img
- staa sm_src
- stab sm_src+1
+ ldx #small_set
+ jsr tile_image
+ ldx #img_rows
+ stx sm_src
  ldaa sm_flags
  bita #RF_RIICHI
  beq small_upright
@@ -1005,12 +1030,17 @@ ui_erase_px_04:
  .bss
 ; sm_x is allocated in directpage.asm.
 ; sm_y is allocated in directpage.asm.
-small_img: .ds 912 ; 12 rows of 2 bytes of each small tile (small_unpack)
-su_src: .ds 2 ; next byte of small_lz
-su_acc: .ds 1 ; bits of su_src not used yet, then a 1
-su_dst: .ds 2 ; next byte of small_img
-su_from: .ds 2 ; next byte copied
-su_w: .ds 2 ; bits read by su_bits
+img_rows: .ds 48 ; output of tile_image: the rows of the image
+td_src: .ds 2 ; tile_image: next byte of the code
+td_acc: .ds 1 ; tile_image: bits of the byte not used yet, then a 1
+td_dst: .ds 2 ; tile_image: next row of img_rows
+td_counts: .ds 2 ; tile_image: counts of the set, then the dictionary
+td_wide: .ds 1 ; tile_image: 1 for rows of 2 bytes
+td_skip: .ds 1 ; tile_image: rows to read past
+td_cp: .ds 2 ; tile_image: next count
+td_code: .ds 1 ; tile_image: code less the first code of its length
+td_base: .ds 1 ; tile_image: codes shorter than td_code
+td_n: .ds 1 ; tile_image: rows left
 ; sm_src is allocated in directpage.asm.
 sm_bits: .ds 2 ; row bits
 sm_row: .ds 1 ; row index
