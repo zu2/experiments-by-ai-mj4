@@ -1080,12 +1080,6 @@ intent_fl_clear:
 intent_fl_store:
  staa intent_lock-minshun_n,x
 set_intents_80:
- ; Central-tile growth is irrelevant to these active hand routes.
- ldaa iw_chi
- oraa iw_toi
- oraa iw_chiitoi
- oraa iw_kok
- staa iw_number_exempt
  rts
 
 ; A completed sequence or triplet outside the target suit blocks flush intent.
@@ -1189,8 +1183,6 @@ keep_no_chanta:
 	bra	kv_base_00
 keep_honor:
  ; Only an isolated non-yakuhai honor is weaker than an isolated terminal.
- tst iw_number_exempt
- bne keep_honor_old
  jsr kind_counts_x
  ldaa 0,x
  cmpa #1
@@ -1201,19 +1193,8 @@ keep_honor_old:
  ldaa #3
  rts
 keep_number:
- tst iw_number_exempt
- bne keep_number_old
  jsr number_bias
  inca
- rts
-keep_number_old:
- jsr kind_number
- cmpa #1
- beq keep_terminal
- cmpa #9
- bne kv_base_00
-keep_terminal:
- ldaa #2
  rts
 kv_base_00:
 	ldaa	#1
@@ -1252,25 +1233,10 @@ intent_bonus:
  ldaa wk_kind
  cmpa #K_HONOR
  bcc ibn_two
- tst iw_number_exempt
- bne ibn_two
- ; The ordinary terminal bonus already increased by one.
+ ; keep_value already counts a terminal and a 2/8 (number_bias).
  ldaa #1
  staa ibn_best
- bra ibn_chanta
 intent_bonus_00:
- ; 2/8 now receive their point in keep_value without requiring tanyao.
- tst iw_number_exempt
- beq ibn_chanta
-	ldaa	wk_kind
-	jsr kind_number
-	cmpa	#2
-	beq	intent_bonus_10
-	cmpa	#8
-	bne	ibn_chanta
-intent_bonus_10:
-	ldaa	#1
-	staa	ibn_best
 
  ; Only 4-6 cannot participate in any chanta block. Keep 2/3/7/8
  ; available for 123/789, including completed sequences.
@@ -2939,7 +2905,6 @@ wk_left: .ds 1 ; shared work: tanyao yaochu limit (set_intents), toitoi slots le
 
  .bss
 
-iw_number_exempt: .ds 1 ; nonzero when a special route keeps its own tile order
 
  .code
  ; Special-shape values of a hand, a set of 4 bytes: kinds held, yaochu kinds

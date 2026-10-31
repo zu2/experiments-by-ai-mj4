@@ -111,7 +111,7 @@
 | `ht_` | 描く手牌（ht_p、ht_n） | 2 | ht_n ht_p |
 | `ib_` | intent_bias | 0 |  |
 | `ibn_` | intent_bonus | 6 | ibn_best ibn_chanta ibn_chiitoi ibn_flush |
-| `iw_` | set_intents（手の狙い）とその結果 | 8 | iw_chi iw_chiitoi iw_flush iw_kok |
+| `iw_` | set_intents（手の狙い）とその結果 | 7 | iw_chi iw_chiitoi iw_flush iw_kok |
 | `iyk_` | is_yakuhai | 1 | iyk_kind |
 | `kans_` | 槓 | 1 | kans_done |
 | `kattr_` | 牌の種類の属性の表（kind attribute） | 3 | kattr kattr_x kattr_x_ldx |
@@ -250,7 +250,7 @@
 | `is_` | 判定（A = 0 か 1） | 6 | is_agari is_closed is_dora_kind is_simple |
 | `isolated_` | 孤立牌（isolated_cand） | 1 | isolated_cand |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
-| `keep_` | 残す | 10 | keep_check_flush keep_chiitoi keep_honor keep_honor_old |
+| `keep_` | 残す | 8 | keep_check_flush keep_chiitoi keep_honor keep_honor_old |
 | `kind_` | 牌の種類（A = 牌の種類を受け取るルーチンと、wk_kind を入れて呼ぶ入口。例: kind_counts_x は B = wk_kind で counts_x） | 7 | kind_counts_x kind_is_yaochu kind_number kind_number_b |
 | `kokushi_` | 国士無双 | 1 | kokushi_dead |
 | `kuikae_` | 喰い替え | 1 | kuikae_ok |
@@ -346,7 +346,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 757 個で、261 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 756 個で、261 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -482,7 +482,7 @@
 | `img_decode` | 9 |
 | `img_of` | 1 |
 | `in_opp_river` | 2 |
-| `intent_bonus` | 2 |
+| `intent_bonus` | 1 |
 | `is_agari` | 1 |
 | `is_closed` | 3 |
 | `is_simple` | 1 |
