@@ -260,7 +260,8 @@ ai_discard_00:
  lsra
  cmpa min_s
  bcs ai_discard_02
-	jsr	any_riichi
+ ; A riichi or two furo: defend as against a riichi.
+	jsr	any_threat
 	beq	ai_discard_05
 	ldaa	min_s
 	cmpa	#2
@@ -2633,7 +2634,8 @@ any_riichi_02:
 	ldaa	#1
 	rts
 
-; Returns A = highest danger of discarding wk_kind over the riichi players.
+; Returns A = highest danger of discarding wk_kind over the riichi players
+; and the players with furo.
 danger:
 	clr	danger_player
 	clr	danger_max
@@ -2643,9 +2645,26 @@ danger_00:
 	beq	danger_01
 	ldaa	danger_player
 	jsr	player
-	tst	P_FLAG,x
-	bpl	danger_01
+ ; A riichi or two furo counts in full, one furo as half; a closed hand
+ ; without riichi not at all.
+ ldab P_NFURO,x
+ tst P_FLAG,x
+ bmi danger_02
+ tstb
+ beq danger_01
+danger_02:
+ pshb
+ ldab P_FLAG,x
+ pshb
 	jsr	danger_one
+ pulb
+ tstb
+ pulb
+ bmi danger_03
+ decb
+ bne danger_03
+ lsra
+danger_03:
 	cmpa	danger_max
 	bls	danger_01
 	staa	danger_max
