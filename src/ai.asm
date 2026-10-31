@@ -1094,13 +1094,26 @@ iw_off_suit_furo:
  oraa pai_block2
  rts
 
- ; The rank estimate only prunes work; the completed policy value also
- ; resolves equal rank/dora keys so valuable tiles do not win by kind order.
-; Returns A = how much it is better to discard kind wk_kind when the
-; acceptance is equal: 4 for a singleton non-yakuhai honor, 3 for a terminal,
-; 2 for 2/8, otherwise 1. Special intents are handled first.
+; How much better it is to discard kind wk_kind, added to its acceptance by
+; discard_bonus: keep_value (the base) + intent_bonus (against an intent).
+;
+; keep_value, the first that applies:
+;   0  kokushi: a yaochu kind with 1 tile
+;   0  chiitoi or toitoi: 2 tiles or more
+;   0  flush: the suit pai_max_suit or an honor
+;   chanta: yaochu 0, 4-6 3, other 1
+;   honor: yakuhai 1, other 3 (4 with 1 tile)
+;   number: 1/9 3, 2/8 2, other 1 (number_bias + 1)
+; then, without kokushi, an honor with 1 tile: 6 - unseen with 0 or 1
+; unseen, one more with 2.
+;
+; intent_bonus, the largest that applies:
+;   tanyao: honor 2, terminal 1
+;   chanta: 4-6 2
+;   kokushi: not yaochu 2, yaochu with 2 tiles or more 1
+;   chiitoi or toitoi: 1 tile with 0 unseen 2, with 1 unseen 1
+;   flush with off-suit candidates only (flush_only): 2
 keep_value:
- ; Higher values favour discarding. Only singleton honors are adjusted.
  jsr kv_base
  tst iw_kok
  bne keep_value_02
@@ -1220,8 +1233,7 @@ number_bias_01:
  clra
  rts
 
-; Small final-score bonus for discards that support an active hand intent.
-; The maximum bonus is 2, so overlapping weak intents cannot overwhelm ukeire.
+; The intent part of the table above keep_value.
 intent_bonus:
 	clr	ibn_best
 
@@ -1250,7 +1262,7 @@ ibn_chanta:
  suba #4
  cmpa #2
  bhi ibn_kokushi
- jmp ibn_two
+ bra ibn_two
 
 	; Kokushi: favor discarding suited simples; keep unique yaochu tiles.
 ibn_kokushi:
@@ -1258,7 +1270,7 @@ ibn_kokushi:
 	beq	ibn_chiitoi
  jsr kind_is_yaochu
 	bne	ibn_kokushi_00
-	jmp ibn_two
+	bra ibn_two
 ibn_kokushi_00:
  jsr kind_counts_x
 	ldaa	0,x
@@ -1287,14 +1299,14 @@ ibn_chiitoi_00:
 	staa	ibn_best
 	bra	ibn_flush
 ibn_chiitoi_01:
-	jmp ibn_two
+	bra ibn_two
 
 	; The candidate filter already restricts active flush discards to
 	; off-suit tiles. If none exist at min_s, every candidate is compatible.
 ibn_flush:
  tst flush_only
  beq ibn_flush_00
- jmp ibn_two
+ bra ibn_two
 ibn_flush_00:
 	ldaa	ibn_best
 	rts
