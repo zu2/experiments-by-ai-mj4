@@ -287,6 +287,22 @@ ai_discard_03:
 ai_discard_10:
 	ldaa	min_s
 	staa	wk_limit
+ jsr least_danger
+ai_discard_11:
+ ; Against a riichi, after the early part (fewer than 40 draws left), a
+ ; 1-shanten hand folds when every discard that keeps it has danger 5 or more.
+ ldaa min_s
+ cmpa #1
+ bne ai_discard_07
+ jsr any_riichi
+ beq ai_discard_07
+ ldaa draws_left
+ cmpa #40
+ bcc ai_discard_07
+ ldaa wk_best
+ cmpa #5
+ bcc ai_discard_02
+ bra ai_discard_07
 ai_discard_04:
 	jsr	least_danger
 	jmp	ai_discard_07
