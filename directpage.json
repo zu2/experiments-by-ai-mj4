@@ -288,12 +288,6 @@
     "static_references": 8
   },
   {
-    "name": "ib_kind",
-    "address": 166,
-    "bytes": 1,
-    "static_references": 8
-  },
-  {
     "name": "pcm_phase",
     "address": 167,
     "bytes": 1,

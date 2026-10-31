@@ -51,7 +51,6 @@ wk_best .equ $00A2 ; shared work: best value (least_danger, best_accept)
 cur_fu .equ $00A3 ; fu of the decomposition
 head_kind .equ $00A4 ; kind of the head
 sg_best .equ $00A5 ; lowest shanten found by sh_general
-ib_kind .equ $00A6 ; kind intent_bias checks
 pcm_phase .equ $00A7 ; samples left to the shorter eighth sample
 fi_basic .equ $00A8 ; basic points (16 bits)
 attr_and .equ $00AA ; AND of kattr over the hand

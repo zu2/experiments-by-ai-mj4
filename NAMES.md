@@ -109,9 +109,9 @@
 | `hat_` | hand_at | 4 | hat_drawn hat_left hat_n hat_red |
 | `hreact_` | human_react の中の見出し | 2 | hreact_ask hreact_show |
 | `ht_` | 描く手牌（ht_p、ht_n） | 2 | ht_n ht_p |
-| `ib_` | intent_bias | 1 | ib_kind |
+| `ib_` | intent_bias | 0 |  |
 | `ibn_` | intent_bonus | 6 | ibn_best ibn_chanta ibn_chiitoi ibn_flush |
-| `iw_` | set_intents（手の狙い）とその結果 | 9 | iw_bias iw_chi iw_chiitoi iw_flush |
+| `iw_` | set_intents（手の狙い）とその結果 | 8 | iw_chi iw_chiitoi iw_flush iw_kok |
 | `iyk_` | is_yakuhai | 1 | iyk_kind |
 | `kans_` | 槓 | 1 | kans_done |
 | `kattr_` | 牌の種類の属性の表（kind attribute） | 3 | kattr kattr_x kattr_x_ldx |
@@ -194,7 +194,7 @@
 | `base_` | 基本 | 12 | base_chankan base_ippatsu base_last base_last_add |
 | `batch_` | まとめて | 8 | batch_add_total batch_evaluate batch_leaf batch_man |
 | `best_` | 最もよい結果の役と点 | 7 | best_accept best_fu best_han best_n |
-| `bias_` | intent_bias（狙いによる打牌の補正）の中の見出し | 8 | bias_addc_chi bias_addc_flush bias_addc_kok bias_chanta |
+| `bias_` | intent_bias（狙いによる打牌の補正）の中の見出し | 0 |  |
 | `bits4_` | bits4（4 ビットの表示） | 2 | bits4 bits4_x |
 | `block_` | ブロック | 1 | block_fu |
 | `bss_` | BSS の範囲 | 2 | bss_all_end bss_start |
@@ -246,7 +246,7 @@
 | `image_` | 画像 | 1 | image_of_kind |
 | `img_` | 画像 | 4 | img_decode img_of img_of_b img_rows |
 | `in_` | 中にある | 1 | in_opp_river |
-| `intent_` | 手の狙い | 21 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
+| `intent_` | 手の狙い | 20 | intent_bonus intent_fl_check intent_fl_clear intent_fl_lock |
 | `is_` | 判定（A = 0 か 1） | 6 | is_agari is_closed is_dora_kind is_simple |
 | `isolated_` | 孤立牌（isolated_cand） | 1 | isolated_cand |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
@@ -346,7 +346,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 758 個で、262 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 757 個で、261 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -482,7 +482,6 @@
 | `img_decode` | 9 |
 | `img_of` | 1 |
 | `in_opp_river` | 2 |
-| `intent_bias` | 1 |
 | `intent_bonus` | 2 |
 | `is_agari` | 1 |
 | `is_closed` | 3 |

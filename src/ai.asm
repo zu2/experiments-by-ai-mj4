@@ -558,6 +558,9 @@ best_accept_22:
 
 ; Selects cc_limit kinds with sk = min_s, ordered by completed policy value.
 ; Zero defaults to 4; values outside 4..6 are clamped at the next selection.
+; With a middle number and no intent (cc_cand_bonus 47), CC_KEY_BASE -
+; cc_cand_bonus is 15, the priority intent_bias used to give.
+CC_KEY_BASE .equ 62
 choose_cands:
  ldaa cc_limit
  cmpa #CC_LIMIT_MIN
@@ -593,27 +596,22 @@ cand_loop:
  jsr kind_counts_x
  jsr sanshoku_cut
  staa cc_sanshoku
- psha
  jsr kind_counts_x
  inc 0,x
- pula
+ ; cc_key = connection + dora lost + CC_KEY_BASE - cc_cand_bonus: the larger
+ ; the bonus of discarding it, the earlier it is chosen.
 cand_priority:
- nega
- adda #4
- staa cc_key
  jsr short_conn
- adda cc_key
  staa cc_key
  jsr dora_cut_cost
  adda cc_key
  staa cc_key
  jsr toi_bonus
  staa wk_bonus
+ jsr discard_bonus
+ staa cc_cand_bonus
  nega
- adda #3
- adda cc_key
- staa cc_key
- jsr intent_bias
+ adda #CC_KEY_BASE
  adda cc_key
  staa cc_key
  tst cc_isol_flag
@@ -629,10 +627,6 @@ cc_rank:
  bne cc_rank_value
  clr cc_key
 cc_rank_value:
- ; Complete the intent-compatible value before selecting the shortlist.
- ; Reuse it both for equal-priority ordering and final acceptance scoring.
- jsr discard_bonus
- staa cc_cand_bonus
  ldx #cc_order
  ldab cc_limit
 cc_rank_scan:
@@ -1104,84 +1098,6 @@ iw_off_suit_furo:
  ldaa pai_block0
  oraa pai_block1
  oraa pai_block2
- rts
-
-; wk_kind = current discard kind. Return a small priority adjustment: negative
-; favors discarding tiles that conflict with active intents; positive keeps
-; candidates that preserve them. Only used to order the expensive top four.
-; Phase 2: policy adjustments from the already determined intent flags.
-intent_bias:
- ldaa wk_kind
- staa ib_kind
- clr iw_bias
- ldaa iw_kok
- beq bias_chiitoi
- ldaa ib_kind
- jsr is_yaochu
- beq bias_addc_kok
- ; A candidate that duplicates a yaochu is expendable before a unique one.
- ldab ib_kind
- jsr counts_x
- ldaa 0,x
- cmpa #2
- bcc bias_addc_kok
- inc iw_bias
- bra bias_chiitoi
-bias_addc_kok:
- dec iw_bias
-bias_chiitoi:
- ldaa iw_chiitoi
- oraa iw_toi
- beq bias_chanta
- ldab ib_kind
- jsr counts_x
- ldaa 0,x
- cmpa #2
- bcs bias_chanta
- inc iw_bias
-bias_chanta:
- tst iw_chi
- beq bias_tanyao
- ldaa ib_kind
- cmpa #K_HONOR
- bcc bias_tanyao
- jsr kind_number
- suba #4
- cmpa #2
- bhi bias_tanyao
- dec iw_bias
-bias_addc_chi:
-bias_tanyao:
- ; Ordinary attack keeps central tiles even without tanyao intent.
- ; Special hand routes retain their existing priorities.
- tst iw_number_exempt
- bne bias_tanyao_old
- ldaa ib_kind
- cmpa #K_HONOR
- bcc bias_tanyao_old
- jsr number_bias
- nega
- adda iw_bias
- staa iw_bias
- bra bias_flush
-bias_tanyao_old:
- tst iw_tanyao
- beq bias_flush
- ldaa ib_kind
- jsr is_simple
- bne bias_flush
- dec iw_bias
-bias_flush:
- tst iw_flush
- beq intent_bias_00
- ldaa ib_kind
- jsr off_suit
- beq intent_bias_00
-bias_addc_flush:
- dec iw_bias
-intent_bias_00:
- ldaa iw_bias
- adda #8
  rts
 
  ; The rank estimate only prunes work; the completed policy value also
@@ -2601,8 +2517,6 @@ pai_flush_score: ; alias: valid after scan_pai, until the next scan
 pai_suit_ptr: .ds 2 ; scan-only pointer; first byte is pai_flush_score afterward
 call_yakuhai: .ds 1 ; nonzero when call_kind is yakuhai
 ; pai_kind is allocated in directpage.asm.
-; ib_kind is allocated in directpage.asm.
-iw_bias:	.ds	1 ; intent_bias result
 ; ibn_best is allocated in directpage.asm.
 danger_player: .ds 1 ; riichi player danger_one is checking
 ; wk_limit is allocated in directpage.asm.
