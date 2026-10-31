@@ -1443,13 +1443,15 @@ hand_tile_x_01:
 	rts
 
 ; Shows the arrow under the own tile at the cursor (none if cursor = $FF).
-; Clear only the concealed-hand strip on cursor movement.
+; Clear only the concealed-hand strip on cursor movement: 16 pixels for each
+; tile and 8 for the gap before the drawn tile.
 draw_arrow:
  ldaa players+P_LEN
  asla
  asla
  asla
  asla
+ adda #8
  bra arrow_width
 ; Clears the arrow strip and draws the arrow under the cursor.
 arrow_full:
