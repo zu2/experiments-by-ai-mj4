@@ -164,14 +164,28 @@ call_shanten_worse:
  inca
 call_shanten_restore:
  ; A call after which ai_discard would fold, or would fold on danger, is
- ; worse.
+ ; worse; so is a call short of tenpai when the last discard folded.
  psha
+ tsta
+ beq call_shanten_01
+call_shanten_03:
+ ldab ai_player
+ jsr player_bit
+ anda fold_bits
+ bne call_shanten_02
+call_shanten_01:
+ tsx
+ ldaa 0,x
  jsr fold_check
  cmpa #FC_DANGER
+ bcs call_shanten_04
+call_shanten_02:
  pula
- bcs call_shanten_00
  ldaa call_shanten_now
  inca
+ bra call_shanten_00
+call_shanten_04:
+ pula
 call_shanten_00:
  psha
  dec nfuro
@@ -260,6 +274,12 @@ ai_riichi_00:
 ; Chooses the tile to discard (kinds kk1 and kk2 are not allowed).
 ; Returns B = tile.
 ai_discard:
+ ; fold_bits: the bit of ai_player is set while its last discard folded.
+ ldab ai_player
+ jsr player_bit
+ coma
+ anda fold_bits
+ staa fold_bits
 	ldaa	ai_player
 	jsr	eval_load
  jsr ai_unseen
@@ -278,6 +298,10 @@ ai_discard_00:
  cmpa #FC_FOLD
 	bcs	ai_discard_03
 ai_discard_02:
+ ldab ai_player
+ jsr player_bit
+ oraa fold_bits
+ staa fold_bits
 	ldaa	#$7F
 	staa	wk_limit
 	bra	ai_discard_04

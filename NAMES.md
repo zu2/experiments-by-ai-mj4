@@ -231,7 +231,7 @@
 | `find_` | 探す | 2 | find_waits find_yakuman |
 | `finish_` | finish（役と点を決める最後の処理） | 6 | finish finish_aka finish_han_total finish_normal |
 | `flush_` | 混一色 | 2 | flush_filter flush_only |
-| `fold_` | 降り（fold_check）とその結果 | 2 | fold_check fold_result |
+| `fold_` | 降り（fold_check）とその結果 | 3 | fold_bits fold_check fold_result |
 | `furo_` | 副露（暗槓を含む。チー・ポン・明槓・暗槓でできた面子） | 9 | furo_attr furo_counts furo_facts furo_facts_end |
 | `game_` | 半荘 | 2 | game_active game_end |
 | `greedy_` | greedy（ブロックを欲張りに数える） | 5 | greedy greedy_left greedy_loop greedy_saved_x |
@@ -346,7 +346,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 756 個で、261 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 760 個で、261 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -386,7 +386,7 @@
 | `call_discard` | 1 |
 | `call_flush_ok` | 1 |
 | `call_options` | 2 |
-| `call_shanten` | 1 |
+| `call_shanten` | 5 |
 | `call_yaku_ok` | 3 |
 | `cc_rank` | 5 |
 | `char_at` | 1 |
