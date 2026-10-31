@@ -1,4 +1,4 @@
-"""Images as canonical Huffman codes of their rows (tile_image in ui.asm).
+"""Images as canonical Huffman codes of their rows (img_decode in ui.asm).
 
 A row is 2 bytes (tiles) or 1 byte (font). A row is a symbol; with 2-byte
 rows, a row equal to the row before it is the symbol REPEAT, the row
@@ -6,7 +6,7 @@ $00,$01: no image row has bit 0 of the second byte set. The dictionary lists
 the rows in the order of their codes (shorter codes first), so the code needs
 no list of symbols, only the number of codes of each length (COUNTS bytes).
 The codes of 8 images follow each other without padding (a group); a table
-has the address of each group, and tile_image reads past the images before
+has the address of each group, and img_decode reads past the images before
 the one it draws.
 """
 import collections
@@ -65,7 +65,7 @@ def code_of(images, wide):
 
 
 def decode(symbols, counts, groups, nrows, index, wide):
-    """The same steps as tile_image, for the generator's own check."""
+    """The same steps as img_decode, for the generator's own check."""
     bits = ''.join(format(b, '08b') for b in groups[index // GROUP])
     pos = 0
     rows = []

@@ -1877,7 +1877,7 @@ char_px:
 ; A = character. Draws its 7 rows at ch_dst and clears the row below.
 char_at:
  ldx #font_set
- jsr tile_image
+ jsr img_decode
  ldx #img_rows
  stx ch_src
 	ldab	#7

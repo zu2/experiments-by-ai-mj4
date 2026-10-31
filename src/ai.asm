@@ -230,7 +230,7 @@ oc_p: .ds 1 ; oc_build: player
 oc_s: .ds 1 ; oc_build: suit S
 oc_n: .ds 1 ; oc_build: furo left, then tiles of S in the river
 oc_x: .ds 2 ; oc_build: the player
-fc_r: .ds 1 ; fold_check: shanten in, result out
+fold_result: .ds 1 ; input of fold_check: shanten; output: the result
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
 
@@ -299,7 +299,7 @@ ai_discard_10:
 	ldaa	min_s
 	staa	wk_limit
  jsr least_danger
- ldaa fc_r
+ ldaa fold_result
  cmpa #FC_DANGER
  bne ai_discard_07
  ldaa wk_best
@@ -2712,7 +2712,7 @@ oc_build_06:
  bpl oc_build_00
  rts
 
-; A = shanten of the hand ai_player keeps. Returns A = fc_r with N and Z:
+; A = shanten of the hand ai_player keeps. Returns A = fold_result with N and Z:
 ; FC_ATTACK  nobody is a threat (any_threat).
 ; FC_PUSH    a threat, but the hand is near: push with the least danger.
 ; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left: fold when
@@ -2726,16 +2726,16 @@ FC_PUSH .equ 1
 FC_DANGER .equ 2
 FC_FOLD .equ 3
 fold_check:
- staa fc_r
+ staa fold_result
  ldab draws_left
  lsrb
  lsrb
  ldaa #FC_FOLD
- cmpb fc_r
+ cmpb fold_result
  bcs fold_check_01
  jsr any_threat
  beq fold_check_01
- ldab fc_r
+ ldab fold_result
  ldaa #FC_FOLD
  cmpb #2
  bcc fold_check_01
@@ -2751,7 +2751,7 @@ fold_check:
 fold_check_00:
  ldaa #FC_PUSH
 fold_check_01:
- staa fc_r
+ staa fold_result
  rts
 
 any_riichi:

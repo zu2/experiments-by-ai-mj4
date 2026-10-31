@@ -130,7 +130,7 @@ def main():
     out.append('tile_rows:')
     out += byte_lines([v for row in row_values for v in row])
     out.append("TILE_JUMP\t.equ\t%d" % TILE_JUMP)
-    # font_set: 7 rows of 1 byte of each character (huff.py, tile_image).
+    # font_set: 7 rows of 1 byte of each character (huff.py, img_decode).
     glyphs = []
     for c, i in sorted(codes.items(), key=lambda kv: kv[1]):
         g = GLYPHS[c]

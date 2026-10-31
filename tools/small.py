@@ -45,7 +45,7 @@ def tile(k):
  if red:d.polygon([(0,0),(2,0),(0,2)],fill=0)
  return im
 
-# small_set: the 12 rows of each small tile (huff.py, tile_image). A row is
+# small_set: the 12 rows of each small tile (huff.py, img_decode). A row is
 # the 11 face bits from bit 15; column 11 and the low 4 bits are 0.
 def assembly():
  import huff

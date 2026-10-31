@@ -1,4 +1,4 @@
-# 名前の決まり（v27）
+# 名前の決まり（v28）
 
 ## 規則
 - 名前は 16 文字以下にする（ラベル、`.equ`、変数）。
@@ -41,6 +41,8 @@
 | `ABORT_` | 途中流局の理由（abortive_draw に渡す番号） |
 | `B_` | ブロックの種類 |
 | `ACT_` | 手番の行動 |
+| `IMG_` | 画像の番号と img_decode の表の形 |
+| `TILE_` | drawtile の番号の列の印（TILE_JUMP） |
 | `EM_` | em_table の形（EM_N、EM_SIZE、EM_HEAD、EM_STRIDE） |
 
 ## 略語の接頭辞
@@ -94,8 +96,8 @@
 | `ev_` | ev_discard（聴牌での打牌の評価） | 19 | ev_acceptance ev_add_pts ev_base_aka ev_base_dora |
 | `evacc_` | ev_acceptance の中の見出し | 4 | evacc_is_furiten evacc_live_wait evacc_no_slot evacc_score |
 | `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
-| `evprep_` | ev_prepare の中の見出し | 0 |  |
 | `fc_` | fi_copy | 2 | fc_i fc_src |
+| `ft_` | furo_threat | 3 | ft_left ft_n ft_x |
 | `fcn_` | furo_counts | 3 | fcn_dst fcn_n fcn_src |
 | `fi_` | finish（点の計算の仕上げ） | 8 | fi_basic fi_better fi_copy fi_fu |
 | `fmk_` | furo_make とその入力 | 11 | fmk_from fmk_j fmk_k fmk_kind |
@@ -109,7 +111,6 @@
 | `ht_` | 描く手牌（ht_p、ht_n） | 2 | ht_n ht_p |
 | `ib_` | intent_bias | 1 | ib_kind |
 | `ibn_` | intent_bonus | 6 | ibn_best ibn_chanta ibn_chiitoi ibn_flush |
-| `ir_` | in_opp_river | 0 |  |
 | `iw_` | set_intents（手の狙い）とその結果 | 9 | iw_bias iw_chi iw_chiitoi iw_flush |
 | `iyk_` | is_yakuhai | 1 | iyk_kind |
 | `kans_` | 槓 | 1 | kans_done |
@@ -131,6 +132,7 @@
 | `rand_` | 乱数 | 2 | rand rand_below |
 | `rb_` | rand_below | 1 | rb_n |
 | `reg_` | 通常の役（regular） | 1 | reg_yaku_han |
+| `oc_` | oc_build（一色手の相手の色）とその結果 | 6 | oc_build oc_mask oc_n oc_p |
 | `rel_` | relevant（聴牌に関わる牌） | 4 | rel rel_adjust rel_restore rel_tenpai |
 | `rh_` | reveal_hands | 1 | rh_rows |
 | `ri_` | riichi_ok | 2 | ri_kind ri_player |
@@ -160,7 +162,8 @@
 | `tp_` | toi_prepare | 1 | tp_kind |
 | `tt_` | draw_title | 1 | tt_line |
 | `tx_` | text_px の位置 | 2 | tx_x tx_y |
-| `ui_` | 画面の描画 | 71 | ui_all ui_back_n ui_band ui_big |
+| `td_` | img_decode | 10 | td_acc td_base td_code td_counts |
+| `ui_` | 画面の描画 | 74 | ui_all ui_back_n ui_band ui_big |
 | `up_` | unpack_voice | 9 | up_delta up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
 | `wk_` | 共通の作業領域（work）。使う期間が重ならないルーチンが共用する。定義のコメントに使うルーチンを書く | 12 | wk_accept wk_best wk_bonus wk_count |
@@ -204,11 +207,9 @@
 | `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 4 | char_at char_line char_no_carry char_px |
 | `check_` | 確かめる | 1 | check_win |
 | `chi_` | チー | 10 | chi_forbidden chi_i1 chi_i2 chi_key |
-| `chiitoi_` | 七対子 | 0 |  |
 | `choose_` | 選ぶ | 4 | choose_cands choose_cands_limit_low_ok choose_cands_limit_ok choose_chi |
 | `clear_` | 消す | 6 | clear_bss clear_directpage clear_ippatsu clear_kk |
 | `closed_` | 門前 | 1 | closed_flag |
-| `count_` | 数える | 0 |  |
 | `counts_` | 手牌の数え上げ | 3 | counts counts_x counts_x_ldx |
 | `cpu_` | CPU | 1 | cpu_turn |
 | `cur_` | 今調べている分け方の役と点 | 4 | cur_fu cur_han cur_n cur_y |
@@ -230,7 +231,8 @@
 | `find_` | 探す | 2 | find_waits find_yakuman |
 | `finish_` | finish（役と点を決める最後の処理） | 6 | finish finish_aka finish_han_total finish_normal |
 | `flush_` | 混一色 | 2 | flush_filter flush_only |
-| `furo_` | 副露（暗槓を含む。チー・ポン・明槓・暗槓でできた面子） | 8 | furo_attr furo_counts furo_facts furo_facts_end |
+| `fold_` | 降り（fold_check）とその結果 | 2 | fold_check fold_result |
+| `furo_` | 副露（暗槓を含む。チー・ポン・明槓・暗槓でできた面子） | 9 | furo_attr furo_counts furo_facts furo_facts_end |
 | `game_` | 半荘 | 2 | game_active game_end |
 | `greedy_` | greedy（ブロックを欲張りに数える） | 5 | greedy greedy_left greedy_loop greedy_saved_x |
 | `hand_` | 手牌 | 7 | hand_add hand_add_go hand_at hand_draw |
@@ -242,7 +244,7 @@
 | `honor_` | 字牌 | 1 | honor_pairs |
 | `human_` | 人の手番 | 10 | human_called human_discard human_letters human_manual |
 | `image_` | 画像 | 1 | image_of_kind |
-| `img_` | 画像 | 2 | img_of img_of_b |
+| `img_` | 画像 | 4 | img_decode img_of img_of_b img_rows |
 | `in_` | 中にある | 1 | in_opp_river |
 | `intent_` | 手の狙い | 21 | intent_bias intent_bonus intent_fl_check intent_fl_clear |
 | `is_` | 判定（A = 0 か 1） | 6 | is_agari is_closed is_dora_kind is_simple |
@@ -258,7 +260,6 @@
 | `least_` | 最も小さい | 1 | least_danger |
 | `let_` | 文字 | 1 | let_n |
 | `limit_` | 満貫以上の名前 | 1 | limit_name |
-| `lone_` | 孤立 | 0 |  |
 | `loop_` | いくつかのルーチンが使うループの番号 | 1 | loop_p |
 | `make_` | 作る | 1 | make_tot |
 | `mark_` | ▲（河の捨て牌とツモの印） | 6 | mark_clear mark_live mark_rows mark_tip |
@@ -313,7 +314,7 @@
 | `show_` | 表示する | 6 | show_draw show_kan_hint show_own_hint show_result |
 | `shuffle_` | 牌山を混ぜる | 5 | shuffle shuffle_honor shuffle_kind shuffle_next |
 | `single_` | 1 ビット | 1 | single_bit |
-| `small_` | smalltile の中の見出し | 8 | small_aligned small_img small_next_row small_row_bits |
+| `small_` | smalltile の中の見出し | 6 | small_aligned small_next_row small_row_bits small_row_turned |
 | `smalltile_` | 小さい牌（12×12）を描く | 2 | smalltile smalltile_advance |
 | `sort_` | 並べ替え | 4 | sort_base sort_best sort_bytes sort_n |
 | `start_` | 始め | 3 | start start_yaku start_yaku_clr |
@@ -321,6 +322,7 @@
 | `tenpai_` | 聴牌 | 2 | tenpai_pay tenpai_without |
 | `text_` | 文字列 | 1 | text_px |
 | `tie_` | 同点 | 2 | tie_policy tie_ukeire |
+| `threat_` | any_threat の入力と結果 | 1 | threat_furo |
 | `tile_` | drawtile の中の見出し | 8 | tile_attr tile_colors tile_crow tile_line |
 | `title_` | タイトル画面 | 8 | title title_dragons title_i title_lines |
 | `toggle_` | 切り替える | 1 | toggle_open |
@@ -344,7 +346,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 734 個で、256 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 758 個で、262 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -362,7 +364,7 @@
 | `addxb` | 1 |
 | `after_draw` | 5 |
 | `ai_call` | 6 |
-| `ai_discard` | 11 |
+| `ai_discard` | 10 |
 | `ai_kan` | 5 |
 | `ai_riichi` | 1 |
 | `ai_unseen` | 1 |
@@ -384,6 +386,7 @@
 | `call_discard` | 1 |
 | `call_flush_ok` | 1 |
 | `call_options` | 2 |
+| `call_shanten` | 1 |
 | `call_yaku_ok` | 3 |
 | `cc_rank` | 5 |
 | `char_at` | 1 |
@@ -403,7 +406,7 @@
 | `cp_position` | 2 |
 | `cpu_turn` | 3 |
 | `cv_check` | 1 |
-| `danger` | 4 |
+| `danger` | 6 |
 | `danger_one` | 9 |
 | `dealer_top` | 3 |
 | `demo_poll` | 1 |
@@ -451,10 +454,12 @@
 | `flush_filter` | 5 |
 | `fmk_note` | 3 |
 | `fmk_take` | 1 |
+| `fold_check` | 2 |
 | `furo_counts` | 5 |
 | `furo_facts` | 4 |
 | `furo_find_pon` | 4 |
 | `furo_make` | 7 |
+| `furo_threat` | 3 |
 | `furo_upgrade` | 1 |
 | `game_end` | 3 |
 | `hand_add` | 1 |
@@ -474,6 +479,7 @@
 | `ibn_chiitoi` | 2 |
 | `ibn_flush` | 1 |
 | `ibn_kokushi` | 1 |
+| `img_decode` | 9 |
 | `img_of` | 1 |
 | `in_opp_river` | 2 |
 | `intent_bias` | 1 |
@@ -504,6 +510,7 @@
 | `near_sum` | 3 |
 | `noten_delta` | 2 |
 | `number_bias` | 2 |
+| `oc_build` | 11 |
 | `off_suit` | 2 |
 | `off_suit_shape` | 4 |
 | `off_suit_tiles` | 2 |
@@ -558,7 +565,6 @@
 | `single_bit` | 1 |
 | `sk_exact` | 1 |
 | `sm_turn` | 1 |
-| `small_unpack` | 4 |
 | `smalltile` | 2 |
 | `sort_bytes` | 4 |
 | `spec_before` | 1 |
@@ -570,9 +576,9 @@
 | `ss_furo` | 7 |
 | `start` | 1 |
 | `stick_draw` | 3 |
-| `su_bits` | 2 |
 | `text_px` | 1 |
 | `tie_policy` | 2 |
+| `tile_read_row` | 2 |
 | `title_wait` | 4 |
 | `tobi` | 2 |
 | `toi_bonus` | 1 |
@@ -592,8 +598,10 @@
 | `ui_river_draw` | 2 |
 | `ui_river_tile` | 1 |
 | `ui_river_y` | 1 |
-| `ui_scores` | 6 |
+| `ui_scores` | 3 |
 | `ui_stick` | 1 |
+| `ui_turn` | 1 |
+| `ui_turn_mark` | 3 |
 | `unpack_voice` | 8 |
 | `unshown_init` | 1 |
 | `unshown_kind` | 1 |
