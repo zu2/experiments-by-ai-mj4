@@ -484,11 +484,33 @@ best_accept_10:
  jsr addxb
  ldaa 0,x
  ; Acceptance is in tile units, without a cap or scaling. Other terms
- ; total at most 61 here, including the common dora offset; saturate
- ; only if their final addition overflows.
+ ; total at most 61 here; saturate only if their final addition overflows.
 	adda	wk_score
- bcc accept_compare
+ bcc accept_dora
  ldaa #$FF
+accept_dora:
+ ; Each dora lost (cc_costs) takes an eighth of the acceptance, at least 1:
+ ; a dora multiplies the value of the hand, not the number of winning tiles.
+ ldab cc_costs-cc_bonus,x
+ beq accept_compare
+ psha
+ ldaa wk_score
+ lsra
+ lsra
+ lsra
+ bne accept_dora_02
+ inca
+accept_dora_02:
+ staa dora_unit
+ pula
+accept_dora_00:
+ suba dora_unit
+ bcs accept_dora_01
+ decb
+ bne accept_dora_00
+ bra accept_compare
+accept_dora_01:
+ clra
 accept_compare:
  cmpa wk_best
  bhi best_accept_20
@@ -1383,12 +1405,9 @@ ibn_two:
  ; Original 14-tile counts. dcc_cost and wk_bonus (toitoi) were
  ; computed by candidate ranking; cc_sanshoku is the 13-tile sanshoku value.
  ; A = complete final-score adjustment, cached with the shortlisted kind.
- ; A dora lost (dcc_cost) counts as two tiles of acceptance.
+ ; The dora lost (dcc_cost) is taken from the acceptance in best_accept.
 discard_bonus:
- ldab dcc_cost
- aslb
  ldaa #46
- sba
  adda wk_bonus
  adda cc_sanshoku
  staa wk_bonus
@@ -2551,6 +2570,7 @@ cc_order:	.ds	6 ; up to 6 candidate kinds ($FF = none)
 cc_ranks: .ds 6 ; their ranks
 cc_bonus: .ds 6 ; their discard_bonus values
 cc_costs: .ds 6 ; their dora costs
+dora_unit: .ds 1 ; best_accept: acceptance taken for each dora lost
 cc_lower: .ds 6*5 ; ac_lower of each cc_order slot that best_accept evaluated
 cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
 ; set_intents clears intent_flags..intent_flags_end.

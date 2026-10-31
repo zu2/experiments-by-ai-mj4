@@ -173,7 +173,7 @@
 |---|---|---:|---|
 | `abort_` | 途中流局 | 2 | abort_names abort_reason |
 | `abortive_` | 途中流局 | 1 | abortive_draw |
-| `accept_` | 受け入れ | 2 | accept_compare accept_eval |
+| `accept_` | 受け入れ | 3 | accept_compare accept_dora accept_eval |
 | `add_` | 足す | 8 | add_action add_fu add_fu2 add_kan_option |
 | `addxb_` | addxb（X に B を足す） | 2 | addxb addxb_tmp |
 | `after_` | あと | 1 | after_draw |
@@ -219,7 +219,7 @@
 | `decomp_` | 分け方 | 20 | decomp_all decomp_ankou decomp_chanta decomp_chanta2 |
 | `discard_` | 打牌 | 5 | discard discard_bonus discard_sk discard_sk_lim |
 | `do_` | 行う | 1 | do_call |
-| `dora_` | ドラ | 9 | dora_cnt dora_cut_cost dora_hits dora_kind_at |
+| `dora_` | ドラ | 10 | dora_cnt dora_cut_cost dora_hits dora_kind_at |
 | `draw_` | 描く | 13 | draw_arrow draw_hand draw_hands draw_info |
 | `draws_` | 残りのツモ | 1 | draws_left |
 | `drawstr_` | drawstr | 2 | drawstr drawstr_x |
@@ -344,13 +344,14 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 728 個で、253 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 731 個で、254 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
 | `ac_special` | 2 |
 | `acc_leaf` | 5 |
 | `acc_mark` | 3 |
+| `accept_dora` | 3 |
 | `acceptance` | 9 |
 | `ad_allowed` | 1 |
 | `ad_filter_cand` | 3 |
