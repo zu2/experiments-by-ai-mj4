@@ -568,8 +568,6 @@ setup_red_s:
 	inc	aka_n
 ; The furo are the first blocks of score_hand.
 ss_furo:
-	ldab	#P_FURO
-	jsr	addxb
 	ldaa	#1
 	staa	closed_flag
 	clr	nkan
@@ -578,7 +576,7 @@ ss_furo_00:
 	ldab	ss_i
 	cmpb	nfuro
 	beq	ss_furo_06
-	ldaa	0,x
+	ldaa	P_FURO,x
 	bpl	ss_furo_01
 	inc	aka_n
 ss_furo_01:
@@ -602,7 +600,7 @@ ss_furo_04:
 	clr	closed_flag
 ss_furo_05:
 	tba
-	ldab	1,x
+	ldab	P_FURO+1,x
 	inx
 	inx
 	inx
@@ -1178,12 +1176,10 @@ furo_counts:
 	ldab	P_NFURO,x
 	beq	furo_counts_04
 	stab	fcn_n
-	ldab	#P_FURO
-	jsr	addxb
 furo_counts_00:
 	stx	fcn_src
-	ldaa	0,x
-	ldab	1,x
+	ldaa	P_FURO,x
+	ldab	P_FURO+1,x
 	ldx	fcn_dst
 	jsr	addxb
 	anda	#3

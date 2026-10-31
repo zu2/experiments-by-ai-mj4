@@ -903,16 +903,14 @@ scan_pai_50:
  beq pai_score_max
  ldaa ai_player
  jsr player
- ldab #P_FURO
- jsr addxb
 pai_score_furo:
  stx pai_suit_ptr
- ldaa 1,x
+ ldaa P_FURO+1,x
  cmpa #K_HONOR
  bcc pai_score_next
  jsr kind_suit
  tab
- ldaa 0,x
+ ldaa P_FURO,x
  ; Type bit 1 distinguishes kans: subtract 1 for chi/pon, 2 for kan.
  anda #2
  lsra
@@ -2792,15 +2790,13 @@ furo_threat:
  stab ft_left
  stab ft_n
  beq furo_threat_02
- ldab #P_FURO
- jsr addxb
 furo_threat_00:
- ldaa 0,x
+ ldaa P_FURO,x
  anda #3
  beq furo_threat_01
  cmpa #M_ANKAN
  beq furo_threat_01
- ldab 1,x
+ ldab P_FURO+1,x
  stx ft_x
  ldx #dora_of_kind
  jsr addxb
@@ -2930,14 +2926,12 @@ sanshoku_furo:
  pshb
  ldaa ai_player
  jsr player
- ldab #P_FURO
- jsr addxb
  ldab nfuro
 sanshoku_near_00:
- ldaa 0,x
+ ldaa P_FURO,x
  anda #3
  bne sanshoku_near_01
- ldaa 1,x
+ ldaa P_FURO+1,x
  cmpa s3_kind
  beq sanshoku_full
 sanshoku_near_01:
