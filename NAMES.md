@@ -139,7 +139,7 @@
 | `rk_` | scan_keys | 2 | rk_bit rk_data |
 | `rn_` | ron_ok | 2 | rn_n rn_x |
 | `rnd_` | rand | 2 | rnd_t0 rnd_t1 |
-| `rp_` | 鳴ける形（rp_pon、rp_kan、rp_chi） | 4 | rp_bits rp_chi rp_kan rp_pon |
+| `rp_` | 鳴ける形（rp_pon、rp_kan、rp_chi） | 6 | rp_bits rp_chi rp_kan rp_n |
 | `rr_` | ui_river_draw | 2 | rr_k rr_p |
 | `rvt_` | ui_river_tile | 5 | rvt_flag rvt_img rvt_index rvt_player |
 | `ry_` | 流局（settle_draw と表示） | 5 | ry_bits4_x ry_n ry_score_before ry_tenpai |
@@ -346,7 +346,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 760 個で、261 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 765 個で、263 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -410,6 +410,7 @@
 | `danger_one` | 9 |
 | `dealer_top` | 3 |
 | `demo_poll` | 1 |
+| `discard_bonus` | 2 |
 | `discard_sk` | 1 |
 | `discard_step` | 6 |
 | `div8` | 2 |
@@ -537,6 +538,7 @@
 | `rmark_rows` | 2 |
 | `ron_ok` | 1 |
 | `rotate` | 1 |
+| `ryan_pairs` | 3 |
 | `sanshoku_near` | 4 |
 | `save_scores` | 1 |
 | `scan_keys` | 5 |

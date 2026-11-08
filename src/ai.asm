@@ -244,6 +244,8 @@ oc_p: .ds 1 ; oc_build: player
 oc_s: .ds 1 ; oc_build: suit S
 oc_n: .ds 1 ; oc_build: furo left, then tiles of S in the river
 oc_x: .ds 2 ; oc_build: the player
+rp_n: .ds 1 ; ryan_pairs: pairs found
+rp_s: .ds 1 ; ryan_pairs: suits left
 fold_result: .ds 1 ; input of fold_check: shanten; output: the result
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
@@ -582,9 +584,9 @@ best_accept_22:
 
 ; Selects cc_limit kinds with sk = min_s, ordered by completed policy value.
 ; Zero defaults to 4; values outside 4..6 are clamped at the next selection.
-; With a middle number and no intent (cc_cand_bonus 47), CC_KEY_BASE -
-; cc_cand_bonus is 15, the priority intent_bias used to give.
-CC_KEY_BASE .equ 62
+; CC_KEY_BASE is larger than any cc_cand_bonus (at most about 80 with the
+; two-sided shapes of ryan_pairs), so cc_key does not wrap.
+CC_KEY_BASE .equ 90
 choose_cands:
  ldaa cc_limit
  cmpa #CC_LIMIT_MIN
@@ -1353,6 +1355,52 @@ discard_bonus:
  staa wk_bonus
  jsr intent_bonus
  adda wk_bonus
+ staa wk_bonus
+discard_bonus_00:
+ ; 2 for each two-sided shape left, without a toitoi, chiitoi or kokushi
+ ; intent.
+ ldaa iw_toi
+ oraa iw_chiitoi
+ oraa iw_kok
+ bne discard_bonus_01
+ jsr ryan_pairs
+ asla
+ adda wk_bonus
+ staa wk_bonus
+discard_bonus_01:
+ ldaa wk_bonus
+ rts
+
+; Returns A = the pairs of kinds n, n+1 (n = 2 to 7) of one suit in counts
+; without one wk_kind: the two-sided shapes, counting a sequence as two.
+ryan_pairs:
+ jsr kind_counts_x
+ dec 0,x
+ clr rp_n
+ ldx #counts+2
+ ldaa #3
+ staa rp_s
+ryan_pairs_00:
+ ldab #6
+ryan_pairs_01:
+ tst 0,x
+ beq ryan_pairs_02
+ tst 1,x
+ beq ryan_pairs_02
+ inc rp_n
+ryan_pairs_02:
+ inx
+ decb
+ bne ryan_pairs_01
+ inx
+ inx
+ inx
+ inx
+ dec rp_s
+ bne ryan_pairs_00
+ jsr kind_counts_x
+ inc 0,x
+ ldaa rp_n
  rts
 
 ; A = kind. Return nonzero for terminals and honors.
