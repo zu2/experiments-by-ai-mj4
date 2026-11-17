@@ -2105,22 +2105,32 @@ is_yakuhai_04:
 	rts
 
 ; Returns A = danger of discarding kind wk_kind against the riichi of
-; player 0 (0 = safe ... 8).
+; player danger_player (0 = safe ... 7), ordered by the deal-in rates
+; measured in checks/20261118_fold_tenpai/danger_rate.md:
+;   honor, unseen 0-1 / 2 / 3+          1 / 2 / 5
+;   number, rank 1 2 3 4 5 6 7 8 9
+;     all suji sides passed             3 5 6 4 4 4 6 5 3
+;     no suji side passed               6 7 7 7 7 7 7 7 6
+;     4-6 with one of two sides passed  6
+; A number one lower (not below 2) when no sequence with it can be made
+; from unseen tiles (kabe).
 danger_one:
 	ldaa	wk_kind
 	jsr	in_opp_river
-	bne	danger_one_06
-	ldaa	wk_kind
-	cmpa	#K_HONOR
-	bcs	danger_one_00
- jsr kind_unseen_x
-	ldaa	0,x
-	cmpa	#2
-	bcs	danger_one_07
-	beq	danger_one_08
-	ldaa	#6
+	beq	danger_one_00
+	clra
 	rts
 danger_one_00:
+	ldaa	wk_kind
+	cmpa	#K_HONOR
+	bcs	danger_one_01
+ jsr kind_unseen_x
+	ldab	0,x
+	ldx	#dg_honor_tab
+	jsr	addxb
+	ldaa	0,x
+	rts
+danger_one_01:
 	tab
  jsr kind_number_b
  tab
@@ -2128,56 +2138,66 @@ danger_one_00:
 	clr	dg_suji
 	clr	dg_sides
 	cmpb	#4
-	bcs	danger_one_01
+	bcs	danger_one_02
 	inc	dg_sides
 	ldaa	wk_kind
 	suba	#3
 	jsr	in_opp_river
-	beq	danger_one_01
+	beq	danger_one_02
 	inc	dg_suji
-danger_one_01:
+danger_one_02:
 	ldab	dg_rank
 	cmpb	#7
-	bcc	danger_one_02
+	bcc	danger_one_03
 	inc	dg_sides
 	ldaa	wk_kind
 	adda	#3
 	jsr	in_opp_river
-	beq	danger_one_02
+	beq	danger_one_03
 	inc	dg_suji
-danger_one_02:
+danger_one_03:
+	ldx	#dg_suji_tab-1
 	ldaa	dg_suji
 	cmpa	dg_sides
-	bne	danger_one_05
-	ldab	dg_rank
-	cmpb	#1
-	beq	danger_one_03
-	cmpb	#9
-	beq	danger_one_03
-	cmpb	#2
 	beq	danger_one_04
-	cmpb	#8
+	ldx	#dg_none_tab-1
+	tsta
 	beq	danger_one_04
-	ldaa	#5
-	rts
-danger_one_03:
-	ldaa	#3
-	rts
+	ldaa	#6
+	bra	danger_one_05
 danger_one_04:
-	ldaa	#4
-	rts
+	ldab	dg_rank
+	jsr	addxb
+	ldaa	0,x
 danger_one_05:
-	ldaa	#7
-	rts
+	; kabe: none of (k-2,k-1), (k-1,k+1), (k+1,k+2) is all unseen
+	ldab	wk_kind
+	subb	#2
+	jsr	unseen_x
+	ldab	1,x
+	beq	danger_one_06
+	ldab	3,x
+	bne	danger_one_08
+	ldab	0,x
+	bne	danger_one_08
+	bra	danger_one_07
 danger_one_06:
-	clra
-	rts
+	ldab	3,x
+	beq	danger_one_07
+	ldab	4,x
+	bne	danger_one_08
 danger_one_07:
-	ldaa	#1
-	rts
+	cmpa	#3
+	bcs	danger_one_08
+	deca
 danger_one_08:
-	ldaa	#2
 	rts
+dg_honor_tab:
+ .byte 1,1,2,5,5
+dg_suji_tab:
+ .byte 3,5,6,4,4,4,6,5,3
+dg_none_tab:
+ .byte 6,7,7,7,7,7,7,7,6
 
 ; A = kind. Returns A nonzero if the riichi player danger_player cannot ron
 ; it: it is in his river, or it passed after his riichi (river_bits).
