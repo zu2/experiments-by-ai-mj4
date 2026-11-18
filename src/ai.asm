@@ -367,7 +367,20 @@ ai_discard_06:
 	jsr	set_intents
  jsr toi_prepare
  jsr tie_policy
+ ; Four pairs (chiitoi 2-shanten) one shanten ahead of the ordinary shape
+ ; do not decide the hand: draws that lower the ordinary shape count too.
+ ldaa min_s
+ cmpa #2
+ bne ai_discard_11
+ cmpa spec_low
+ bne ai_discard_11
+ inca
+ cmpa ad_norm_min
+ bne ai_discard_11
+ inc ac_both
+ai_discard_11:
 	jsr	best_accept
+ clr ac_both
 	ldaa	min_s
 	cmpa	#1
 	bne	ai_discard_07
@@ -394,11 +407,17 @@ discard_sk_00:
 	ldaa	#$7F
 	staa	min_s
  staa ad_forbidden_s
+ staa ad_norm_min
 	clr	wk_kind
 ; sk begins as ordinary-shape results; consume and replace one kind at a time.
 ad_s_loop:
  jsr ad_allowed
  beq ad_s_loop_00
+ ldaa sk-counts,x
+ cmpa ad_norm_min
+ bge ad_s_loop_03
+ staa ad_norm_min
+ad_s_loop_03:
  jsr shanten_lim
  staa sk-counts,x
  cmpa min_s
@@ -1698,6 +1717,7 @@ candidate_acceptance:
 acceptance:
 	jsr	demo_poll
  ldaa min_s
+ adda ac_both
  jsr acc_mark
  clr wk_accept
  clr wk_draw
@@ -3161,6 +3181,8 @@ spec_cnt: .ds 4 ; special-shape values of counts (spec_count)
 spec14: .ds 4 ; special-shape values of the 14 tiles (SP_*)
 spec13: .ds 4 ; ... after the discard of wk_kind
 spec_drawn: .ds 4 ; ... after one more draw
+ad_norm_min: .ds 1 ; lowest ordinary-shape shanten of discard_sk
+ac_both: .ds 1 ; 1 while acceptance also counts the ordinary shape one shanten behind
 spec_low: .ds 1 ; special-shape shanten of spec14: no discard goes below it
 spec_save: .ds 2 ; the set of spec_step
 spec_x: .ds 2 ; X kept by spec_before
