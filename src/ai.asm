@@ -313,9 +313,7 @@ ai_discard_03:
  jsr ev_discard
  jsr ai_open_furo
  beq ai_discard_10
- ldaa ev_best
- oraa ev_best+1
- oraa ev_best+2
+ ldx ev_best
  beq ai_discard_02
 ai_discard_10:
 	ldaa	min_s
@@ -338,9 +336,7 @@ ai_discard_05:
  jsr ev_discard
  ; An open hand whose every tenpai has no yaku (ev_best = 0) chooses among
  ; the 1-shanten discards instead, when there is one.
- ldaa ev_best
- oraa ev_best+1
- oraa ev_best+2
+ ldx ev_best
  bne ai_discard_07
  jsr ai_open_furo
  beq ai_discard_07

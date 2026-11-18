@@ -29,18 +29,12 @@ evdisc_live:
  cmpa ev_best+1
  bhi ev_discard_02
  bcs evdisc_next_cand
- ldaa ev_sum+2
- cmpa ev_best+2
- bhi ev_discard_02
- bcs evdisc_next_cand
  ldaa wk_accept
  cmpa ev_best_waits
  bls evdisc_next_cand
 ev_discard_02:
  ldx ev_sum
  stx ev_best
- ldaa ev_sum+2
- staa ev_best+2
  ldaa wk_accept
  staa ev_best_waits
  ldaa wk_kind
@@ -141,7 +135,6 @@ ev_tally:
  clr ev_furiten
  clr ev_sum
  clr ev_sum+1
- clr ev_sum+2
  clr wk_draw
  ldx #waits
 ev_acceptance_00:
@@ -204,7 +197,7 @@ evacc_score:
  anda #$3F
  staa 0,x
 evacc_no_slot:
- ; At most four additions. A 24-bit sum covers 136*65535 units of 100.
+ ; At most four additions; ev_add_pts saturates at $FFFF.
  ldx #best_pts
  ldab wk_unseen
  jsr ev_add_pts
@@ -225,13 +218,12 @@ ev_acceptance_11:
 ev_acceptance_13:
  lsr ev_sum
  ror ev_sum+1
- ror ev_sum+2
  decb
  bne ev_acceptance_13
 ev_acceptance_12:
  ldaa wk_accept
  rts
-; ev_sum += B * the points at X (B > 0).
+; ev_sum += B * the points at X (B > 0), saturating at $FFFF.
 ev_add_pts:
  ldaa 0,x
  oraa 1,x
@@ -240,15 +232,16 @@ ev_add_pts:
  adda ev_yacc
  staa ev_yacc
 ev_add_pts_02:
- ldaa ev_sum+2
- adda 1,x
- staa ev_sum+2
  ldaa ev_sum+1
- adca 0,x
+ adda 1,x
  staa ev_sum+1
+ ldaa ev_sum
+ adca 0,x
  bcc ev_add_pts_00
- inc ev_sum
+ ldaa #$FF
+ staa ev_sum+1
 ev_add_pts_00:
+ staa ev_sum
  decb
  bne ev_add_pts_02
 ev_add_pts_01:
@@ -263,7 +256,7 @@ ev_add_pts_01:
 ; value. counts, unseen, kk1 and kk2 are restored; sk and min_s are made again.
 ; A record per candidate: kind, 5 bytes of tenpai draws (from ac_lower),
 ; total (3 bytes), best of the current draw (3 bytes).
-E1_SIZE .equ 12
+E1_SIZE .equ 10
 ev1_discard:
  ldaa kk1
  staa e1_kk1
@@ -332,7 +325,6 @@ ev1_discard_06:
  ldx e1_end
  clr 6,x
  clr 7,x
- clr 8,x
  ldab #E1_SIZE
  jsr addxb
  stx e1_end
@@ -429,10 +421,6 @@ ev1_discard_31:
  bcs ev1_discard_33
  ldaa 7,x
  cmpa e1_tot+1
- bhi ev1_discard_32
- bcs ev1_discard_33
- ldaa 8,x
- cmpa e1_tot+2
  bls ev1_discard_33
 ev1_discard_32:
  ldaa 0,x
@@ -441,8 +429,6 @@ ev1_discard_32:
  staa e1_tot
  ldaa 7,x
  staa e1_tot+1
- ldaa 8,x
- staa e1_tot+2
 ev1_discard_33:
  ldab #E1_SIZE
  jsr addxb
@@ -494,9 +480,8 @@ ev1_draw_01:
  staa e1_ebit
  ldx #e1_rec
 ev1_draw_02:
+ clr 8,x
  clr 9,x
- clr 10,x
- clr 11,x
  ldab #E1_SIZE
  jsr addxb
  cpx e1_end
@@ -618,26 +603,21 @@ ev1_draw_40:
  stx e1_j
  cpx e1_end
  bne ev1_draw_10
- ; total += e1_u * best, saturating at $FFFFFF.
+ ; total += e1_u * best, saturating at $FFFF.
  ldx #e1_rec
 ev1_draw_50:
  ldab e1_u
 ev1_draw_51:
- ldaa 8,x
- adda 11,x
- staa 8,x
  ldaa 7,x
- adca 10,x
+ adda 9,x
  staa 7,x
  ldaa 6,x
- adca 9,x
- staa 6,x
+ adca 8,x
  bcc ev1_draw_52
  ldaa #$FF
- staa 6,x
  staa 7,x
- staa 8,x
 ev1_draw_52:
+ staa 6,x
  decb
  bne ev1_draw_51
  ldab #E1_SIZE
@@ -646,26 +626,20 @@ ev1_draw_52:
  bne ev1_draw_50
  rts
 
-; X = record. best (bytes 9..11) = the larger of best and ev_sum.
+; X = record. best (bytes 8..9) = the larger of best and ev_sum.
 ev1_best:
  ldaa ev_sum
- cmpa 9,x
+ cmpa 8,x
  bhi ev1_best_00
  bcs ev1_best_01
  ldaa ev_sum+1
- cmpa 10,x
- bhi ev1_best_00
- bcs ev1_best_01
- ldaa ev_sum+2
- cmpa 11,x
+ cmpa 9,x
  bls ev1_best_01
 ev1_best_00:
  ldaa ev_sum
- staa 9,x
+ staa 8,x
  ldaa ev_sum+1
- staa 10,x
- ldaa ev_sum+2
- staa 11,x
+ staa 9,x
 ev1_best_01:
  rts
 
@@ -1033,8 +1007,8 @@ e1_dora: .ds 1 ; ev_base_dora of the hand (14 tiles)
 e1_aka: .ds 1 ; ev_base_aka of the hand
 ev_own_bit: .ds 1 ; ev_prepare: bit of the computer's own discards in river_bits
 e1_river: .ds 1 ; river_bits of e1_i before ev1_draw sets the own bit
-ev_sum: .ds 3 ; 24-bit sum of copies * points/100
-ev_best: .ds 3 ; best ev_sum so far
+ev_sum: .ds 2 ; sum of copies * points/100 (saturating)
+ev_best: .ds 2 ; best ev_sum so far
 ev_best_waits: .ds 1 ; its acceptance
 ev_lk: .ds KN ; live winning tiles of each tenpai discard (ev_discard)
 ev_yacc: .ds 1 ; live winning tiles with yaku of ev_value
@@ -1049,7 +1023,7 @@ e1_rec: .ds 14*E1_SIZE ; records of ev1_discard (at most 14 kinds in a hand)
 e1_end: .ds 2 ; end of the records
 e1_j: .ds 2 ; record of the discard i being tried
 e1_other: .ds 2 ; record of the discard d, 0 if d has none
-e1_tot: .ds 3 ; largest total so far
+e1_tot: .ds 2 ; largest total so far
 e1_k: .ds 1 ; kind ev1_discard checks for a record
 e1_i: .ds 1 ; kind of the discard i
 e1_d: .ds 1 ; tenpai discard d
