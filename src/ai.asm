@@ -134,6 +134,12 @@ call_shanten:
  bne call_shanten_other
  jsr call_after_ukeire
  beq call_shanten_worse
+ ; A call from tenpai to tenpai must raise the value (ev_best).
+ tst call_shanten_now
+ bne call_shanten_05
+ jsr call_ev_more
+ bls call_shanten_worse
+call_shanten_05:
  ldaa call_shanten_now
  bra call_shanten_restore
  ; A call to a tenpai with 4 winning tiles or fewer counts as worse than a
@@ -193,6 +199,63 @@ call_shanten_00:
  pula
  rts
 
+; In the call_shanten state (counts without ck_a and ck_b, nfuro + 1, sk),
+; adds the meld of call_kind, ck_a and ck_b to the furo of ai_player and runs
+; ev_discard. Returns flags of ev_best compared with call_ev_now (bhi when
+; larger). The furo are restored.
+call_ev_more:
+ ldaa ai_player
+ jsr player
+ stx cem_x
+ ldab P_NFURO,x
+ inc P_NFURO,x
+ tba
+ asla
+ aba
+ tab
+ jsr addxb
+ ldaa ck_a
+ cmpa call_kind
+ bcs call_ev_more_00
+ ldaa call_kind
+call_ev_more_00:
+ staa P_FURO+1,x
+ clra
+ ldab ck_a
+ cmpb ck_b
+ bne call_ev_more_01
+ ldaa #M_PON
+call_ev_more_01:
+ staa P_FURO,x
+ ldaa #1
+ bsr cem_tiles
+ jsr ev_discard
+ ldaa #-1
+ bsr cem_tiles
+ ldx cem_x
+ dec P_NFURO,x
+ ldaa ev_best
+ cmpa call_ev_now
+ bne call_ev_more_02
+ ldaa ev_best+1
+ cmpa call_ev_now+1
+call_ev_more_02:
+ rts
+; Adds A to furo_tiles of call_kind, ck_a and ck_b.
+cem_tiles:
+ ldab call_kind
+ bsr cem_tiles_00
+ ldab ck_a
+ bsr cem_tiles_00
+ ldab ck_b
+cem_tiles_00:
+ jsr counts_x
+ psha
+ adda furo_tiles-counts,x
+ staa furo_tiles-counts,x
+ pula
+ rts
+
 ; counts/nfuro/kk are the same temporary state as batch_prepare.  min_s is
 ; the no-call shanten, and call_pre_acc is the no-call acceptance.
 ; Returns with N and Z set from A.
@@ -235,6 +298,8 @@ call_acc_yes:
 
  .bss
 call_pre_acc: .ds 1
+call_ev_now: .ds 2 ; ev_sum of not calling, in tenpai (call_ev_more)
+cem_x: .ds 2 ; call_ev_more: the player
 ft_n: .ds 1 ; furo_threat: result
 ft_left: .ds 1 ; furo_threat: furo left
 ft_x: .ds 2 ; furo_threat: furo being read
@@ -2324,6 +2389,12 @@ ai_call_20:
 	jsr	shanten
 	staa	call_shanten_now
  jsr call_before_ukeire
+ ; In tenpai, the value of not calling for call_ev_more.
+ tst call_shanten_now
+ bne ai_call_22
+ jsr ev_no_call
+ stx call_ev_now
+ai_call_22:
 	tst	rp_pon
 	beq	call_chi
 ai_call_21:

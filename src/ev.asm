@@ -49,6 +49,20 @@ evdisc_next_cand:
 
 ; Value of discarding wk_kind from the 14 tiles of counts, after ev_prepare:
 ; ev_sum and wk_accept of ev_acceptance. counts is restored.
+; Returns Z clear when the 13-tile hand of ai_call has
+; a winning tile with yaku (ev_sum of not calling call_kind).
+ev_no_call:
+ jsr ev_prepare
+ ldaa call_kind
+ staa wk_kind
+ jsr kind_counts_x
+ inc 0,x
+ jsr ev_value
+ jsr kind_counts_x
+ dec 0,x
+ ldx ev_sum
+ rts
+
 ; Returns X = &ev_lk[wk_kind]. Keeps A.
 ev_lk_x:
  ldab wk_kind
