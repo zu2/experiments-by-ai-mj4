@@ -662,10 +662,8 @@ dora_next_03:
 winds_of:
 	suba	dealer
 	anda	#3
+	adda	#K_EAST
 	tab
-	ldx	#wind_kinds
-	jsr	addxb
-	ldab	0,x
 	ldaa	round
 	cmpa	#4
 	ldaa	#K_EAST
@@ -673,8 +671,7 @@ winds_of:
 	inca
 winds_of_00:
 	rts
-wind_kinds:
-	.byte	K_EAST,K_EAST+1,K_EAST+2,K_NORTH
+
 
 ; Dedicated result page: winner header, indicators, yaku, points and large hand.
 show_result:
@@ -1005,8 +1002,6 @@ reveal_hands:
 redraw_hands:
 	clr	reveal
 draw_hands:
-	ldaa	#1
-	staa	ui_refresh
 	clr	loop_p
 draw_hands_00:
 	ldaa	loop_p
@@ -1015,7 +1010,6 @@ draw_hands_00:
 	ldaa	loop_p
 	cmpa	#4
 	bne	draw_hands_00
-	clr	ui_refresh
 	rts
 rh_rows:
 	.byte	16,2,7,12
@@ -1891,16 +1885,13 @@ img_of:
  adda #34
  rts
 img_of_00:
- tab
- ldx #image_of_kind
- jsr addxb
- ldaa 0,x
- rts
-image_of_kind:
- .byte 37,0,1,2,3,4,5,6,7,8
- .byte 37,9,10,11,12,13,14,15,16,17
- .byte 37,18,19,20,21,22,23,24,25,26
- .byte 37,27,28,29,30,31,32,33
+	; Kind - 1 - suit (honors 3): 1-9 are 0-8, 11-19 9-17, 21-29 18-26, 31-37 27-33.
+	tab
+	jsr	kind_suit
+	nega
+	aba
+	deca
+	rts
 
 ; ---------------------------------------------------------------- misc
 

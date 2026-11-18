@@ -210,10 +210,10 @@
     "static_references": 10
   },
   {
-    "name": "sg_taatsu",
+    "name": "e1_i",
     "address": 151,
     "bytes": 1,
-    "static_references": 10
+    "static_references": 11
   },
   {
     "name": "kk2",
@@ -646,6 +646,12 @@
     "address": 230,
     "bytes": 2,
     "static_references": 9
+  },
+  {
+    "name": "em_q",
+    "address": 232,
+    "bytes": 2,
+    "static_references": 14
   },
   {
     "name": "sm_src",

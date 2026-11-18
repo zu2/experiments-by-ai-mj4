@@ -499,8 +499,6 @@ ui_river_draw_01:
  rts
 ; Redraws the header, the rivers, the hands and the scores.
 redraw_all:
- ldaa #1
- staa ui_refresh
  jsr ui_header
  clr ui_all
 redraw_all_00:
@@ -518,7 +516,6 @@ redraw_all_01:
  ldaa ui_all
  cmpa #4
  bne redraw_all_01
- clr ui_refresh
  jmp ui_scores
 ; Redraws the header and the scores.
 draw_info:
@@ -1102,10 +1099,8 @@ ui_winning_hand:
 ui_win_reveal:
  ldaa #1
  staa reveal
- staa ui_refresh
  ldaa turn
  jsr draw_hand
- clr ui_refresh
  clr reveal
  rts
 
@@ -1203,7 +1198,7 @@ ui_tail: .ds 1 ; pixels after the last whole byte
 ui_bytes: .ds 1 ; whole bytes
 
  .bss
-ui_refresh: .ds 1 ; nonzero to redraw revealed hands
+
 ui_back_n: .ds 4 ; hidden tiles drawn for each player ($FF = none)
 ui_furo_n: .ds 4 ; furo drawn for each CPU
 

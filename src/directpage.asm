@@ -38,7 +38,7 @@ knew .equ $0093 ; keys pressed in this frame
 px_y .equ $0094 ; pixel y
 sflags .equ $0095 ; F_* flags for score_hand
 ck_b .equ $0096 ; second hand kind of the call
-sg_taatsu .equ $0097 ; taatsu of the leaf
+e1_i .equ $0097 ; kind of the discard i (ev1_discard)
 kk2 .equ $0098 ; second kind that may not be discarded ($FF = none)
 attr_or .equ $0099 ; OR of kattr over the hand
 dc_tile .equ $009A ; tile just discarded
@@ -108,6 +108,7 @@ stick_x .equ $00E3 ; x of the riichi stick
 tb_n_live .equ $00E4 ; live pairs
 ura_n .equ $00E5 ; ura dora in the hand
 al_x .equ $00E6 ; &counts[draw]
+em_q .equ $00E8 ; destination of em_move, or B entry
 sm_src .equ $00EA ; image address
 wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept)
 cop_pat .equ $00EF ; chi pattern call_options checks

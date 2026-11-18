@@ -1039,7 +1039,7 @@ e1_j: .ds 2 ; record of the discard i being tried
 e1_other: .ds 2 ; record of the discard d, 0 if d has none
 e1_tot: .ds 2 ; largest total so far
 e1_k: .ds 1 ; kind ev1_discard checks for a record
-e1_i: .ds 1 ; kind of the discard i
+; e1_i is allocated in directpage.asm.
 e1_d: .ds 1 ; tenpai discard d
 e1_e: .ds 1 ; draw e
 e1_u: .ds 1 ; unseen copies of the draws in this pass (4 down to 1)
@@ -1065,4 +1065,4 @@ em_r: .ds 1 ; r em_lookup looks for
 em_t: .ds 1 ; tiles of H' not in B
 em_k: .ds 1 ; kind or record count
 em_ptr: .ds 2 ; source of em_move
-em_q: .ds 2 ; destination of em_move, or B entry
+; em_q is allocated in directpage.asm.
