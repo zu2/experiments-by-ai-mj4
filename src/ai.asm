@@ -484,17 +484,26 @@ least_danger_00:
  beq least_danger_02
  inca
 least_danger_02:
- ; Of equal danger, the discard with the lower sk (nearer to tenpai).
+ ; Of equal danger, the discard with the lower sk (nearer to tenpai); of
+ ; equal sk too, the one with the lower connection, so that the blocks stay.
  jsr kind_counts_x
  ldab sk-counts,x
 	cmpa	wk_best
  bcs least_danger_03
  bne least_danger_01
  cmpb ld_sk
+ bcs least_danger_03
+ bne least_danger_01
+ jsr connection
+ cmpa ld_conn
  bcc least_danger_01
+ bra least_danger_04
 least_danger_03:
 	staa	wk_best
  stab ld_sk
+ jsr connection
+least_danger_04:
+ staa ld_conn
 	ldaa	wk_kind
 	staa	ad_pick
 least_danger_01:
@@ -2884,6 +2893,7 @@ dg_val:
 danger_max:	.ds	1 ; sum of the danger over the players
 dg_weight:	.ds	1 ; weight of danger_player in danger
 ld_sk:	.ds	1 ; least_danger: sk of ad_pick
+ld_conn:	.ds	1 ; least_danger: connection of ad_pick
 ; find_waits writes waits as waits-ac_yes,x: waits stays within 255 bytes after ac_yes.
 waits: .ds KN ; output of find_waits: 1 for each winning kind
 waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)
