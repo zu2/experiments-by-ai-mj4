@@ -387,7 +387,7 @@ ui_kan_big:
  ldaa #163
  staa px_y
  ldx #kan_icon
- jsr ui_icon
+ jsr ui_shape_set
 ui_furo_advance:
  tst df_small
  bne ui_furo_30
@@ -457,9 +457,9 @@ ui_river_mark_x:
  deca
 ui_river_mark_y:
  staa px_y
- jsr ui_pixel_clr
- inc px_x
- jsr ui_pixel
+ clr px_ink
+ ldx #shape_gap
+ jsr ui_shape
 ui_river_tile_00:
  rts
 ; A = player. Returns A = pixel row of its river.
@@ -927,34 +927,87 @@ turn90_align_w:
  clr sm_rot+23
  rts
 
-; Sets (px_ink nonzero) or clears the pixel at px_x, px_y; ui_pixel_clr clears it.
-ui_pixel_clr:
- clr px_ink
-ui_pixel:
+; X = shape: rows, box (16 bits, bit 15 at px_x), then the bits of each row.
+; From px_x, px_y down, replaces the box of each row with the bits (px_ink
+; nonzero) or with 0. ui_shape_set sets px_ink. px_y ends below the shape.
+ui_shape_set:
+ ldaa #1
+ staa px_ink
+ui_shape:
+ ldaa 0,x
+ staa sm_n
+ ldaa 1,x
+ ldab 2,x
+ inx
+ inx
+ inx
+ stx sm_src
+ bsr ui_shape_shift
+ coma
+ comb
+ staa sm_w
+ stab sm_w+1
+ui_shape_00:
+ ldx sm_src
+ ldaa 0,x
+ ldab 1,x
+ inx
+ inx
+ stx sm_src
+ tst px_ink
+ bne ui_shape_01
+ clra
+ clrb
+ui_shape_01:
+ bsr ui_shape_shift
  ldaa px_y
  ldab px_x
  jsr pixel_address
  staa px_addr
  stab px_addr+1
- ldaa px_x
- anda #7
- tab
- ldx #pixel_masks
- jsr addxb
- ldaa 0,x
  ldx px_addr
- tst px_ink
- beq ui_pixel_00
- oraa 0,x
+ ldaa 0,x
+ anda sm_w
+ oraa sm_bits
  staa 0,x
+ ldaa 1,x
+ anda sm_w+1
+ oraa sm_bits+1
+ staa 1,x
+ inc px_y
+ dec sm_n
+ bne ui_shape_00
  rts
-ui_pixel_00:
- coma
- anda 0,x
- staa 0,x
+; Returns A:B (and sm_bits) = A:B shifted right by px_x & 7.
+ui_shape_shift:
+ staa sm_bits
+ stab sm_bits+1
+ ldab px_x
+ andb #7
+ beq ui_shape_shift_01
+ui_shape_shift_00:
+ lsr sm_bits
+ ror sm_bits+1
+ decb
+ bne ui_shape_shift_00
+ui_shape_shift_01:
+ ldaa sm_bits
+ ldab sm_bits+1
  rts
-pixel_masks:
- .byte $80,$40,$20,$10,8,4,2,1
+shape_mark:
+ .byte 3,$F8,0,$20,0,$70,0,$F8,0
+shape_tsumo:
+ .byte 4,$FF,$E0,4,0,$0E,0,$1F,0,0,0
+shape_footer:
+ .byte 2,$FF,$F0,$FF,$E0,0,0
+shape_gap:
+ .byte 1,$C0,0,0,0
+shape_dot:
+ .byte 1,$80,0,$80,0
+cursor_icon:
+ .byte 3,$F8,0,$F8,0,$70,0,$20,0
+kan_icon:
+ .byte 5,$F8,0,$88,0,$90,0,$E0,0,$90,0,$88,0
 
 ; A = rows. Erases ui_width pixels of each row at sm_x, sm_y.
 ui_erase_px:
@@ -1087,15 +1140,13 @@ ui_mark_tsumo_00:
  adda #12
 ui_mark_tsumo_01:
  staa mark_top
- ldaa #1
- staa mark_live
- ; A black box as wide as the tile keeps the mark visible over a white river tile.
- clr px_ink
- ldaa #11
- ldab #4
- jsr rmark_rows
- inc px_ink
- jmp rmark_pixels
+	ldaa	#1
+	staa	mark_live
+	staa	px_ink
+	; A black box as wide as the tile keeps the mark visible over a white river tile.
+	ldx	#shape_tsumo
+	ldab	#5
+	jmp	rmark_shape
 ; Redraws the scores and the riichi-denied message.
 draw_riichi:
  jsr ui_scores
@@ -1131,13 +1182,12 @@ ui_call_mark:
  asla
  asla
  asla
- adda #7
- staa px_x
- ldaa #166
- staa px_y
- ldaa #1
- staa px_ink
- jsr ui_pixel
+	adda	#7
+	staa	px_x
+	ldaa	#166
+	staa	px_y
+	ldx	#shape_dot
+	jsr	ui_shape_set
 ui_call_mark_02:
  rts
  .bss
@@ -1253,33 +1303,16 @@ river_mark:
  staa px_ink
 ; Draws the marker (widths 1, 3, 5) with px_ink.
 rmark_pixels:
- ldaa #1
- ldab #3
-; A = first width, B = rows. Draws rows centered on mark_tip from mark_top,
-; each 2 pixels wider than the row above until the width is 7 or more, with px_ink.
-rmark_rows:
- staa mark_width
- stab mark_rows
+ ldx #shape_mark
+ ldab #2
+; X = shape, B = its pixels left of mark_tip. Draws it from mark_top.
+rmark_shape:
+ ldaa mark_tip
+ sba
+ staa px_x
  ldaa mark_top
  staa px_y
-rmark_rows_00:
- ldaa mark_width
- lsra
- nega
- adda mark_tip
- staa px_x
- ldab mark_width
- jsr ui_pixel_line
- inc px_y
- ldaa mark_width
- cmpa #7
- bcc rmark_rows_01
- adda #2
- staa mark_width
-rmark_rows_01:
- dec mark_rows
- bne rmark_rows_00
- rts
+ jmp ui_shape
  .bss
 hint_x: .ds 1 ; pixel column of the next hint letter
 hint_origin: .ds 1 ; pixel column of the first hint letter
@@ -1287,8 +1320,8 @@ hint_y: .ds 1 ; hint pixel row
 mark_live: .ds 1 ; nonzero while the river marker is shown
 ; mark_tip is allocated in directpage.asm.
 mark_top: .ds 1 ; marker top row
-mark_width: .ds 1 ; marker width
-mark_rows: .ds 1 ; marker rows left
+
+
 
 
  .code
@@ -1309,40 +1342,34 @@ ui_stick_00:
  staa px_y
  ldaa #192
  staa stick_x
-; Draws a riichi stick at stick_x.
+; Draws a riichi stick (24 x 3 pixels, a dot at 11-13 of the middle row) at
+; stick_x (a multiple of 8) and px_y; stick_ink = 0 erases it.
 stick_draw:
- clr stick_row
-stick_draw_00:
- ldaa stick_x
- staa px_x
-stick_draw_01:
- ldaa stick_ink
- staa px_ink
- ldaa stick_row
- cmpa #1
- bne stick_draw_02
- ldaa px_x
- suba stick_x
- cmpa #11
- bcs stick_draw_02
- cmpa #14
- bcc stick_draw_02
- clr px_ink
-stick_draw_02:
- jsr ui_pixel
- inc px_x
- ldaa px_x
- suba stick_x
- cmpa #24
- bne stick_draw_01
- inc px_y
- inc stick_row
- ldaa stick_row
- cmpa #3
+ ldaa px_y
+ ldab stick_x
+ jsr pixel_address
+ staa px_addr
+ stab px_addr+1
+ ldx px_addr
+ ldaa #$FF
+ ldab #$E3
+ tst stick_ink
  bne stick_draw_00
+ clra
+ clrb
+stick_draw_00:
+ staa 0,x
+ staa 1,x
+ staa 2,x
+ staa 32,x
+ stab 33,x
+ staa 34,x
+ staa 64,x
+ staa 65,x
+ staa 66,x
  rts
  .bss
-stick_row: .ds 1 ; riichi stick row
+
 stick_ink: .ds 1 ; riichi stick color
 
 ; stick_x is allocated in directpage.asm.
@@ -1412,59 +1439,7 @@ river_footer:
  bne river_footer_00
  inc px_ink
 river_footer_00:
- ldab #11
- jsr ui_pixel_line
- clr px_ink
- ldab #1
- jsr ui_pixel_line
- inc px_y
- ldaa sm_x
- staa px_x
- ldab #12
- ; Draw B pixels horizontally, using the current px_ink.
-ui_pixel_line:
- pshb
- jsr ui_pixel
- pulb
- inc px_x
- decb
- bne ui_pixel_line
- rts
+ ldx #shape_footer
+ jmp ui_shape
 
  .code
-; X = height followed by five-bit-wide row masks (MSB first).
-; Uses small-sprite scratch, without changing the live discard-marker state.
-ui_icon:
- ldaa px_x
- staa sm_align
- ldaa 0,x
- staa sm_n
- inx
- stx sm_src
-ui_icon_00:
- ldx sm_src
- ldaa 0,x
- staa sm_bits
- inx
- stx sm_src
- ldaa #5
- staa sm_flags
-ui_icon_01:
- asl sm_bits
- ldaa #0
- rola
- staa px_ink
- jsr ui_pixel
- inc px_x
- dec sm_flags
- bne ui_icon_01
- ldaa sm_align
- staa px_x
- inc px_y
- dec sm_n
- bne ui_icon_00
- rts
-cursor_icon:
- .byte 3,$F8,$70,$20
-kan_icon:
- .byte 5,$88,$90,$E0,$90,$88

@@ -1431,7 +1431,7 @@ select_arrow:
  ldaa #165
  staa px_y
  ldx #cursor_icon
- jmp ui_icon
+ jmp ui_shape_set
 arrow_done:
  rts
 
