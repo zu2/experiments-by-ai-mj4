@@ -323,12 +323,8 @@ abortive_draw_01:
 	ldx	#abort_names
 	jsr	addxb
 	jsr	drawstr_x
-	ldaa	#27
-	staa	posx
 	ldaa	#1
-	staa	posy
-	ldx	#s_push
-	jsr	drawstr
+	jsr	show_push
 	jsr	draw_sound
 	jsr	wait_space
 	inc	honba
@@ -898,33 +894,10 @@ page_wind:
 	ldaa	#8
 	staa	posx
  jsr print_score_x
-	ldaa	#15
-	staa	posx
-	ldaa	ry_v
-	bpl	page_gain
-	clra
-	clrb
-	subb	ry_v+1
-	sbca	ry_v
-	staa	ry_v
-	stab	ry_v+1
-	ldaa	#CH_MINUS
-	bra	page_sign
-page_gain:
-	ldaa	#CH_PLUS
-page_sign:
-	psha
 	ldaa	#16
 	staa	posx
 	ldx	ry_v
-	jsr	print_score
- ; print_num already left pn_p at the first digit in its four-cell field.
- ldaa pn_p+1
- suba #<pn_buf
- adda #15
- staa posx
-	pula
-	jsr	drawchar
+	jsr	print_signed
 	ldaa	#23
 	staa	posx
 	ldx	#s_equal
@@ -934,13 +907,8 @@ page_advance:
 	ldaa	ui_sp
 	cmpa	#4
 	bne	score_page_00
-	ldaa	#27
-	staa	posx
 	ldaa	#22
-	staa	posy
-	ldx	#s_push
-	jsr	drawstr
-	rts
+	bra	show_push
 
 ; Draw result over the four revealed hands. Each seat keeps the pre-settlement
 ; score with its tenpai state and point transfer directly underneath.
@@ -952,12 +920,8 @@ show_draw:
 	clr	posy
 	ldx	#s_ryukyoku
 	jsr	drawstr
-	ldaa	#27
-	staa	posx
 	ldaa	#1
-	staa	posy
-	ldx	#s_push
-	jsr	drawstr
+	jsr	show_push
 	clr	loop_p
 show_draw_00:
 	ldx	#rh_rows
@@ -992,33 +956,14 @@ showdraw_noten:
 	ldx	#s_noten
 showdraw_status:
 	jsr	drawstr
-	ldaa	#CH_SP
-	jsr	drawchar
-	inc	posx
  ldab loop_p
  jsr noten_delta
- ldaa ry_v
- oraa ry_v+1
+ ldx ry_v
  beq showdraw_no_pay
- ldaa ry_v
- bpl showdraw_gain
- ldaa ry_v+1
- nega
- staa ry_v+1
- ldaa #CH_MINUS
- bra showdraw_amount
-showdraw_gain:
- ldaa #CH_PLUS
-showdraw_amount:
-	jsr	drawchar
-	inc	posx
-	ldaa	ry_v+1
- jsr print_a2
- jsr draw_zero
- jsr next_zero
+ jsr print_signed
 	bra	show_draw_10
 showdraw_no_pay:
- jsr draw_zero
+ jsr next_zero
 show_draw_10:
 	inc	loop_p
 	ldaa	loop_p
@@ -1492,6 +1437,43 @@ arrow_done:
 
 
 
+
+; A = row. Shows the space prompt at its right end.
+show_push:
+	staa	posy
+	ldaa	#27
+	staa	posx
+	ldx	#s_push
+	jmp	drawstr
+
+; X = nonzero change in units of 100, posx = first of 6 cells. Prints it
+; right-aligned, with its sign just before the first digit.
+print_signed:
+	stx	ry_v
+	ldaa	#CH_PLUS
+	tst	ry_v
+	bpl	print_signed_00
+	clra
+	clrb
+	subb	ry_v+1
+	sbca	ry_v
+	staa	ry_v
+	stab	ry_v+1
+	ldaa	#CH_MINUS
+print_signed_00:
+	psha
+	ldaa	posx
+	psha
+	ldx	ry_v
+	jsr	print_score
+	; print_num left pn_p at the first digit in its four-cell field.
+	pula
+	deca
+	adda	pn_p+1
+	suba	#<pn_buf
+	staa	posx
+	pula
+	jmp	drawchar
 
 ; X = score in units of 100. Prints it in 6 cells.
 print_score_x:
