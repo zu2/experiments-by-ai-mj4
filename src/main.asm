@@ -511,25 +511,13 @@ setup_place:
 	staa	tsumo_flag
 	clr	dealer_flag
 	ldaa	cw_p
-	suba	dealer
-	anda	#3
-	tab
-	ldx	#wind_kinds
-	jsr	addxb
-	ldaa	0,x
-	staa	seat_kind
+ jsr winds_of
+	staa	round_kind
+ stab seat_kind
 	ldaa	cw_p
 	cmpa	dealer
-	bne	setup_seat
+	bne	setup_dora
 	inc	dealer_flag
-setup_seat:
-	ldaa	#K_EAST
-	ldab	round
-	cmpb	#4
-	bcs	setup_round
-	inca
-setup_round:
-	staa	round_kind
 setup_dora:
 	clr	dora_n
 	clr	ss_i
@@ -673,6 +661,22 @@ dora_next_03:
  ldaa #K_HAKU
  rts
 
+; A = player. Returns A = the round wind kind, B = the seat wind kind of
+; the player.
+winds_of:
+	suba	dealer
+	anda	#3
+	tab
+	ldx	#wind_kinds
+	jsr	addxb
+	ldab	0,x
+	ldaa	round
+	cmpa	#4
+	ldaa	#K_EAST
+	bcs	winds_of_00
+	inca
+winds_of_00:
+	rts
 wind_kinds:
 	.byte	K_EAST,K_EAST+1,K_EAST+2,K_NORTH
 

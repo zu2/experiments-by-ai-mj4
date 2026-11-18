@@ -311,10 +311,7 @@ ai_discard_03:
  ; An open tenpai without yaku (ev_best = 0) cannot win: it only defends.
  tst min_s
  bne ai_discard_10
- jsr ai_furo_x
- ldaa minshun_n-minshun_n,x
- adda minkou_n-minshun_n,x
- adda minkan_n-minshun_n,x
+ jsr ai_open_furo
  beq ai_discard_10
  jsr ev_discard
  ldaa ev_best
@@ -346,10 +343,7 @@ ai_discard_05:
  oraa ev_best+1
  oraa ev_best+2
  bne ai_discard_07
- jsr ai_furo_x
- ldaa minshun_n-minshun_n,x
- adda minkou_n-minshun_n,x
- adda minkan_n-minshun_n,x
+ jsr ai_open_furo
  beq ai_discard_07
  ; sk above min_s is not exact (sk_exact); best_accept then needs every sk.
  clr wk_count
@@ -1425,7 +1419,8 @@ ryan_pairs_02:
  ldaa rp_n
  rts
 
-; A = kind. Return nonzero for terminals and honors.
+; A = kind. Returns A = 1 for terminals and honors, with N and Z set from A.
+; Preserves B and X.
 kind_is_yaochu:
  ldaa wk_kind
 is_yaochu:
@@ -1516,10 +1511,7 @@ flush_filter_22:
  bne flush_filter_21
  ; An open hand discards an off-suit tile even at a higher shanten: min_s
  ; becomes the lowest sk of the off-suit kinds.
- jsr ai_furo_x
- ldaa minshun_n-minshun_n,x
- adda minkou_n-minshun_n,x
- adda minkan_n-minshun_n,x
+ jsr ai_open_furo
  beq flush_filter_23
  ldaa #$7F
  staa wk_count
@@ -2097,30 +2089,20 @@ is_yakuhai:
 	cmpa	#K_HAKU
 	bcc	is_yakuhai_04
 	staa	iyk_kind
-	ldab	#K_EAST
-	ldaa	round
-	cmpa	#4
-	bcs	is_yakuhai_00
+ ldaa ai_player
+ jsr winds_of
+ pshb
+ clrb
+	cmpa	iyk_kind
+	bne	is_yakuhai_00
 	incb
 is_yakuhai_00:
-	clra
-	cmpb	iyk_kind
+ pula
+	cmpa	iyk_kind
 	bne	is_yakuhai_01
-	inca
+	incb
 is_yakuhai_01:
-	ldab	ai_player
-	subb	dealer
-	andb	#3
-	ldx	#wind_kinds
-	jsr	addxb
-	ldab	0,x
-
-is_yakuhai_02:
-	cmpb	iyk_kind
-	bne	is_yakuhai_03
-	inca
-is_yakuhai_03:
-	tsta
+ tba
 	rts
 is_yakuhai_04:
 	ldaa	#1
@@ -2523,18 +2505,14 @@ call_chi_yaku_03:
 	rts
 
 ; A = kind. Returns A = 1 for 2-8 of a suit.
-; Returns with N and Z set from A.
+; Returns with N and Z set from A. Preserves B and X.
 call_is_simple:
  ldaa call_kind
 is_simple:
 	cmpa	#K_HONOR
 	bcc	is_simple_00
-	tab
-	jsr	kattr_x
-	ldaa	0,x
-	bita	#A_YAOCHU
-	bne	is_simple_00
-	ldaa	#1
+ jsr is_yaochu
+ eora #1
 	rts
 is_simple_00:
 	clra
@@ -2629,6 +2607,15 @@ call_flush: .ds 1 ; cached flush call eligibility before pattern trials
 flush_only:	.ds	1 ; output of flush_filter: 1 when only off-suit discards are candidates
 toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
 	.code
+; Returns A = the open furo of ai_player (chi, pon and open kan; an ankan
+; leaves the hand closed). Returns with N and Z set from A.
+ai_open_furo:
+ jsr ai_furo_x
+ ldaa minshun_n-minshun_n,x
+ adda minkou_n-minshun_n,x
+ adda minkan_n-minshun_n,x
+ rts
+
 ; Returns A = 1 if another player has a riichi (any_riichi), or a riichi or
 ; two furo (any_threat). Returns with N and Z set from A.
 ; oc_mask[p] = suits whose danger from player p is half. For a player
