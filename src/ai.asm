@@ -311,9 +311,9 @@ ai_discard_03:
  ; An open tenpai without yaku (ev_best = 0) cannot win: it only defends.
  tst min_s
  bne ai_discard_10
+ jsr ev_discard
  jsr ai_open_furo
  beq ai_discard_10
- jsr ev_discard
  ldaa ev_best
  oraa ev_best+1
  oraa ev_best+2
@@ -513,6 +513,15 @@ least_danger_02:
  cmpb ld_sk
  bcs least_danger_03
  bne least_danger_01
+ ; A push in tenpai keeps the most live winning tiles (ev_discard).
+ tst wk_limit
+ bne least_danger_05
+ jsr ev_lk_x
+ ldab 0,x
+ cmpb ld_live
+ bhi least_danger_06
+ bcs least_danger_01
+least_danger_05:
  jsr connection
  cmpa ld_conn
  bcc least_danger_01
@@ -520,6 +529,10 @@ least_danger_02:
 least_danger_03:
 	staa	wk_best
  stab ld_sk
+ jsr ev_lk_x
+ ldab 0,x
+least_danger_06:
+ stab ld_live
  jsr connection
 least_danger_04:
  staa ld_conn
@@ -2914,6 +2927,7 @@ danger_max:	.ds	1 ; sum of the danger over the players
 dg_weight:	.ds	1 ; weight of danger_player in danger
 ld_sk:	.ds	1 ; least_danger: sk of ad_pick
 ld_conn:	.ds	1 ; least_danger: connection of ad_pick
+ld_live:	.ds	1 ; least_danger: ev_lk of ad_pick
 ; find_waits writes waits as waits-ac_yes,x: waits stays within 255 bytes after ac_yes.
 waits: .ds KN ; output of find_waits: 1 for each winning kind
 waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)

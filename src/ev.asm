@@ -11,6 +11,14 @@ evdisc_candidate:
  tst sk-counts,x
  bne evdisc_next_cand
  jsr ev_value
+ ; Live winning tiles: with yaku when open; a closed hand can riichi.
+ ldaa ev_yacc
+ tst nfuro
+ bne evdisc_live
+ ldaa wk_accept
+evdisc_live:
+ jsr ev_lk_x
+ staa 0,x
  tst ev_has_best
  beq ev_discard_02
  ldaa ev_sum
@@ -47,6 +55,12 @@ evdisc_next_cand:
 
 ; Value of discarding wk_kind from the 14 tiles of counts, after ev_prepare:
 ; ev_sum and wk_accept of ev_acceptance. counts is restored.
+; Returns X = &ev_lk[wk_kind]. Keeps A.
+ev_lk_x:
+ ldab wk_kind
+ ldx #ev_lk
+ jmp addxb
+
 ev_value:
  jsr ev_hand_prep
  jsr ev_acceptance
@@ -123,6 +137,7 @@ ev_acceptance:
 ev_tally:
  clr em_wn
  clr wk_accept
+ clr ev_yacc
  clr ev_furiten
  clr ev_sum
  clr ev_sum+1
@@ -218,6 +233,13 @@ ev_acceptance_12:
  rts
 ; ev_sum += B * the points at X (B > 0).
 ev_add_pts:
+ ldaa 0,x
+ oraa 1,x
+ beq ev_add_pts_01
+ tba
+ adda ev_yacc
+ staa ev_yacc
+ev_add_pts_02:
  ldaa ev_sum+2
  adda 1,x
  staa ev_sum+2
@@ -228,7 +250,8 @@ ev_add_pts:
  inc ev_sum
 ev_add_pts_00:
  decb
- bne ev_add_pts
+ bne ev_add_pts_02
+ev_add_pts_01:
  rts
 
 ; 1-shanten discard by ron value, after best_accept chose ad_pick (min_s = 1,
@@ -1013,6 +1036,8 @@ e1_river: .ds 1 ; river_bits of e1_i before ev1_draw sets the own bit
 ev_sum: .ds 3 ; 24-bit sum of copies * points/100
 ev_best: .ds 3 ; best ev_sum so far
 ev_best_waits: .ds 1 ; its acceptance
+ev_lk: .ds KN ; live winning tiles of each tenpai discard (ev_discard)
+ev_yacc: .ds 1 ; live winning tiles with yaku of ev_value
 ev_has_best: .ds 1 ; 1 once ev_best is set
 ev_furiten: .ds 1 ; nonzero when a wait is in our river or is the discard
 ev_base_dora: .ds 1 ; dora of the 14 tiles
