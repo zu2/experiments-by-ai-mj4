@@ -1273,16 +1273,23 @@ chi_step_01:
 	bcs	chi_step_02
 	clr	chi_pat
 chi_step_02:
-	ldaa	rp_chi
 	ldab	chi_pat
-	beq	chi_step_04
-chi_step_03:
+ jsr chi_pat_ok
+	beq	chi_step_00
+	rts
+
+; B = chi pattern (0..2). Returns A = 1 if rp_chi allows it.
+; Returns with N and Z set from A.
+chi_pat_ok:
+	ldaa	rp_chi
+	tstb
+	beq	chi_pat_ok_01
+chi_pat_ok_00:
 	lsra
 	decb
-	bne	chi_step_03
-chi_step_04:
-	bita	#1
-	beq	chi_step_00
+	bne	chi_pat_ok_00
+chi_pat_ok_01:
+	anda	#1
 	rts
 
 ; Shows the hand tiles of chi pattern chi_pat.

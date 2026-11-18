@@ -2370,15 +2370,8 @@ call_chi:
 call_chanta_pats:
 	clr	call_pat
 call_ploop:
-	ldaa	rp_chi
 	ldab	call_pat
-	beq	call_bit
-call_shift:
-	lsra
-	decb
-	bne	call_shift
-call_bit:
-	bita	#1
+ jsr chi_pat_ok
 	beq	call_pnext
 	ldaa	call_kind
 	ldab	call_pat
