@@ -328,8 +328,9 @@ ai_discard_10:
  ldaa fold_result
  cmpa #FC_DANGER
  bne ai_discard_07
+ ; 36: danger_one 5 from one riichi (4 * dg_val[5]).
  ldaa wk_best
- cmpa #5
+ cmpa #36
  bcc ai_discard_02
  bra ai_discard_07
 ai_discard_04:
@@ -489,9 +490,17 @@ least_danger_00:
  beq least_danger_02
  inca
 least_danger_02:
+ ; Of equal danger, the discard with the lower sk (nearer to tenpai).
+ jsr kind_counts_x
+ ldab sk-counts,x
 	cmpa	wk_best
-	bcc	least_danger_01
+ bcs least_danger_03
+ bne least_danger_01
+ cmpb ld_sk
+ bcc least_danger_01
+least_danger_03:
 	staa	wk_best
+ stab ld_sk
 	ldaa	wk_kind
 	staa	ad_pick
 least_danger_01:
@@ -2813,8 +2822,10 @@ furo_threat_02:
  ldaa ft_n
  rts
 
-; Returns A = highest danger of discarding wk_kind over the riichi players
-; and the players with furo.
+; Returns A = danger of discarding wk_kind: the sum over the other players
+; of weight * dg_val[danger_one], at most 126. The weight follows the
+; tenpai rate measured in CPU games: riichi 4; else by furo_threat 0, 1,
+; 2, 3 or more: 0, 1, 2, 3 (25%, 50%, 69% tenpai).
 danger:
 	clr	danger_player
 	clr	danger_max
@@ -2824,29 +2835,24 @@ danger_00:
 	beq	danger_01
 	ldaa	danger_player
 	jsr	player
- ; A riichi or two furo counts in full, one furo as half; a closed hand
- ; without riichi not at all. A pon of a dora counts as one more furo.
  jsr furo_threat
  tab
 	ldaa	danger_player
 	jsr	player
- tst P_FLAG,x
- bmi danger_02
+ ; C = riichi: weight 3 + C.
+ ldaa P_FLAG,x
+ asla
+ bcs danger_02
  tstb
  beq danger_01
+ cmpb #3
+ bls danger_03
 danger_02:
- pshb
- ldab P_FLAG,x
- pshb
-	jsr	danger_one
- pulb
- tstb
- pulb
- bmi danger_03
- decb
- bne danger_03
- lsra
+ ldab #3
+ adcb #0
 danger_03:
+ stab dg_weight
+	jsr	danger_one
  ; oc_mask: suits whose danger from this player is half. kind_suit gives 3
  ; for an honor, a bit that oc_mask never has.
  psha
@@ -2864,19 +2870,40 @@ danger_05:
  bcc danger_06
  lsra
 danger_06:
-	cmpa	danger_max
-	bls	danger_01
-	staa	danger_max
+ tab
+ ldx #dg_val
+ jsr addxb
+ ldab dg_weight
+ clra
+danger_07:
+ adda 0,x
+ decb
+ bne danger_07
+ adda danger_max
+ bcc danger_08
+ ldaa #$FF
+danger_08:
+ staa danger_max
 danger_01:
 	inc	danger_player
 	ldaa	danger_player
 	cmpa	#4
 	bne	danger_00
 	ldaa	danger_max
+ ; least_danger doubles it and adds 1: stay below its start $FF.
+ cmpa #$7F
+ bcs danger_09
+ ldaa #$7E
+danger_09:
 	rts
+; danger_one 0..7 to a value in proportion to the deal-in rate.
+dg_val:
+ .byte 0,1,2,4,6,9,16,22
 	.bss
 ; ai_player is allocated in directpage.asm.
-danger_max:	.ds	1 ; highest danger over the riichi players
+danger_max:	.ds	1 ; sum of the danger over the players
+dg_weight:	.ds	1 ; weight of danger_player in danger
+ld_sk:	.ds	1 ; least_danger: sk of ad_pick
 ; find_waits writes waits as waits-ac_yes,x: waits stays within 255 bytes after ac_yes.
 waits: .ds KN ; output of find_waits: 1 for each winning kind
 waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)
