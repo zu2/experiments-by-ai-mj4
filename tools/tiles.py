@@ -433,7 +433,7 @@ def tile(kind, red=False):
             col = [K] * 6
         else:
             key = "ESWN.FC"[h]
-            put(g, KANJI[key], 0 if key in "NC" else 1, 4 if key == "F" else 3)
+            put(g, KANJI[key], 0 if key in "NC" else 1, 5 if key == "F" else 3)
             col = [K] * 6
             if key == "F":
                 col = [G] * 6
