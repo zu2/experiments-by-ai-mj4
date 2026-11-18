@@ -831,7 +831,6 @@ calc_fu_02:
 calc_fu_03:
  ldaa ed_yhead
  jsr add_fu
-calc_fu_04:
 	ldaa	ed_wait
 	cmpa	#W_KANCHAN
 	beq	calc_fu_05
@@ -844,7 +843,6 @@ calc_fu_05:
 calc_fu_06:
  ldaa block_fu
  jsr add_fu
-calc_fu_07:
 	ldaa	cur_fu
 	cmpa	#20
 	bne	calc_fu_08

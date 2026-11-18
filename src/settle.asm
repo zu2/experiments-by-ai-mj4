@@ -168,7 +168,6 @@ settle_draw_01:
 settle_draw_02:
  ldab loop_p
  jsr noten_delta
-settle_draw_03:
  ldaa loop_p
  jsr player
  ldab P_SCORE+1,x

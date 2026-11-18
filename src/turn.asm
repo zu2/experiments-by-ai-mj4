@@ -41,7 +41,6 @@ turn_loop_00:
 after_draw:
 	ldaa	turn
 	staa	ai_player
-after_draw_00:
 	jsr	draw_nokori
 	ldaa	turn
 	jsr	draw_hand
@@ -238,7 +237,6 @@ react_cpu:
 react_answer:
 	staa	react_act
 	stab	react_pat
-react_00:
 	tst	can_ron
 	beq	react_save
 	ldaa	other

@@ -17,7 +17,6 @@ sg_init:
  ldx #counts
  stx sg_restore_x+1
  jsr sg_entry_x
-sg_init_00:
  ldaa sg_best
  rts
 
@@ -135,7 +134,6 @@ sg_leaf:
  suba heads_n
  cmpa sg_best
  bge sg_leaf_04
-sg_leaf_00:
  ; leaf_parts returns the sum for all suits and honors. The result is
  ; capped below exactly as in the incremental early-exit implementation.
  tst sg_cap

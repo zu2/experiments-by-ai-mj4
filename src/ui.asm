@@ -625,7 +625,6 @@ ui_scores_00:
  jsr player
  ldx P_SCORE,x
  jsr print_score
-ui_scores_04:
  jsr ui_stick
  inc ui_sp
  ldaa ui_sp
@@ -1117,7 +1116,6 @@ ui_mark_tsumo_01:
  jmp rmark_pixels
 ; Redraws the scores and the riichi-denied message.
 draw_riichi:
-draw_riichi_00:
  jsr ui_scores
  tst riichi_reject
  beq draw_riichi_01

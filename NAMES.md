@@ -50,10 +50,10 @@
 | 接頭辞 | 意味 | 名前の数 | 例 |
 |---|---|---:|---|
 | `ab_` | all_yaochu | 1 | ab_index |
-| `ac_` | acceptance（受け入れの計算）とその変数 | 5 | ac_kok_active ac_lower ac_ptr ac_special |
+| `ac_` | acceptance（受け入れの計算）とその変数 | 6 | ac_both ac_kok_active ac_lower ac_ptr |
 | `acc_` | acc_mark / acc_search / acc_leaf | 4 | acc_goal acc_leaf acc_mark acc_search |
 | `acceval_` | accept_eval の中の見出し | 2 | acceval_regular acceval_yes |
-| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 9 | ad_allowed ad_best_ukeire ad_filter_cand ad_forbidden_s |
+| `ad_` | ai_discard（打牌の思考）の局所変数と状態 | 10 | ad_allowed ad_best_ukeire ad_filter_cand ad_forbidden_s |
 | `ak_` | ai_kan | 1 | ak_before |
 | `al_` | acc_leaf | 19 | al_base al_cap al_ccap al_check |
 | `an_` | analyse | 1 | an_x |
@@ -78,7 +78,7 @@
 | `dcl_` | do_call | 1 | dcl_kind |
 | `dd_` | ui_indicators（ドラ表示牌の描画） | 2 | dd_i dd_off |
 | `df_` | ui_furo（副露の描画） | 11 | df_cx df_i df_j df_kind |
-| `dg_` | danger_one | 3 | dg_rank dg_sides dg_suji |
+| `dg_` | danger_one | 8 | dg_honor_tab dg_none_tab dg_rank dg_sides |
 | `dh_` | draw_hand の牌の番号 | 1 | dh_i |
 | `div8_` | div8 | 2 | div8 div8_a |
 | `docall_` | do_call の中の見出し | 5 | docall_add docall_chi docall_chi_first docall_pon |
@@ -93,9 +93,9 @@
 | `ep_` | eval_places | 3 | ep_i ep_kind ep_off |
 | `er_` | erase | 5 | er_cnt er_h er_p er_w |
 | `ev1_` | ev1_discard とその中のルーチン | 4 | ev1_best ev1_discard ev1_draw ev1_fits |
-| `ev_` | ev_discard（聴牌での打牌の評価） | 19 | ev_acceptance ev_add_pts ev_base_aka ev_base_dora |
+| `ev_` | ev_discard（聴牌での打牌の評価） | 22 | ev_acceptance ev_add_pts ev_base_aka ev_base_dora |
 | `evacc_` | ev_acceptance の中の見出し | 4 | evacc_is_furiten evacc_live_wait evacc_no_slot evacc_score |
-| `evdisc_` | ev_discard の中の見出し | 2 | evdisc_candidate evdisc_next_cand |
+| `evdisc_` | ev_discard の中の見出し | 3 | evdisc_candidate evdisc_live evdisc_next_cand |
 | `fc_` | fi_copy | 2 | fc_i fc_src |
 | `ft_` | furo_threat | 3 | ft_left ft_n ft_x |
 | `fcn_` | furo_counts | 3 | fcn_dst fcn_n fcn_src |
@@ -181,7 +181,7 @@
 | `addxb_` | addxb（X に B を足す） | 2 | addxb addxb_tmp |
 | `after_` | あと | 1 | after_draw |
 | `agari_` | 和了 | 1 | agari_sets |
-| `ai_` | コンピュータの思考 | 10 | ai_call ai_can_riichi ai_discard ai_furo_x |
+| `ai_` | コンピュータの思考 | 11 | ai_call ai_can_riichi ai_discard ai_furo_x |
 | `aka_` | 赤五 | 1 | aka_n |
 | `all_` | すべて | 1 | all_yaochu |
 | `ankan_` | 暗槓子 | 1 | ankan_n |
@@ -199,14 +199,14 @@
 | `block_` | ブロック | 1 | block_fu |
 | `bss_` | BSS の範囲 | 2 | bss_all_end bss_start |
 | `btype_` | ブロックの種類 | 2 | btype btype_x |
-| `call_` | 鳴き | 33 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
+| `call_` | 鳴き | 31 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
 | `can_` | できること | 3 | can_riichi can_ron can_win |
 | `cand_` | choose_cands の中の見出し | 4 | cand_clear_order cand_loop cand_next cand_priority |
 | `candidate_` | 候補 | 1 | candidate_acceptance |
 | `chankan_` | 槍槓 | 1 | chankan_f |
 | `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 4 | char_at char_line char_no_carry char_px |
 | `check_` | 確かめる | 1 | check_win |
-| `chi_` | チー | 10 | chi_forbidden chi_i1 chi_i2 chi_key |
+| `chi_` | チー | 11 | chi_forbidden chi_i1 chi_i2 chi_key |
 | `choose_` | 選ぶ | 4 | choose_cands choose_cands_limit_low_ok choose_cands_limit_ok choose_chi |
 | `clear_` | 消す | 6 | clear_bss clear_directpage clear_ippatsu clear_kk |
 | `closed_` | 門前 | 1 | closed_flag |
@@ -246,7 +246,7 @@
 | `image_` | 画像 | 1 | image_of_kind |
 | `img_` | 画像 | 4 | img_decode img_of img_of_b img_rows |
 | `in_` | 中にある | 1 | in_opp_river |
-| `intent_` | 手の狙い | 20 | intent_bonus intent_fl_check intent_fl_clear intent_fl_lock |
+| `intent_` | 手の狙い | 19 | intent_bonus intent_fl_check intent_fl_clear intent_fl_lock |
 | `is_` | 判定（A = 0 か 1） | 6 | is_agari is_closed is_dora_kind is_simple |
 | `isolated_` | 孤立牌（isolated_cand） | 1 | isolated_cand |
 | `kan_` | 槓 | 6 | kan_icon kan_k kan_kind kan_n |
@@ -308,7 +308,7 @@
 | `set_` | 決めて書く | 1 | set_intents |
 | `sets_` | 面子の数 | 1 | sets_n |
 | `settle_` | 点の移動 | 7 | settle_draw settle_han settle_honba settle_normal |
-| `setup_` | 点の計算の入力を作る（setup_score、setup_place、setup_win） | 14 | setup_aka setup_dk setup_dora setup_flags |
+| `setup_` | 点の計算の入力を作る（setup_score、setup_place、setup_win） | 12 | setup_aka setup_dk setup_dora setup_flags |
 | `shanten_` | シャンテン数 | 3 | shanten shanten_furo shanten_lim |
 | `short_` | 候補の順 | 1 | short_conn |
 | `show_` | 表示する | 6 | show_draw show_kan_hint show_own_hint show_result |
@@ -346,25 +346,25 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 765 個で、263 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 755 個で、262 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
-| `ac_special` | 2 |
+| `ac_special` | 1 |
 | `acc_leaf` | 5 |
 | `acc_mark` | 3 |
 | `accept_dora` | 3 |
-| `acceptance` | 9 |
+| `acceptance` | 8 |
 | `ad_allowed` | 1 |
 | `ad_filter_cand` | 3 |
 | `ad_rel_build` | 2 |
-| `ad_s_loop` | 3 |
+| `ad_s_loop` | 4 |
 | `add_action` | 3 |
 | `add_set_fu` | 1 |
 | `addxb` | 1 |
-| `after_draw` | 5 |
+| `after_draw` | 4 |
 | `ai_call` | 6 |
-| `ai_discard` | 10 |
+| `ai_discard` | 11 |
 | `ai_kan` | 5 |
 | `ai_riichi` | 1 |
 | `ai_unseen` | 1 |
@@ -381,19 +381,19 @@
 | `batch_leaf` | 5 |
 | `batch_prepare` | 1 |
 | `best_accept` | 4 |
-| `calc_fu` | 11 |
+| `calc_fu` | 9 |
 | `call_chi_yaku` | 4 |
 | `call_discard` | 1 |
 | `call_flush_ok` | 1 |
 | `call_options` | 2 |
-| `call_shanten` | 5 |
+| `call_shanten` | 4 |
 | `call_yaku_ok` | 3 |
 | `cc_rank` | 5 |
-| `char_at` | 1 |
 | `check_win` | 3 |
 | `chi_forbidden` | 3 |
 | `chi_kinds` | 3 |
-| `chi_step` | 5 |
+| `chi_pat_ok` | 2 |
+| `chi_step` | 3 |
 | `chi_valid` | 4 |
 | `chii_sh` | 1 |
 | `choose_cands` | 1 |
@@ -406,11 +406,11 @@
 | `cp_position` | 2 |
 | `cpu_turn` | 3 |
 | `cv_check` | 1 |
-| `danger` | 6 |
+| `danger` | 9 |
 | `danger_one` | 9 |
 | `dealer_top` | 3 |
 | `demo_poll` | 1 |
-| `discard_bonus` | 2 |
+| `discard_bonus` | 1 |
 | `discard_sk` | 1 |
 | `discard_step` | 6 |
 | `div8` | 2 |
@@ -418,7 +418,7 @@
 | `dora_next` | 4 |
 | `draw_hands` | 1 |
 | `draw_name` | 2 |
-| `draw_riichi` | 2 |
+| `draw_riichi` | 1 |
 | `draw_title` | 1 |
 | `drawstr` | 2 |
 | `drawtile` | 1 |
@@ -437,8 +437,8 @@
 | `ev1_discard` | 18 |
 | `ev1_draw` | 16 |
 | `ev1_fits` | 2 |
-| `ev_acceptance` | 3 |
-| `ev_add_pts` | 1 |
+| `ev_acceptance` | 4 |
+| `ev_add_pts` | 3 |
 | `ev_discard` | 1 |
 | `ev_prepare` | 1 |
 | `ev_value` | 1 |
@@ -448,7 +448,6 @@
 | `fi_better` | 2 |
 | `fi_copy` | 2 |
 | `fi_limit` | 4 |
-| `final_scores` | 1 |
 | `find_waits` | 9 |
 | `find_yakuman` | 1 |
 | `finish` | 1 |
@@ -467,7 +466,7 @@
 | `hand_at` | 6 |
 | `hand_pick` | 1 |
 | `hand_remove` | 1 |
-| `hand_tile_x` | 2 |
+| `hand_tile_x` | 1 |
 | `has_four` | 1 |
 | `head_fu` | 3 |
 | `hide_riichi` | 1 |
@@ -487,7 +486,7 @@
 | `is_agari` | 1 |
 | `is_closed` | 3 |
 | `is_simple` | 1 |
-| `is_yakuhai` | 5 |
+| `is_yakuhai` | 3 |
 | `is_yaochu` | 1 |
 | `isolated_cand` | 1 |
 | `kan_options` | 4 |
@@ -502,7 +501,7 @@
 | `kyoku_init_calls` | 1 |
 | `kyuushu_ask` | 1 |
 | `kyuushu_check` | 3 |
-| `least_danger` | 2 |
+| `least_danger` | 7 |
 | `limit_name` | 3 |
 | `make_tot` | 1 |
 | `move_cursor` | 5 |
@@ -511,7 +510,7 @@
 | `noten_delta` | 2 |
 | `number_bias` | 2 |
 | `oc_build` | 11 |
-| `off_suit` | 2 |
+| `off_suit` | 1 |
 | `off_suit_shape` | 4 |
 | `off_suit_tiles` | 2 |
 | `own_kan` | 3 |
@@ -524,13 +523,13 @@
 | `print_num` | 2 |
 | `print_score` | 1 |
 | `print_win_pts` | 2 |
-| `react` | 8 |
+| `react` | 7 |
 | `react_stick` | 1 |
 | `redraw_all` | 2 |
 | `reg_yaku_han` | 1 |
 | `rel_restore` | 4 |
 | `rel_tenpai` | 2 |
-| `relevant` | 2 |
+| `relevant` | 1 |
 | `riichi_allowed` | 1 |
 | `riichi_ok` | 2 |
 | `riichi_turn` | 6 |
@@ -542,20 +541,19 @@
 | `sanshoku_near` | 4 |
 | `save_scores` | 1 |
 | `scan_keys` | 5 |
-| `scan_pai` | 8 |
+| `scan_pai` | 6 |
 | `score_hand` | 3 |
 | `score_page` | 1 |
 | `score_total` | 1 |
 | `search` | 6 |
-| `set_intents` | 4 |
-| `settle_draw` | 5 |
+| `set_intents` | 2 |
+| `settle_draw` | 4 |
 | `settle_win` | 4 |
 | `setup_win` | 3 |
 | `sg_call_leaf` | 2 |
 | `sg_entry_x` | 1 |
 | `sg_four` | 2 |
-| `sg_init` | 1 |
-| `sg_leaf` | 3 |
+| `sg_leaf` | 2 |
 | `sg_lmax_set` | 1 |
 | `shanten` | 2 |
 | `shanten_lim` | 2 |
@@ -599,7 +597,7 @@
 | `ui_river_draw` | 2 |
 | `ui_river_tile` | 1 |
 | `ui_river_y` | 1 |
-| `ui_scores` | 3 |
+| `ui_scores` | 2 |
 | `ui_stick` | 1 |
 | `ui_turn` | 1 |
 | `ui_turn_mark` | 3 |
@@ -609,6 +607,7 @@
 | `wait_frames` | 1 |
 | `wait_space` | 1 |
 | `win_tsumo` | 7 |
+| `winds_of` | 1 |
 | `yaku_han_of` | 4 |
 | `yakuhai_call` | 2 |
 | `yakuman_basic` | 1 |

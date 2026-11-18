@@ -168,7 +168,6 @@ call_shanten_restore:
  psha
  tsta
  beq call_shanten_01
-call_shanten_03:
  ldab ai_player
  jsr player_bit
  anda fold_bits
@@ -953,7 +952,6 @@ pai_is_yao:
  ldaa pai_kind
  jsr is_yaochu
  beq pai_add_simple
-scan_pai_40:
  inc pai_yao_kinds
  ldab wk_count
  addb pai_yaochu
@@ -1022,7 +1020,6 @@ pai_max_next:
  incb
  cmpb #3
  bcs pai_max_loop
-scan_pai_60:
  ; The pointer is dead after this scan; reuse its first byte for the score.
  staa pai_flush_score
  rts
@@ -1040,7 +1037,6 @@ set_intents_00:
  inx
  decb
  bne set_intents_00
-set_intents_60:
  ; Thresholded weights keep this pass cheap and avoid forcing a route.
  ; Kokushi and chiitoi are given up for good after a furo (a closed kan
  ; included); kokushi also when a yaochu kind is all shown.
@@ -1121,7 +1117,6 @@ intent_toi_off:
  anda #$BF
 intent_toi_store:
  staa intent_lock-minshun_n,x
-set_intents_70:
  ; Flush stays locked with its suit until an off-suit set blocks it.
  ldaa intent_lock-minshun_n,x
  bpl intent_fl_new
@@ -1137,7 +1132,6 @@ intent_fl_new:
 	 cmpa #8
  bcs set_intents_80
  inc iw_flush
-intent_no_flush:
 intent_fl_check:
  jsr iw_off_suit_furo
  bne intent_fl_clear
@@ -1413,7 +1407,6 @@ discard_bonus:
  jsr intent_bonus
  adda wk_bonus
  staa wk_bonus
-discard_bonus_00:
  ; 2 for each two-sided shape left, without a toitoi, chiitoi or kokushi
  ; intent.
  ldaa iw_toi
@@ -1685,7 +1678,6 @@ off_suit:
  cmpa #K_HONOR
  bcc off_suit_01
  jsr kind_suit
-off_suit_00:
  cmpa pai_max_suit
  beq off_suit_01
  ldaa #1
@@ -1798,7 +1790,6 @@ acceptance_04:
  ldaa wk_draw
  cmpa #K_END
  bne acceptance_00
-acceptance_05:
  ldaa wk_accept
  rts
 
@@ -1866,7 +1857,6 @@ relevant:
 relevant_00:
  tst min_s
  beq rel_tenpai
-relevant_01:
  ldaa #$FF
  bra rel_adjust
 rel_restore:
@@ -3216,7 +3206,6 @@ ac_special:
  bsr spec_shanten
  cmpa min_s
  blt ac_special_08
-ac_special_07:
  jmp acceval_regular
 ac_special_08:
  jmp acceval_yes

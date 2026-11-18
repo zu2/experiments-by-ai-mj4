@@ -1441,7 +1441,6 @@ hand_tile_x:
 	ldaa	P_DRAWN,x
 	cmpa	#$FF
 	beq	hand_tile_x_01
-hand_tile_x_00:
 	inc	posx
 hand_tile_x_01:
 	rts
@@ -1903,7 +1902,6 @@ char_no_carry:
 	bne	char_line
 	ldx	ch_dst
 	clr	0,x
-char_at_00:
 	rts
 
 ; A = tile. Returns A = image number: 0-26 for the suits, 27-33 for the
@@ -2264,7 +2262,6 @@ dt_row_id: .ds 1 ; row lookup index
 final_scores:
  clra
  jsr score_page
-final_scores_00:
  jsr wait_space
  jmp title
 
