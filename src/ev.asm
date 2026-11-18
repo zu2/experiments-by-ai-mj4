@@ -152,8 +152,6 @@ ev_acceptance_00:
 evacc_is_furiten:
  inc ev_furiten
 evacc_live_wait:
- tst ev_furiten
- bne ev_acceptance_11
  tst wk_unseen
  beq ev_acceptance_11
  ldx em_wx
@@ -205,11 +203,16 @@ ev_acceptance_11:
  ldaa wk_draw
  cmpa #K_END
  bne ev_acceptance_00
+ ; A furiten hand wins only by tsumo: a quarter of the ron value.
  tst ev_furiten
  beq ev_acceptance_12
- clr ev_sum
- clr ev_sum+1
- clr ev_sum+2
+ ldab #2
+ev_acceptance_13:
+ lsr ev_sum
+ ror ev_sum+1
+ ror ev_sum+2
+ decb
+ bne ev_acceptance_13
 ev_acceptance_12:
  ldaa wk_accept
  rts

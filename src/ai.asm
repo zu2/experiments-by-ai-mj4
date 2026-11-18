@@ -464,8 +464,11 @@ ad_allowed_00:
 	rts
 
 ; Sets ad_pick to the kind with sk <= wk_limit and the lowest danger.
+; With wk_limit = 0 (a push in tenpai), the danger is doubled and a
+; furiten tenpai adds 1, so of two equal dangers the live tenpai is taken.
 least_danger:
  jsr oc_build
+ jsr ev_prepare
 	ldaa	#$FF
 	staa	wk_best
 	clr	wk_kind
@@ -476,6 +479,16 @@ least_danger_00:
 	cmpa	wk_limit
 	bgt	least_danger_01
 	jsr	danger
+ tst wk_limit
+ bne least_danger_02
+ asla
+ psha
+ jsr ev_value
+ pula
+ tst ev_furiten
+ beq least_danger_02
+ inca
+least_danger_02:
 	cmpa	wk_best
 	bcc	least_danger_01
 	staa	wk_best
