@@ -648,12 +648,6 @@
     "static_references": 9
   },
   {
-    "name": "ch_src",
-    "address": 232,
-    "bytes": 2,
-    "static_references": 9
-  },
-  {
     "name": "sm_src",
     "address": 234,
     "bytes": 2,

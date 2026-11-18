@@ -945,8 +945,8 @@ finish_00:
 ; X = list, B = count. Copies it to best_y and sets best_pts, best_han,
 ; best_fu.
 fi_copy:
- stab best_n
-	stx	fc_src
+	stab	best_n
+	stx	fi_copy_ld+1
 	ldx	fi_basic
 	stx	best_pts
 	ldaa	fi_han
@@ -955,18 +955,15 @@ fi_copy:
 	staa	best_fu
 	tstb
 	beq	fi_copy_01
-	clr	fc_i
+	; The operand of fi_copy_ld walks the list (ym_y or cur_y, each within
+	; one page; build.py checks it), so X stays on best_y.
+	ldx	#best_y
 fi_copy_00:
-	ldx	fc_src
-	ldaa	0,x
-	inx
-	stx	fc_src
-	pshb
-	ldab	fc_i
-	jsr	best_y_x
-	pulb
+fi_copy_ld:
+	ldaa	cur_y
 	staa	0,x
-	inc	fc_i
+	inx
+	inc	fi_copy_ld+2
 	decb
 	bne	fi_copy_00
 fi_copy_01:
@@ -1079,7 +1076,7 @@ fi_pay:
 
 ; A = total yakuman han (13,26,...). Returns fi_basic; preserves no registers.
 yakuman_basic:
- staa settle_han
+ tab
  clr fi_basic
  clr fi_basic+1
 yakuman_basic_00:
@@ -1089,9 +1086,7 @@ yakuman_basic_00:
  ldaa fi_basic
  adca #>8000
  staa fi_basic
- ldaa settle_han
- suba #13
- staa settle_han
+ subb #13
  bne yakuman_basic_00
  rts
 
@@ -1127,7 +1122,6 @@ div8_a:
 div8:
 	clra
 	ldab	#16
-	stab	dv_bits
 div8_00:
 	asl	wk_num+1
 	rol	wk_num
@@ -1137,7 +1131,7 @@ div8_00:
 	suba	dv_divisor
 	inc	wk_num+1
 div8_01:
-	dec	dv_bits
+	decb
 	bne	div8_00
 	rts
 
@@ -1193,8 +1187,8 @@ cl_i:	.ds	1 ; block index
 ab_index:	.ds	1 ; block index
 block_fu:	.ds	1 ; fu of the block
 ; fi_han is allocated in directpage.asm.
-fc_src:	.ds	2 ; list being copied
-fc_i:	.ds	1 ; index
+
+
 sbt_swapped:	.ds	1 ; nonzero when a pass swapped
 ; dv_divisor is allocated in directpage.asm.
  .bss

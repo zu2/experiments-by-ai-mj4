@@ -89,6 +89,7 @@ if speech:
 assert syms['ac_yes']-syms['counts'] < 256, 'ac_yes-counts,x out of range'
 assert syms['pai_suit_work']==syms['work']+4, 'flush scores must alias work+4..6'
 assert 0<=syms['pai_suit0']-syms['pai_suit_work']<=255, 'flush physical-count offset out of range'
+assert all(syms[n]>>8==(syms[n]+k-1)>>8 for n,k in (('ym_y',12),('cur_y',16))), 'fi_copy lists must stay within a page'
 assert syms['bss_all_end']<=(STACK_LIMIT if speech else 0xb000), 'RAM overrun'
 # Export absolute direct RAM symbols for the emulator harnesses as well.
 directpage=json.loads(Path('directpage.json').read_text())

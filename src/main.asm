@@ -1097,18 +1097,19 @@ eval_load:
 	jsr	player
 	ldab	P_NFURO,x
 	stab	nfuro
-	stx	el_src
+	; The operand of eval_load_ld walks the player area, so X stays on counts.
+	stx	eval_load_ld+1
 	ldx	#counts
 eval_load_00:
-	stx	el_dst
-	ldx	el_src
-	ldaa	0,x
-	inx
-	stx	el_src
-	ldx	el_dst
+eval_load_ld:
+	ldaa	players
 	anda	#7
 	staa	0,x
 	clr	furo_tiles-counts,x
+	inc	eval_load_ld+2
+	bne	eval_load_01
+	inc	eval_load_ld+1
+eval_load_01:
 	inx
 	cpx	#counts+KN
 	bne	eval_load_00
@@ -1646,25 +1647,22 @@ erase_01:
 	adda	#VRAMHI
 	staa	er_p
 	ldaa posx
- staa er_p+1
-	ldab	#8
-	stab	er_cnt
-erase_02:
+	staa er_p+1
 	ldx	er_p
 	ldab	er_w
+	; The 8 rows of a cell are 32 bytes apart, all within 0,x to 224,x.
 erase_03:
 	clr	0,x
+	clr	32,x
+	clr	64,x
+	clr	96,x
+	clr	128,x
+	clr	160,x
+	clr	192,x
+	clr	224,x
 	inx
 	decb
 	bne	erase_03
-	ldaa	er_p+1
-	adda	#32
-	staa er_p+1
- bcc erase_04
- inc er_p
-erase_04:
- dec er_cnt
-	bne	erase_02
 	ldaa	er_y
 	jsr	textaddr
 	ldab	er_w
@@ -1863,28 +1861,24 @@ char_px:
 char_at:
  ldx #font_set
  jsr img_decode
- ldx #img_rows
- stx ch_src
-	ldab	#7
-	stab	ch_cnt
-char_line:
-	ldx	ch_src
-	ldaa	0,x
-	inx
-	stx	ch_src
-	ldx	ch_dst
-	staa	0,x
-	ldaa	ch_dst+1
-	adda	#32
-	staa	ch_dst+1
-	bcc	char_no_carry
-	inc	ch_dst
-char_no_carry:
-	dec	ch_cnt
-	bne	char_line
-	ldx	ch_dst
-	clr	0,x
-	rts
+ ; Rows are 32 bytes apart: the 8 rows are within 0,x to 224,x.
+ ldx ch_dst
+ ldaa img_rows
+ ldab img_rows+1
+ staa 0,x
+ stab 32,x
+ ldaa img_rows+2
+ ldab img_rows+3
+ staa 64,x
+ stab 96,x
+ ldaa img_rows+4
+ ldab img_rows+5
+ staa 128,x
+ stab 160,x
+ ldaa img_rows+6
+ staa 192,x
+ clr 224,x
+ rts
 
 ; A = tile. Returns A = image number: 0-26 for the suits, 27-33 for the
 ; honors, 34-36 for the red fives.
@@ -2193,8 +2187,8 @@ sr_id:	.ds	1 ; yaku number shown
 can_win:	.ds	1 ; nonzero when the player in turn can tsumo
 reveal:	.ds	1 ; 1=reveal turn hand, 2=reveal all hands
 win_text:	.ds	2 ; win title string
-el_src:	.ds	2 ; player area being copied
-el_dst:	.ds	2 ; counts being filled
+
+
 fcn_dst:	.ds	2 ; array furo are added to
 fcn_src:	.ds	2 ; next furo
 fcn_n:	.ds	1 ; furo left
@@ -2216,18 +2210,18 @@ er_w:	.ds	1 ; erase width
 er_h:	.ds	1 ; erase height
 er_y:	.ds	1 ; erase row
 er_p:	.ds	2 ; erase address
-er_cnt:	.ds	1 ; rows left in the cell
+
 ta_p:	.ds	2 ; text RAM address
 dt_color:	.ds	1 ; drawtile color
 dt_src:	.ds	2 ; drawtile image row
 dt_dst:	.ds	2 ; drawtile screen address
 dt_cnt:	.ds	1 ; drawtile rows left
 dst_ptr:	.ds	2 ; next character
-; ch_src is allocated in directpage.asm.
+
 tx_x: .ds 1 ; pixel column of text_px
 tx_y: .ds 1 ; pixel row of text_px
 ch_dst:	.ds	2 ; drawchar screen address
-ch_cnt:	.ds	1 ; drawchar rows left
+
 
 	.bss
 	.bss

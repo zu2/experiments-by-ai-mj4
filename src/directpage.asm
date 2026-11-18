@@ -108,7 +108,6 @@ stick_x .equ $00E3 ; x of the riichi stick
 tb_n_live .equ $00E4 ; live pairs
 ura_n .equ $00E5 ; ura dora in the hand
 al_x .equ $00E6 ; &counts[draw]
-ch_src .equ $00E8 ; font address of the character
 sm_src .equ $00EA ; image address
 wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept)
 cop_pat .equ $00EF ; chi pattern call_options checks

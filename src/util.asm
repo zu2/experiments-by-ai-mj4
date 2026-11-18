@@ -76,7 +76,6 @@ addxb_tmp:	.ds	2 ; X being added to
 mul_a:	.ds	1 ; multiplicand
 mul_bits:	.ds	1 ; bits left
 ; wk_num is allocated in directpage.asm.
-dv_bits:	.ds	1 ; bits left
 bss_all_end:
 
  .code

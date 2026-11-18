@@ -886,28 +886,10 @@ smalltile_10:
  bne smalltile_00
  rts
 
-; Turns the 11x11 face of the tile at sm_src a quarter turn
+; Turns the 11x11 face of the tile in img_rows a quarter turn
 ; counterclockwise into sm_rot; the border row and column stay empty.
+; img_rows is used up.
 sm_turn:
- ldx #sm_tmp
- stx sm_tp
- ldab #11
- stab sm_n
-turn90_fetch:
- ldx sm_src
- ldaa 0,x
- ldab 1,x
- inx
- inx
- stx sm_src
- ldx sm_tp
- staa 0,x
- stab 1,x
- inx
- inx
- stx sm_tp
- dec sm_n
- bne turn90_fetch
  ldx #sm_rot+20
  stx sm_tp
  ldab #11
@@ -915,7 +897,7 @@ turn90_fetch:
 sm_turn_00:
  clr sm_w
  clr sm_w+1
- ldx #sm_tmp
+ ldx #img_rows
 turn90_col:
  asl 1,x
  rol 0,x
@@ -923,7 +905,7 @@ turn90_col:
  rol sm_w
  inx
  inx
- cpx #sm_tmp+22
+ cpx #img_rows+22
  bne turn90_col
  ldab #5
 turn90_align_w:
@@ -1163,8 +1145,8 @@ sm_dst: .ds 2 ; screen address
 sm_align: .ds 1 ; bit offset
 sm_n: .ds 1 ; rows left
 sm_w: .ds 2 ; bits of the column
-sm_tp: .ds 2 ; pointer into sm_tmp
-sm_tmp: .ds 22 ; turned face
+sm_tp: .ds 2 ; pointer into sm_rot
+
 sm_rot: .ds 24 ; rotated face
 ui_dst: .ds 2 ; screen address
 ui_tail: .ds 1 ; pixels after the last whole byte

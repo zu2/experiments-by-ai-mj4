@@ -190,7 +190,6 @@ pay_basic: .ds 2 ; basic points
 ; pay_factor is allocated in directpage.asm.
 total_tmp: .ds 2 ; running total
 settle_p: .ds 1 ; player being settled
-settle_han: .ds 1 ; han of the win
 ry_n: .ds 1 ; tenpai players
 
 	.bss
