@@ -76,7 +76,7 @@
 | `dc_` | 捨てた牌（dc_tile、dc_p、dc_k） | 3 | dc_k dc_p dc_tile |
 | `dcc_` | dora_cut_cost | 3 | dcc_cost dcc_count dcc_honor_table |
 | `dcl_` | do_call | 1 | dcl_kind |
-| `dd_` | ui_indicators（ドラ表示牌の描画） | 2 | dd_i dd_off |
+| `dd_` | ui_indicators（ドラ表示牌の描画） | 2 | dd_first dd_i |
 | `df_` | ui_furo（副露の描画） | 11 | df_cx df_i df_j df_kind |
 | `dg_` | danger_one | 8 | dg_honor_tab dg_none_tab dg_rank dg_sides |
 | `dh_` | draw_hand の牌の番号 | 1 | dh_i |

@@ -568,36 +568,30 @@ ui_header_dora:
  staa posx
  ldx #s_dora
  jsr drawstr
- clr dd_off
- clr sm_y
+ clra
+; A = 0 for the dora indicators, 1 for the ura dora indicators. Draws them
+; from x = 192, y = 16 * A.
+ui_indicators:
+ tab
+ aslb
+ aslb
+ aslb
+ aslb
+ stab sm_y
+ adda #DORA_POS
+ staa dd_first
  ldaa #192
  staa sm_x
- jmp ui_ind_start
-; A = row, B = cell. Draws the dora indicators.
-ui_indicators:
- ; Existing result screen supplies row A and cell B.
- psha
- tba
- asla
- asla
- asla
- staa sm_x
- pula
- asla
- asla
- asla
- staa sm_y
-ui_ind_start:
  clr dd_i
 ui_indicators_00:
  ldaa dd_i
  cmpa dora_cnt
  beq ui_indicators_01
- ldab #DORA_POS
- subb dd_i
- subb dd_i
- addb dd_off
- jsr	wall_x
+ tab
+ aslb
+ negb
+ addb dd_first
+ jsr wall_x
  ldaa 0,x
  jsr img_of
  clrb

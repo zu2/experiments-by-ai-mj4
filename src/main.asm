@@ -703,9 +703,6 @@ show_result_01:
 	ldx	#s_ura
 	jsr	drawstr
 	ldaa	#1
-	staa	dd_off
-	ldaa	#2
-	ldab	#24
 	jsr	ui_indicators
 show_result_02:
 	clr	sr_i

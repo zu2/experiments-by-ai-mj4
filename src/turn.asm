@@ -2059,7 +2059,7 @@ df_cx:	.ds	1 ; x of the first furo
 rr_p:	.ds	1 ; river player
 rr_k:	.ds	1 ; river index
 dd_i:	.ds	1 ; dora indicator index
-dd_off:	.ds	1 ; 1 while the header indicators are drawn
+dd_first:	.ds	1 ; wall position of the first indicator drawn
 let_n:	.ds	1 ; nonzero while the action letters are shown
 
 	.code
