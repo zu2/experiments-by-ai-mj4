@@ -1528,12 +1528,14 @@ title_tile_loop:
  stx tt_line
 title_text:
  ldx tt_line
- ldab 0,x
- cmpb #$FF
+ ldaa 0,x
+ cmpa #$FF
  beq draw_title_00
- ldaa 1,x
+ ldx 0,x
+ stx posx
+ ldx tt_line
  ldx 2,x
- jsr text_px
+ jsr drawstr
  ldx tt_line
  ldab #4
  jsr addxb
@@ -1566,23 +1568,23 @@ toggle_open:
 
 ; ---------------------------------------------------------------- screen
 
-; x, text row, half-row offset, string pointer; no compressed data.
+; posx, posy, string.
 title_lines:
- .byte 13*8,7*8
+ .byte 13,7
  .word s_title
- .byte 10*8,9*8
+ .byte 10,9
  .word s_subtitle
- .byte 6*8,12*8
+ .byte 6,12
  .word s_move_help
- .byte 6*8,13*8+4
+ .byte 6,13
  .word s_discard_help
- .byte 6*8,15*8
+ .byte 6,15
  .word s_win_help
- .byte 6*8,16*8+4
+ .byte 6,16
  .word s_call_help
- .byte 7*8,18*8
+ .byte 7,18
  .word s_start_help
- .byte 28*8,23*8
+ .byte 28,23
  .word s_build
  .byte $FF
 
@@ -1792,12 +1794,14 @@ drawchar:
 	staa	0,x
 	rts
 ; X = string (not empty) whose last character has bit 7, A = pixel row, B =
-; pixel column (a multiple of 8).
-text_px:
+; pixel column (a multiple of 8). Draws the glyphs of the font as an image
+; (the hints beside the latest discard); writes no color attribute. Text in
+; text rows uses drawstr.
+ui_glyphs_px:
  jsr pixel_address
  staa ch_dst
  stab ch_dst+1
-text_px_00:
+ui_glyphs_px_00:
  stx dst_ptr
  ldaa 0,x
  anda #$7F
@@ -1807,7 +1811,7 @@ text_px_00:
  ldx dst_ptr
  tst 0,x
  inx
- bpl text_px_00
+ bpl ui_glyphs_px_00
  rts
 ; A = character. Draws its 7 rows at ch_dst and clears the row below.
 char_at:

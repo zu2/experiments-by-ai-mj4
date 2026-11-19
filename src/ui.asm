@@ -644,20 +644,13 @@ ui_turn:
 ; start of his line of the scores, and leaves posx and posy there.
 ui_turn_mark:
  psha
- tsta
- beq ui_turn_mark_00
- jsr ui_band
- addb #7
- lsrb
- lsrb
- lsrb
- bra ui_turn_mark_01
-ui_turn_mark_00:
- ldab #16
-ui_turn_mark_01:
- stab posy
+ tab
+ ldx #ui_score_rows
+ jsr addxb
+ ldab 0,x
  ldaa #23
  staa posx
+ stab posy
  pulb
  ldaa #CH_SP
  cmpb turn
@@ -665,6 +658,10 @@ ui_turn_mark_01:
  ldaa #CH_TURN
 ui_turn_mark_02:
  jmp drawchar
+; posy of the line of the scores of players 0-3. The lines of the CPUs are
+; the first text rows in their bands (ui_band).
+ui_score_rows:
+ .byte 16,2,7,12
 ; Draws the tiles left in the header.
 ui_nokori:
  ldx #9*256+0
@@ -1222,7 +1219,7 @@ hint_add:
  jsr addxb
  ldaa hint_y
  ldab hint_x
- jsr text_px
+ jsr ui_glyphs_px
  ldab hint_x
  addb #8
  stab hint_x
@@ -1244,17 +1241,12 @@ hint_clear:
  ; stick of the discarder (a CPU); draw the stick again.
  ldaa discarder
  staa ui_sp
- jsr ui_band
- addb #7
- lsrb
- lsrb
- lsrb
- stab posy
+ jsr ui_turn_mark
  jmp ui_stick
 hint_clear_00:
  rts
 hint_chars:
- ; One-character strings for text_px.
+ ; One-character strings for ui_glyphs_px.
  .byte CH_C+$80,CH_P+$80,CH_K+$80,CH_R+$80
 ; Erase the previous marker before drawing the next discard.
 mark_clear:

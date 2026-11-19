@@ -1973,7 +1973,7 @@ add_action_02:
  staa own_hint_y
  ldab own_hint_x
  ldx own_hint_str
- jsr text_px
+ jsr ui_glyphs_px
  inc let_n
  rts
 

@@ -77,7 +77,7 @@
 | `dcc_` | dora_cut_cost | 3 | dcc_cost dcc_count dcc_honor_table |
 | `dcl_` | do_call | 1 | dcl_kind |
 | `dd_` | ui_indicators（ドラ表示牌の描画） | 2 | dd_first dd_i |
-| `df_` | ui_furo（副露の描画） | 11 | df_cx df_i df_j df_kind |
+| `df_` | ui_furo（副露の描画） | 10 | df_cx df_i df_j df_kind |
 | `dg_` | danger_one | 8 | dg_honor_tab dg_none_tab dg_rank dg_sides |
 | `dh_` | draw_hand の牌の番号 | 1 | dh_i |
 | `div8_` | div8 | 2 | div8 div8_a |
@@ -142,7 +142,7 @@
 | `rp_` | 鳴ける形（rp_pon、rp_kan、rp_chi） | 6 | rp_bits rp_chi rp_kan rp_n |
 | `rr_` | ui_river_draw | 2 | rr_k rr_p |
 | `rvt_` | ui_river_tile | 5 | rvt_flag rvt_img rvt_index rvt_player |
-| `ry_` | 流局（settle_draw と表示） | 5 | ry_bits4_x ry_n ry_score_before ry_tenpai |
+| `ry_` | 流局（settle_draw と表示） | 4 | ry_bits4_x ry_n ry_tenpai ry_v |
 | `s3_` | 三色（sanshoku_near） | 6 | s3_best s3_full s3_kind s3_n |
 | `sbt_` | sort_bytes | 1 | sbt_swapped |
 | `se_` | search | 3 | se_block se_counts_x se_kind |
@@ -161,9 +161,9 @@
 | `toib_` | toi_bonus の中の見出し | 9 | toib_add_dead toib_cap toib_done toib_drop_dead |
 | `tp_` | toi_prepare | 1 | tp_kind |
 | `tt_` | draw_title | 1 | tt_line |
-| `tx_` | text_px の位置 | 2 | tx_x tx_y |
+| `tx_` | text_px の位置 | 0 |  |
 | `td_` | img_decode | 10 | td_acc td_base td_code td_counts |
-| `ui_` | 画面の描画 | 72 | ui_all ui_back_n ui_band ui_big |
+| `ui_` | 画面の描画 | 73 | ui_all ui_back_n ui_band ui_big |
 | `up_` | unpack_voice | 9 | up_delta up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
 | `wk_` | 共通の作業領域（work）。使う期間が重ならないルーチンが共用する。定義のコメントに使うルーチンを書く | 12 | wk_accept wk_best wk_bonus wk_count |
@@ -204,7 +204,7 @@
 | `cand_` | choose_cands の中の見出し | 4 | cand_clear_order cand_loop cand_next cand_priority |
 | `candidate_` | 候補 | 1 | candidate_acceptance |
 | `chankan_` | 槍槓 | 1 | chankan_f |
-| `char_` | 文字を 1 つ描く（drawchar、text_px の部品） | 2 | char_at char_px |
+| `char_` | 文字を 1 つ描く（drawchar、ui_glyphs_px の部品） | 1 | char_at |
 | `check_` | 確かめる | 1 | check_win |
 | `chi_` | チー | 11 | chi_forbidden chi_i1 chi_i2 chi_key |
 | `choose_` | 選ぶ | 4 | choose_cands choose_cands_limit_low_ok choose_cands_limit_ok choose_chi |
@@ -285,7 +285,7 @@
 | `pixel_` | ピクセル | 1 | pixel_address |
 | `player_` | プレイヤーの領域 | 3 | player player_base player_bit |
 | `posy_` | 行 | 2 | posy posy_textaddr |
-| `print_` | 数を表示する | 7 | print_a2 print_byte_num print_num print_score |
+| `print_` | 数を表示する | 6 | print_a2 print_byte_num print_num print_score |
 | `push_` | 積む | 1 | push_block |
 | `react_` | 他家の打牌への反応 | 30 | react react_act react_answer react_call |
 | `redraw_` | 描き直す | 2 | redraw_all redraw_hands |
@@ -319,7 +319,6 @@
 | `start_` | 始め | 3 | start start_yaku start_yaku_clr |
 | `stick_` | リーチ棒 | 3 | stick_draw stick_ink stick_x |
 | `tenpai_` | 聴牌 | 2 | tenpai_pay tenpai_without |
-| `text_` | 文字列 | 1 | text_px |
 | `tie_` | 同点 | 2 | tie_policy tie_ukeire |
 | `threat_` | any_threat の入力と結果 | 1 | threat_furo |
 | `tile_` | drawtile の中の見出し | 8 | tile_attr tile_colors tile_crow tile_line |
@@ -345,7 +344,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 758 個で、264 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 754 個で、263 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -421,7 +420,7 @@
 | `draw_name` | 2 |
 | `draw_riichi` | 1 |
 | `draw_title` | 1 |
-| `drawstr` | 2 |
+| `drawstr` | 1 |
 | `drawtile` | 1 |
 | `each_head` | 3 |
 | `em_begin` | 6 |
@@ -576,7 +575,6 @@
 | `ss_furo` | 7 |
 | `start` | 1 |
 | `stick_draw` | 1 |
-| `text_px` | 1 |
 | `tie_policy` | 2 |
 | `tile_read_row` | 2 |
 | `title_wait` | 4 |
@@ -589,6 +587,7 @@
 | `ui_cpu_tail` | 1 |
 | `ui_erase_px` | 5 |
 | `ui_furo` | 9 |
+| `ui_glyphs_px` | 1 |
 | `ui_header` | 1 |
 | `ui_human` | 1 |
 | `ui_indicators` | 2 |
@@ -600,8 +599,7 @@
 | `ui_shape` | 2 |
 | `ui_shape_shift` | 2 |
 | `ui_stick` | 1 |
-| `ui_turn` | 1 |
-| `ui_turn_mark` | 3 |
+| `ui_turn_mark` | 1 |
 | `unpack_voice` | 8 |
 | `unshown_init` | 1 |
 | `unshown_kind` | 1 |
