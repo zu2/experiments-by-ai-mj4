@@ -15,16 +15,10 @@ ui_hand:
  ldx #ui_back_n
  ldab ht_p
  jsr addxb
- tst reveal
- beq ui_cpu_open_mode
- ldaa reveal
- cmpa #2
- beq ui_cpu_uncached
- ldaa ht_p
- cmpa turn
- beq ui_cpu_uncached
- bra ui_cpu_cache
-ui_cpu_open_mode:
+ ldab ht_p
+ jsr player_bit
+ anda reveal
+ bne ui_cpu_uncached
  tst open_mode
  bne ui_cpu_uncached
 ui_cpu_cache:
@@ -1108,7 +1102,8 @@ ui_winning_hand:
 
 ; Reveal and redraw only the winner's hand, preserving the table and river ▲.
 ui_win_reveal:
- ldaa #1
+ ldab turn
+ jsr player_bit
  staa reveal
  ldaa turn
  jsr draw_hand

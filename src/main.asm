@@ -244,13 +244,7 @@ win_show:
 	ldx	#snd_tsumo
 win_tsumo_00:
 	jsr	play
-	tst	demo
-	beq	win_tsumo_24
-	jsr	reveal_hands
-	bra	win_tsumo_25
-win_tsumo_24:
 	jsr	ui_win_reveal
-win_tsumo_25:
 	; The existing river ▲ already identifies the ron tile. Keep it in place.
 	tst	tsumo_flag
 	beq	win_tsumo_20
@@ -307,13 +301,7 @@ draw_sound:
 abortive_draw:
 	staa	abort_reason
 	clr	game_active
-	tst	demo
-	beq	abortive_draw_00
-	jsr	reveal_hands
-	bra	abortive_draw_01
-abortive_draw_00:
 	jsr	redraw_hands
-abortive_draw_01:
 	ldx	#0*256+0
 	stx	posx
 	ldaa	#22
@@ -336,6 +324,7 @@ abort_names:
 ryukyoku:
 	jsr	save_scores
 	jsr	settle_draw
+	ldaa	ry_tenpai
 	jsr	reveal_hands
 	jsr	show_draw
 	jsr	draw_sound
@@ -966,9 +955,9 @@ save_scores_00:
 	bpl	save_scores_00
 	rts
 
-; Reveal all four hands in place. Keep the table, rivers and header intact.
+; A = players whose hands are shown (bit p for player p). Redraws the hands
+; in place; keeps the table, rivers and header intact.
 reveal_hands:
-	ldaa	#2
 	staa	reveal
 	jsr	draw_hands
 	clr	reveal
@@ -2138,7 +2127,7 @@ sr_i:	.ds	1 ; yaku index on the result page
 ; sr_row is allocated in directpage.asm.
 sr_id:	.ds	1 ; yaku number shown
 can_win:	.ds	1 ; nonzero when the player in turn can tsumo
-reveal:	.ds	1 ; 1=reveal turn hand, 2=reveal all hands
+reveal:	.ds	1 ; players whose hands are shown (bit p for player p)
 win_text:	.ds	2 ; win title string
 
 
