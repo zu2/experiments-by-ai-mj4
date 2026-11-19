@@ -318,9 +318,8 @@ abortive_draw_01:
 	clr	posy
 	ldaa	#22
 	jsr	erase1
-	ldaa	abort_reason
-	asla
-	tab
+	ldab	abort_reason
+	aslb
 	ldx	#abort_names
 	jsr	addxb
 	jsr	drawstr_x
@@ -483,10 +482,9 @@ setup_win_00:
 	bpl	setup_win_11
 	clr	ss_i
 setup_win_10:
-	ldaa	#DORA_POS
-	suba	ss_i
-	suba	ss_i
-	tab
+	ldab	#DORA_POS
+	subb	ss_i
+	subb	ss_i
 	jsr	wall_x
 	ldaa	1,x
  jsr dora_next

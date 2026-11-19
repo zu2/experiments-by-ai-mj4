@@ -218,7 +218,6 @@ ui_band:
 ; Draws the furo of player ht_p.
 ui_furo:
  ldaa ht_p
- staa df_p
  tab
  tst ui_big
  beq ui_furo_01
@@ -233,7 +232,7 @@ ui_furo_00:
  ldaa df_i
  cmpa df_n
  beq ui_furo_31
- ldaa df_p
+ ldaa ht_p
  jsr player
  ldab df_i
  stab df_type
@@ -253,7 +252,7 @@ ui_furo_00:
  ldaa 2,x
  cmpa #$FF
  beq ui_furo_02
- suba df_p
+ suba ht_p
  anda #3
  beq ui_furo_02
  nega
@@ -595,11 +594,10 @@ ui_indicators_00:
  ldaa dd_i
  cmpa dora_cnt
  beq ui_indicators_01
- ldaa #DORA_POS
- suba dd_i
- suba dd_i
- adda dd_off
- tab
+ ldab #DORA_POS
+ subb dd_i
+ subb dd_i
+ addb dd_off
  jsr	wall_x
  ldaa 0,x
  jsr img_of
@@ -1231,9 +1229,8 @@ hint_start_00:
  adda #2
  staa hint_y
  rts
-; A = hint character index. Adds it to the hint row.
+; B = hint character index. Adds it to the hint row.
 hint_add:
- tab
  ldx #hint_chars
  jsr addxb
  ldaa hint_y

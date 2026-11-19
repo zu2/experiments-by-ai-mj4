@@ -875,7 +875,7 @@ scan_pai_10:
  adda furo_tiles-counts,x
  beq scan_pai_50
  staa wk_count
- ldaa pai_kind
+ ldab pai_kind
  jsr is_dora_kind
  beq pai_dora_seen
  ; A dora is usable when paired or with a hand tile of its suit within 2.
@@ -2130,15 +2130,14 @@ dora_cut_cost_00:
  asla
  staa dcc_count
  jsr kind_unseen_x
- ldaa 0,x
- adda dcc_count
- tab
+ ldab 0,x
+ addb dcc_count
  ldx #dcc_honor_table
  jsr addxb
  ldaa 0,x
  staa dcc_count
 dora_cut_cost_01:
- ldaa wk_kind
+ ldab wk_kind
  jsr is_dora_kind
  tab
  beq dora_cut_cost_03
@@ -2166,9 +2165,8 @@ dcc_honor_table:
  .byte 5,6,0,0
  .byte 6,0,0,0
 
-; A=kind, return the number of matching dora indicators (0..5).
+; B=kind, return the number of matching dora indicators (0..5).
 is_dora_kind:
- tab
  ldx #dora_of_kind
  jsr addxb
  ldaa 0,x
@@ -2211,7 +2209,7 @@ is_yakuhai_04:
 ; A number one lower (not below 2) when no sequence with it can be made
 ; from unseen tiles (kabe).
 danger_one:
-	ldaa	wk_kind
+	ldab	wk_kind
 	jsr	in_opp_river
 	beq	danger_one_00
 	clra
@@ -2227,8 +2225,7 @@ danger_one_00:
 	ldaa	0,x
 	rts
 danger_one_01:
-	tab
- jsr kind_number_b
+ jsr kind_number
  tab
 	stab	dg_rank
 	clr	dg_suji
@@ -2236,8 +2233,8 @@ danger_one_01:
 	cmpb	#4
 	bcs	danger_one_02
 	inc	dg_sides
-	ldaa	wk_kind
-	suba	#3
+	ldab	wk_kind
+	subb	#3
 	jsr	in_opp_river
 	beq	danger_one_02
 	inc	dg_suji
@@ -2246,8 +2243,8 @@ danger_one_02:
 	cmpb	#7
 	bcc	danger_one_03
 	inc	dg_sides
-	ldaa	wk_kind
-	adda	#3
+	ldab	wk_kind
+	addb	#3
 	jsr	in_opp_river
 	beq	danger_one_03
 	inc	dg_suji
@@ -2295,11 +2292,10 @@ dg_suji_tab:
 dg_none_tab:
  .byte 6,7,7,7,7,7,7,7,6
 
-; A = kind. Returns A nonzero if the riichi player danger_player cannot ron
+; B = kind. Returns A nonzero if the riichi player danger_player cannot ron
 ; it: it is in his river, or it passed after his riichi (river_bits).
 ; Returns with N and Z set from A.
 in_opp_river:
- tab
  ldx #river_bits
  jsr addxb
  ldaa 0,x

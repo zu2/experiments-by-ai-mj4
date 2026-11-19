@@ -340,9 +340,8 @@ react_stick_00:
  rol rp_bits
  decb
  bpl react_stick_00
- ldaa dc_tile
- lsra
- tab
+ ldab dc_tile
+ lsrb
  ldx #river_bits
  jsr addxb
  ldaa rp_bits
@@ -478,9 +477,8 @@ own_kan_10:
 ; Draws the replacement tile after a kan.
 rinshan_draw:
 	dec	draws_left
-	ldaa	#RINSHAN_POS
-	suba	kans_done
-	tab
+	ldab	#RINSHAN_POS
+	subb	kans_done
 	jsr	wall_x
 	ldab	0,x
 	inc	kans_done
@@ -1154,22 +1152,22 @@ hreact_ask:
  jsr hint_start
  tst rp_chi
  beq human_react_00
- clra
+ clrb
  jsr hint_add
 human_react_00:
  tst rp_pon
  beq human_react_01
- ldaa #1
+ ldab #1
  jsr hint_add
 human_react_01:
  tst rp_kan
  beq human_react_02
- ldaa #2
+ ldab #2
  jsr hint_add
 human_react_02:
  tst can_ron
  beq human_react_03
- ldaa #3
+ ldab #3
  jsr hint_add
 human_react_03:
 	jsr	frame
@@ -1366,10 +1364,9 @@ call_options:
 	clr	rp_kan
 	clr	rp_chi
 	jsr	eval_load
-	ldaa	dc_tile
-	lsra
-	staa	cop_t
-	tab
+	ldab	dc_tile
+	lsrb
+	stab	cop_t
 	jsr	counts_x
 	ldaa	0,x
 	cmpa	#2
@@ -1457,19 +1454,18 @@ chi_valid_01:
  cmpa #7
  bhi chi_valid_03
 chi_valid_02:
- ldaa ck_a
+ ldab ck_a
  jsr cv_check
  beq chi_valid_03
- ldaa ck_b
+ ldab ck_b
  jmp cv_check
 chi_valid_03:
  clra
  rts
 
-; A = kind. Returns A = 1 if it is in counts.
+; B = kind. Returns A = 1 if it is in counts.
 ; Returns with N and Z set from A.
 cv_check:
-	tab
 	jsr	counts_x
 	ldaa	0,x
 	beq	cv_check_00
@@ -1712,9 +1708,8 @@ furo_make_06:
 ; (here) or a pon becomes a kan (furo_upgrade); the thinking reads them.
 ; Counts the new furo of fmk_p and marks the yaku it forbids.
 furo_facts:
-	ldaa	fmk_p
+	ldab	fmk_p
 	ldx	#minshun_n
-	tab
 	jsr	addxb
 	ldab	fmk_type
 	aslb
@@ -2058,7 +2053,6 @@ fup_x:	.ds	2 ; pon being upgraded
 fp_k:	.ds	1 ; kind furo_find_pon looks for
 fp_n:	.ds	1 ; furo left
 cp_k:	.ds	1 ; kind cp_position looks for
-df_p:	.ds	1 ; player of the furo drawn
 df_n:	.ds	1 ; furo left
 df_i:	.ds	1 ; furo index
 ; df_j is allocated in directpage.asm.

@@ -893,7 +893,7 @@ finish:
 	jsr	mul8
 	stab	fi_han
 	clr	fi_fu
-	ldaa	fi_han
+	ldab	fi_han
 	jsr	yakuman_basic
 	jsr	fi_better
 	beq	finish_00
@@ -1055,10 +1055,9 @@ fi_pay:
 	jsr	score_total
 	; Someone goes below zero long before 86 honba or 26 riichi sticks, so
 	; honba*3 and kyotaku*10 fit a byte each; their sum may carry into A.
-	ldaa	honba
-	asla
-	adda	honba
-	tab
+	ldab	honba
+	aslb
+	addb	honba
 	ldaa	kyotaku
 	asla
 	asla
@@ -1074,9 +1073,8 @@ fi_pay:
 	stab	best_pts+1
 	rts
 
-; A = total yakuman han (13,26,...). Returns fi_basic; preserves no registers.
+; B = total yakuman han (13,26,...). Returns fi_basic; preserves no registers.
 yakuman_basic:
- tab
  clr fi_basic
  clr fi_basic+1
 yakuman_basic_00:

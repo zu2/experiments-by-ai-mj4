@@ -589,9 +589,8 @@ batch_leaf_00:
  bcs batch_pin
  cmpa #30
  bcs batch_sou
- ldaa 0,x
- anda #1
- tab
+ ldab 0,x
+ andb #1
  ldaa leaf_taatsu
  sba
  bra batch_evaluate

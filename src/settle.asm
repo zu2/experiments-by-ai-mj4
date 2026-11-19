@@ -83,7 +83,7 @@ settle_win:
  ; Winning result is still in best_* and tsumo_flag/dealer_flag.
  ldaa best_fu
  bne settle_normal
- ldaa best_han
+ ldab best_han
  jsr yakuman_basic
  bra settle_payers
 settle_normal:
