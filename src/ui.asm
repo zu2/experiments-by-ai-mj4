@@ -526,8 +526,8 @@ draw_nokori:
 ; item keeps its place and width, and the stick of the deposits and the dora
 ; indicators only increase in a round (clear_screen starts each round).
 ui_header:
- clr posx
- clr posy
+ ldx #0*256+0
+ stx posy
  ldx #s_ton
  ldaa round
  cmpa #4
@@ -563,9 +563,8 @@ ui_header_00:
  jsr print_byte_num
 ; Shared by the table header and the yaku page: five indicators fit at x=192.
 ui_header_dora:
- clr posy
- ldaa #22
- staa posx
+ ldx #0*256+22
+ stx posy
  ldx #s_dora
  jsr drawstr
  clra
@@ -619,15 +618,12 @@ ui_scores_00:
  bne ui_scores_00
  tst demo
  beq ui_scores_05
- ldaa #24
- staa posx
- ldaa #18
- staa posy
+ ldx #18*256+24
+ stx posy
  ldx #s_demo_key
  jsr drawstr
- ldaa #24
- staa posx
- inc posy
+ ldx #19*256+24
+ stx posy
  ldx #s_demo_end
  jmp drawstr
 ui_scores_05:
@@ -672,9 +668,8 @@ ui_turn_mark_02:
  jmp drawchar
 ; Draws the tiles left in the header.
 ui_nokori:
- clr posy
- ldaa #9
- staa posx
+ ldx #0*256+9
+ stx posy
  ldx #s_nokori
  jsr drawstr
  ldaa draws_left

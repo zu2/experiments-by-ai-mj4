@@ -6,22 +6,22 @@
     "static_references": 61
   },
   {
-    "name": "posx",
+    "name": "posy",
     "address": 115,
+    "bytes": 1,
+    "static_references": 40
+  },
+  {
+    "name": "posx",
+    "address": 116,
     "bytes": 1,
     "static_references": 54
   },
   {
     "name": "turn",
-    "address": 116,
-    "bytes": 1,
-    "static_references": 41
-  },
-  {
-    "name": "posy",
     "address": 117,
     "bytes": 1,
-    "static_references": 40
+    "static_references": 41
   },
   {
     "name": "sm_x",
