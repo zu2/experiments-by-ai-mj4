@@ -95,7 +95,7 @@ ui_cpu_furo:
  ldab P_NFURO,x
  bsr ui_furo_x
  staa sm_x
- jmp ui_furo
+ jmp ui_furo_small
 ; B = number of the furo of a CPU. Returns A = x of the furo (168 - 36 * B).
 ui_furo_x:
  aslb
@@ -188,7 +188,7 @@ ui_human_erased:
  bne ui_human_nocur
  jsr arrow_full
 ui_human_nocur:
- jsr ui_furo
+ jsr ui_furo_big
  tst ui_big
  bne ui_hand_done
  tst chi_mode
@@ -214,166 +214,183 @@ ui_band:
  addb #9
  rts
 
-; Draws the furo of player ht_p.
-ui_furo:
- ldaa ht_p
+; A = player, B = furo index. Makes it the furo being drawn: df_rec = its
+; record, df_type = its type (M_*), df_rot = the place of its called tile
+; (0 from the player before, 1 from across, 2 from the next player; $FF for
+; a concealed kan).
+furo_select:
+ psha
+ pshb
+ jsr player
+ pula
  tab
- tst ui_big
- beq ui_furo_01
- clrb
-ui_furo_01:
- stab df_small
- jsr player
- ldaa P_NFURO,x
- staa df_n
- clr df_i
-ui_furo_00:
- ldaa df_i
- cmpa df_n
- beq ui_furo_31
- ldaa ht_p
- jsr player
- ldab df_i
- stab df_type
- aslb
- addb df_type
- addb #P_FURO
+ asla
+ aba
+ adda #P_FURO
+ tab
  jsr addxb
+ stx df_rec
  ldaa 0,x
- staa df_red
  anda #3
  staa df_type
- ldaa 1,x
- staa df_kind
- ; df_rot: the place of the called tile, turned on the CPU furo
- ; (0 left from the player before, 1 across, 2 right from the next player).
- ldab #$FF
+ pulb
  ldaa 2,x
  cmpa #$FF
- beq ui_furo_02
- suba ht_p
+ beq furo_select_01
+ sba
  anda #3
- beq ui_furo_02
+ beq furo_select_00
  nega
  adda #3
- tab
-ui_furo_02:
- stab df_rot
- tst df_small
- beq ui_furo_large
- ldaa sm_x
- adda #4
- staa sm_x
- bra ui_furo_begin
-ui_furo_large:
- ldaa #26
- ldab df_i
-ui_furo_lx:
+ bra furo_select_01
+furo_select_00:
+ ldaa #$FF
+furo_select_01:
+ staa df_rot
+ rts
+
+; X = furo record, B = tile place (0-2). Returns A = image of the tile shown
+; there. A chi shows the called tile first, then the other two in order; a
+; concealed kan shows only its middle tile.
+furo_img:
+ ldaa 0,x
+ anda #3
+ cmpa #M_ANKAN
+ bne furo_img_00
+ cmpb #1
+ beq furo_img_00
+ ldaa #IMG_BACK
+ rts
+furo_img_00:
+ ; df_o: place of the tile among the tiles of the furo, in kind order.
+ cmpa #M_CHI
+ bne furo_img_02
+ ldaa 0,x
+ lsra
+ lsra
+ anda #3
  tstb
- beq ui_furo_10
- suba #6
+ beq furo_img_03
  decb
- bra ui_furo_lx
-ui_furo_10:
- staa df_cx
-ui_furo_begin:
- clr df_j
-ui_furo_tile:
- ; df_o: the place among the tiles of the tile drawn at df_j. A chi shows
- ; the called tile first, then the other two in order.
- ldaa df_j
- ldab df_type
- bne ui_furo_03
- ldab df_red
- lsrb
- lsrb
- andb #3
- tsta
- bne ui_furo_04
- tba
- bra ui_furo_03
-ui_furo_04:
- deca
  cba
- bcs ui_furo_03
- inca
-ui_furo_03:
+ bhi furo_img_02
+ incb
+furo_img_02:
+ tba
+furo_img_03:
  staa df_o
- ldaa df_kind
- ldab df_type
- bne ui_furo_kind
+ ldaa 1,x
+ ldab 0,x
+ bitb #3
+ bne furo_img_04
  adda df_o
-ui_furo_kind:
+furo_img_04:
  asla
- ldab df_red
- bpl ui_furo_img
+ tstb
+ bpl furo_img_05
  lsrb
  lsrb
  lsrb
  lsrb
  andb #3
  cmpb df_o
- bne ui_furo_img
+ bne furo_img_05
  inca
-ui_furo_img:
- jsr img_of
- ldab df_type
- cmpb #M_ANKAN
- bne ui_furo_face
+furo_img_05:
+ jmp img_of
+
+; Draws the furo of the CPU ht_p with small tiles from sm_x at sm_y. The
+; called tile is turned; an open kan shows it one row lower than a pon (the
+; empty row is above the tile instead of below it).
+ui_furo_small:
+ ldaa ht_p
+ jsr player
+ ldaa P_NFURO,x
+ staa df_n
+ clr df_i
+ui_furo_small_00:
+ ldaa df_i
+ cmpa df_n
+ beq ui_furo_small_03
+ ldaa sm_x
+ adda #4
+ staa sm_x
+ ldaa ht_p
+ ldab df_i
+ jsr furo_select
+ clr df_j
+ui_furo_small_01:
+ ldx df_rec
  ldab df_j
- cmpb #1
- beq ui_furo_face
- ldaa #IMG_BACK
-ui_furo_face:
- tst df_small
- beq ui_furo_big
+ jsr furo_img
  ldab sm_y
  pshb
- clrb
  psha
+ clrb
  ldaa df_j
  cmpa df_rot
- bne ui_furo_flat
- ldab #RF_RIICHI
+ bne ui_furo_small_02
  ldaa df_type
  cmpa #M_MINKAN
- bne ui_furo_flat
- ; An open kan shows its turned tile one row lower than a pon: the empty
- ; row is above the tile instead of below it. A kakan makes it from a pon.
+ bne ui_furo_small_turned
  ldaa #12
  staa ui_width
  ldaa #1
  jsr ui_erase_px
  inc sm_y
+ui_furo_small_turned:
  ldab #RF_RIICHI
-ui_furo_flat:
+ui_furo_small_02:
  pula
  jsr smalltile_advance
  pula
  staa sm_y
- bra ui_furo_20
-ui_furo_big:
- psha
- ldaa df_j
- asla
- adda df_cx
- staa posx
- ldaa #ROW_OWN_HAND
- staa posy
- pula
- jsr drawtile
-ui_furo_20:
  inc df_j
  ldaa df_j
  cmpa #3
- bne ui_furo_tile
- ; Mark large kans with K, without a fourth tile.
+ bne ui_furo_small_01
+ inc df_i
+ bra ui_furo_small_00
+ui_furo_small_03:
+ rts
+
+; Draws the furo of ht_p with large tiles in the own hand row, the first at
+; column 26 and each next 6 columns to the left. A dot marks the called
+; tile, and K marks a kan (without a fourth tile).
+ui_furo_big:
+ ldaa ht_p
+ jsr player
+ ldaa P_NFURO,x
+ staa df_n
+ clr df_i
+ ldaa #26
+ staa df_cx
+ui_furo_big_00:
+ ldaa df_i
+ cmpa df_n
+ beq ui_furo_big_03
+ ldaa ht_p
+ ldab df_i
+ jsr furo_select
+ clr df_j
+ui_furo_big_01:
+ ldx df_rec
+ ldab df_j
+ jsr furo_img
+ ldab df_j
+ aslb
+ addb df_cx
+ stab posx
+ ldab #ROW_OWN_HAND
+ stab posy
+ jsr drawtile
+ inc df_j
+ ldaa df_j
+ cmpa #3
+ bne ui_furo_big_01
  ldaa df_type
  cmpa #M_MINKAN
- bcs ui_furo_advance
- tst df_small
- bne ui_furo_advance
-ui_kan_big:
+ bcs ui_furo_big_02
  ldaa df_cx
  adda #2
  asla
@@ -385,14 +402,27 @@ ui_kan_big:
  staa px_y
  ldx #kan_icon
  jsr ui_shape_set
-ui_furo_advance:
- tst df_small
- bne ui_furo_30
- jsr ui_call_mark
-ui_furo_30:
+ui_furo_big_02:
+ ldaa df_rot
+ bmi ui_furo_big_next
+ asla
+ adda df_cx
+ asla
+ asla
+ asla
+ adda #7
+ staa px_x
+ ldaa #166
+ staa px_y
+ ldx #shape_dot
+ jsr ui_shape_set
+ui_furo_big_next:
+ ldaa df_cx
+ suba #6
+ staa df_cx
  inc df_i
- jmp ui_furo_00
-ui_furo_31:
+ bra ui_furo_big_00
+ui_furo_big_03:
  rts
 
 ; A = player, B = index in the river. Called tiles are not shown; the
@@ -1142,30 +1172,11 @@ draw_riichi_01:
  .bss
 ui_big: .ds 1 ; nonzero for large tiles
 ui_faces: .ds 1 ; nonzero when ui_hand draws the faces of CPU tiles
-df_small: .ds 1 ; nonzero when ui_furo draws small CPU tiles
-df_kind: .ds 1 ; furo kind
-df_red: .ds 1 ; furo red place
+df_rec: .ds 2 ; furo record being drawn
 df_rot: .ds 1 ; place of the called tile ($FF for none)
-df_o: .ds 1 ; place among the tiles of the tile drawn
+df_o: .ds 1 ; place of the tile among the tiles of the furo (furo_img)
 
  .code
-; Draws the dot over the called tile of a large furo.
-ui_call_mark:
- ldaa df_rot
- bmi ui_call_mark_02
- asla
- adda df_cx
- asla
- asla
- asla
-	adda	#7
-	staa	px_x
-	ldaa	#166
-	staa	px_y
-	ldx	#shape_dot
-	jsr	ui_shape_set
-ui_call_mark_02:
- rts
  .bss
 sm_dst: .ds 2 ; screen address
 sm_align: .ds 1 ; bit offset

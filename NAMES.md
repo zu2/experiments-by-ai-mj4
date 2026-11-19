@@ -77,7 +77,7 @@
 | `dcc_` | dora_cut_cost | 3 | dcc_cost dcc_count dcc_honor_table |
 | `dcl_` | do_call | 1 | dcl_kind |
 | `dd_` | ui_indicators（ドラ表示牌の描画） | 2 | dd_first dd_i |
-| `df_` | ui_furo（副露の描画） | 10 | df_cx df_i df_j df_kind |
+| `df_` | ui_furo_small、ui_furo_big（副露の描画） | 8 | df_cx df_i df_j df_n |
 | `dg_` | danger_one | 8 | dg_honor_tab dg_none_tab dg_rank dg_sides |
 | `dh_` | draw_hand の牌の番号 | 1 | dh_i |
 | `div8_` | div8 | 2 | div8 div8_a |
@@ -163,7 +163,7 @@
 | `tt_` | draw_title | 1 | tt_line |
 | `tx_` | text_px の位置 | 0 |  |
 | `td_` | img_decode | 10 | td_acc td_base td_code td_counts |
-| `ui_` | 画面の描画 | 73 | ui_all ui_back_n ui_band ui_big |
+| `ui_` | 画面の描画 | 64 | ui_all ui_back_n ui_band ui_big |
 | `up_` | unpack_voice | 9 | up_delta up_dst up_end up_flag |
 | `wf_` | wait_frames | 1 | wf_cnt |
 | `wk_` | 共通の作業領域（work）。使う期間が重ならないルーチンが共用する。定義のコメントに使うルーチンを書く | 12 | wk_accept wk_best wk_bonus wk_count |
@@ -232,7 +232,7 @@
 | `finish_` | finish（役と点を決める最後の処理） | 6 | finish finish_aka finish_han_total finish_normal |
 | `flush_` | 混一色 | 2 | flush_filter flush_only |
 | `fold_` | 降り（fold_check）とその結果 | 3 | fold_bits fold_check fold_result |
-| `furo_` | 副露（暗槓を含む。チー・ポン・明槓・暗槓でできた面子） | 9 | furo_attr furo_counts furo_facts furo_facts_end |
+| `furo_` | 副露（暗槓を含む。チー・ポン・明槓・暗槓でできた面子） | 11 | furo_attr furo_counts furo_facts furo_facts_end |
 | `game_` | 半荘 | 2 | game_active game_end |
 | `greedy_` | greedy（ブロックを欲張りに数える） | 5 | greedy greedy_left greedy_loop greedy_saved_x |
 | `hand_` | 手牌 | 7 | hand_add hand_add_go hand_at hand_draw |
@@ -344,7 +344,7 @@
 | `yakuman_` | 役満 | 15 | yakuman_basic yakuman_c9 yakuman_chuuren yakuman_cmid |
 
 ## 番号のラベル
-番号のラベルは 754 個で、263 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
+番号のラベルは 759 個で、265 のルーチンにある（`src/*.asm` のラベルから数えた。`tools/gen.py` が作る `data.s` のラベルは数えない）。
 | ルーチン | 番号の数 |
 |---|---:|
 | `abortive_draw` | 2 |
@@ -458,7 +458,9 @@
 | `furo_counts` | 5 |
 | `furo_facts` | 4 |
 | `furo_find_pon` | 4 |
+| `furo_img` | 5 |
 | `furo_make` | 7 |
+| `furo_select` | 2 |
 | `furo_threat` | 3 |
 | `furo_upgrade` | 1 |
 | `game_end` | 3 |
@@ -583,10 +585,10 @@
 | `toi_filter` | 3 |
 | `toi_prepare` | 4 |
 | `turn_loop` | 1 |
-| `ui_call_mark` | 1 |
 | `ui_cpu_tail` | 1 |
 | `ui_erase_px` | 5 |
-| `ui_furo` | 9 |
+| `ui_furo_big` | 4 |
+| `ui_furo_small` | 4 |
 | `ui_glyphs_px` | 1 |
 | `ui_header` | 1 |
 | `ui_human` | 1 |

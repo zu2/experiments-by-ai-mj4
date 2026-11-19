@@ -75,7 +75,7 @@ wk_bonus .equ $00BD ; shared work: toitoi bonus (choose_cands -> discard_bonus, 
 dcc_cost .equ $00BE ; dora cost of the candidate
 dh_i .equ $00BF ; hand tile index being drawn
 dcl_kind .equ $00C0 ; kind of the called tile
-df_type .equ $00C1 ; offset of the furo in P_FURO
+df_type .equ $00C1 ; type of the furo being drawn (M_*)
 mark_tip .equ $00C3 ; x of the marker tip
 react_pat .equ $00C4 ; chi pattern of react_act
 wk_first .equ $00C5 ; shared work: first kind changed (ad_rel_build, rel_restore)
