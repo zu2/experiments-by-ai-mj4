@@ -315,7 +315,7 @@ abortive_draw_00:
 	jsr	redraw_hands
 abortive_draw_01:
 	ldx	#0*256+0
-	stx	posy
+	stx	posx
 	ldaa	#22
 	jsr	erase1
 	ldab	abort_reason
@@ -677,8 +677,8 @@ show_result:
 	clr	game_active
 	inc	result_active
 	jsr	clear_screen
-	ldx	#0*256+2
-	stx	posy
+	ldx	#2*256+0
+	stx	posx
 	ldaa	turn
 	jsr	draw_name
 	ldab	turn
@@ -695,8 +695,8 @@ show_result_01:
  jsr turn_player
 	tst	P_FLAG,x
 	bpl	show_result_02
-	ldx	#2*256+22
-	stx	posy
+	ldx	#22*256+2
+	stx	posx
 	ldx	#s_ura
 	jsr	drawstr
 	ldaa	#1
@@ -741,8 +741,8 @@ show_result_04:
 	inc	sr_i
 	bra	show_result_03
 show_result_05:
-	ldx	#15*256+4
-	stx	posy
+	ldx	#4*256+15
+	stx	posx
 	ldx	#s_ko
 	tst	dealer_flag
 	beq	show_result_06
@@ -776,8 +776,8 @@ show_result_07:
 	beq	show_result_08
 	jsr	drawstr
 show_result_08:
-	ldx	#16*256+18
-	stx	posy
+	ldx	#18*256+16
+	stx	posx
 	jmp	print_win_pts
 
 ; best_pts includes the riichi pool. Split it only for display.
@@ -826,8 +826,8 @@ show_win_scores:
 score_page:
  staa result_active
  jsr clear_screen
- ldx #1*256+10
- stx posy
+ ldx #10*256+1
+ stx posx
  ldx #s_final_scores
  tst result_active
  beq page_header
@@ -1142,8 +1142,8 @@ game_end_00:
  bra game_end_02
 game_end_01:
  jsr draw_info
- ldx #ROW_INFO*256+2*256+11
- stx posy
+ ldx #11*256+ROW_INFO+2
+ stx posx
  ldaa #21
  jsr erase1
 game_end_02:
@@ -1595,7 +1595,7 @@ clear_screen:
  staa ui_back_n+2
  staa ui_back_n+3
 	ldx	#0*256+0
-	stx	posy
+	stx	posx
 	ldaa	#32
 	ldab	#24
 	jmp	erase

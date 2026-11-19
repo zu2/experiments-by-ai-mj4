@@ -4,8 +4,8 @@
 DP_FIRST .equ $0072
 DP_END .equ $00F2
 wk_kind .equ $0072 ; shared work: kind being checked (ai_discard loop, loops of its parts; kind_* entries read it)
-posy .equ $0073 ; text row (stx posy also sets posx)
-posx .equ $0074 ; text column
+posx .equ $0073 ; text column (stx posx also sets posy)
+posy .equ $0074 ; text row
 turn .equ $0075 ; player in turn
 sm_x .equ $0076 ; pixel x of smalltile
 wk_num .equ $0077 ; shared work: 16-bit number (div8_a operand and result, payer_amount and score_total sums, print_num input)
