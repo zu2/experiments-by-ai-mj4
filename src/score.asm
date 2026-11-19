@@ -504,7 +504,7 @@ decomp_yaku:
 	jsr	start_yaku
 	jsr	base_yaku
 	jsr	head_fu
-	staa	ed_yhead
+	stab	ed_yhead
 	clr	ed_pinfu
 	ldab	nfuro
 	bne	decomp_peikou
@@ -745,7 +745,7 @@ concealed_01:
 	ldaa	#1
 	rts
 
-; Returns A = head fu, including both winds when they coincide.
+; Returns B = head fu, including both winds when they coincide.
 head_fu:
  clrb
  ldaa head_kind
@@ -761,7 +761,6 @@ head_fu_01:
  bne head_fu_02
  addb #2
 head_fu_02:
- tba
  rts
 
 ; Returns A = 1 if the head and every block have a terminal or an honor.
@@ -783,10 +782,9 @@ all_yaochu_00:
  bita #B_SEQ
  beq all_yaochu_01
  jsr kind_number_b
- tab
- cmpb #1
+ cmpa #1
  beq all_yaochu_02
- cmpb #7
+ cmpa #7
  bne all_yaochu_04
  bra all_yaochu_02
 all_yaochu_01:

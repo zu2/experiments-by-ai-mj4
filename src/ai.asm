@@ -2226,11 +2226,10 @@ danger_one_00:
 	rts
 danger_one_01:
  jsr kind_number
- tab
-	stab	dg_rank
+	staa	dg_rank
 	clr	dg_suji
 	clr	dg_sides
-	cmpb	#4
+	cmpa	#4
 	bcs	danger_one_02
 	inc	dg_sides
 	ldab	wk_kind
@@ -2580,15 +2579,14 @@ call_chi_yaku_02:
 	ldaa	ck_b
 	jmp	is_simple
 call_chi_yaku_03:
-	ldaa	call_kind
-	psha
+	ldab	call_kind
+	pshb
 	ldaa	#$FF
 	staa	call_kind
 	jsr	call_yaku_ok
-	tab
-	pula
-	staa	call_kind
-	tba
+	pulb
+	stab	call_kind
+	tsta
 	rts
 
 ; A = kind. Returns A = 1 for 2-8 of a suit.

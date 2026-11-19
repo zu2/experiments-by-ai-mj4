@@ -5,7 +5,7 @@ ui_hand:
  staa ht_p
  beq ui_human
  jsr ui_band
- staa sm_y
+ stab sm_y
  clr dh_i
  clr ui_faces
  ldaa ht_p
@@ -206,13 +206,12 @@ ui_human_nocur:
 ui_hand_done:
  rts
 
-; A=CPU player 1..3 -> A=top pixel row.
+; A=CPU player 1..3 -> B=top pixel row.
 ui_band:
  deca
  ldab #42
  jsr mul8
- tba
- adda #9
+ addb #9
  rts
 
 ; Draws the furo of player ht_p.
@@ -412,7 +411,7 @@ ui_river_tile:
 ui_river_pos:
  ldaa rvt_player
  jsr ui_river_y
- staa sm_y
+ stab sm_y
  ldaa rvt_pos
  cmpa #14
  bcs ui_river_x
@@ -460,22 +459,22 @@ ui_river_mark_y:
  jsr ui_shape
 ui_river_tile_00:
  rts
-; A = player. Returns A = pixel row of its river.
+; A = player. Returns B = pixel row of its river.
 ui_river_y:
  tsta
  bne ui_river_y_00
- ldaa #135
+ ldab #135
  rts
 ui_river_y_00:
  ; One black row between the hand and the river.
  jsr ui_band
- adda #13
+ addb #13
  rts
 ; A = player. Erases and redraws its river.
 ui_river_draw:
  staa rr_p
  jsr ui_river_y
- staa sm_y
+ stab sm_y
  clr sm_x
  ldaa #240
  staa ui_width
@@ -659,15 +658,15 @@ ui_turn_mark:
  tsta
  beq ui_turn_mark_00
  jsr ui_band
- adda #7
- lsra
- lsra
- lsra
+ addb #7
+ lsrb
+ lsrb
+ lsrb
  bra ui_turn_mark_01
 ui_turn_mark_00:
- ldaa #16
+ ldab #16
 ui_turn_mark_01:
- staa posy
+ stab posy
  ldaa #23
  staa posx
  pulb
@@ -1119,7 +1118,7 @@ ui_mark_tsumo:
  asla
  adda #7
  staa mark_tip
- ldaa #164
+ ldab #164
  bra ui_mark_tsumo_01
 ui_mark_tsumo_00:
  ldaa ot_i
@@ -1129,9 +1128,9 @@ ui_mark_tsumo_00:
  ldaa turn
  jsr ui_band
  ; The tip sits on the black row between the hand and the river.
- adda #12
+ addb #12
 ui_mark_tsumo_01:
- staa mark_top
+ stab mark_top
 	ldaa	#1
 	staa	mark_live
 	staa	px_ink
@@ -1258,11 +1257,11 @@ hint_clear:
  ldaa discarder
  staa ui_sp
  jsr ui_band
- adda #7
- lsra
- lsra
- lsra
- staa posy
+ addb #7
+ lsrb
+ lsrb
+ lsrb
+ stab posy
  jmp ui_stick
 hint_clear_00:
  rts

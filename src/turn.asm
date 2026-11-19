@@ -809,7 +809,6 @@ riichi_ok:
  clra
  jsr eval_load
  jsr shanten
- tsta
  bgt riichi_no
  jsr has_four
  beq riichi_yes

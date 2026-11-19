@@ -65,7 +65,7 @@ shanten_furo:
  rts
 
 ; Returns A = shanten number (-1 for a winning shape).
-; Returns with N and Z set from A.
+; Returns with N and Z set from A and V clear.
 shanten:
 	ldaa	#8
 	staa	sh_best
