@@ -1,6 +1,6 @@
 # label<TAB>text
 s_title	マージャン
-s_push	スペース
+s_push	スペース:ツギヘ
 s_ton	トン
 s_nan	ナン
 s_honba	ホンバ

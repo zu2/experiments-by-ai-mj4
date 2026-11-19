@@ -311,7 +311,7 @@ abortive_draw:
 	ldx	#abort_names
 	jsr	addxb
 	jsr	drawstr_x
-	ldaa	#1
+	ldaa	#20
 	jsr	show_push
 	jsr	draw_sound
 	jsr	wait_space
@@ -888,12 +888,27 @@ show_draw:
 	clr	game_active
 	ldaa	#2
 	staa	result_active
-	staa	posx
-	clr	posy
+	; The round (cells 0-2) stays: "トン1 リューキョク".
+	ldx	#3*256+0
+	stx	posx
+	ldaa	#19
+	jsr	erase1
+	ldx	#4*256+0
+	stx	posx
 	ldx	#s_ryukyoku
 	jsr	drawstr
-	ldaa	#1
+	ldaa	#20
 	jsr	show_push
+	; The demo keys (rows 18-19) give their place to the third line of
+	; player 0.
+	tst	demo
+	beq	show_draw_01
+	ldx	#24*256+18
+	stx	posx
+	ldaa	#8
+	ldab	#2
+	jsr	erase
+show_draw_01:
 	clr	loop_p
 show_draw_00:
 	ldx	#rh_rows
@@ -910,6 +925,7 @@ show_draw_00:
 	ldx	P_BEFORE,x
 	jsr	print_score
 	; Replace the second line with status and exact point transfer.
+	; The second line shows the point transfer, the third the status.
 	ldaa	sr_row
 	inca
 	staa	posy
@@ -917,25 +933,32 @@ show_draw_00:
 	staa	posx
 	ldaa	#10
  jsr erase1
- jsr ry_bits4_x
-	ldaa	0,x
-	anda	ry_tenpai
-	beq	showdraw_noten
-	ldx	#s_tenpai
-	bra	showdraw_status
-showdraw_noten:
-	ldx	#s_noten
-showdraw_status:
-	jsr	drawstr
+	ldaa	#26
+	staa	posx
  ldab loop_p
  jsr noten_delta
  ldx ry_v
  beq showdraw_no_pay
  jsr print_signed
-	bra	show_draw_10
+	bra	showdraw_status
 showdraw_no_pay:
  jsr next_zero
-show_draw_10:
+showdraw_status:
+	ldaa	sr_row
+	adda	#2
+	staa	posy
+	ldaa	#28
+	staa	posx
+ jsr ry_bits4_x
+	ldaa	0,x
+	anda	ry_tenpai
+	beq	showdraw_noten
+	ldx	#s_tenpai
+	bra	showdraw_draw
+showdraw_noten:
+	ldx	#s_noten
+showdraw_draw:
+	jsr	drawstr
 	inc	loop_p
 	ldaa	loop_p
 	cmpa	#4
@@ -1399,7 +1422,7 @@ arrow_done:
 ; A = row. Shows the space prompt at its right end.
 show_push:
 	staa	posy
-	ldaa	#27
+	ldaa	#24
 	staa	posx
 	ldx	#s_push
 	jmp	drawstr
