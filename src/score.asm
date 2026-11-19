@@ -93,7 +93,7 @@ score_hand:
 	jsr	make_tot
 	jsr	analyse
 	jsr	find_yakuman
-	tst	nfuro
+	ldab	nfuro
 	bne	score_hand_01
 	tst	spec_off
 	bne	score_hand_01
@@ -506,7 +506,7 @@ decomp_yaku:
 	jsr	head_fu
 	staa	ed_yhead
 	clr	ed_pinfu
-	tst	nfuro
+	ldab	nfuro
 	bne	decomp_peikou
 	ldaa	n_seq
 	cmpa	#4

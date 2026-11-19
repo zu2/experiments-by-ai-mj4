@@ -13,7 +13,7 @@ evdisc_candidate:
  jsr ev_value
  ; Live winning tiles: with yaku when open; a closed hand can riichi.
  ldaa ev_yacc
- tst nfuro
+ ldab nfuro
  bne evdisc_live
  ldaa wk_accept
 evdisc_live:
@@ -174,7 +174,7 @@ ev_acceptance_00:
 evacc_is_furiten:
  inc ev_furiten
 evacc_live_wait:
- tst wk_unseen
+ ldaa wk_unseen
  beq ev_acceptance_11
  ldx em_wx
  beq evacc_score
@@ -523,7 +523,7 @@ ev1_draw_10:
  dec 0,x
  clr wk_limit
  jsr discard_sk_lim
- tst min_s
+ ldab min_s
  bne ev1_draw_30
  ldx #dora_of_kind
  ldab e1_e

@@ -684,7 +684,7 @@ show_result:
 	clr	posy
 	ldaa	turn
 	jsr	draw_name
-	tst	turn
+	ldab	turn
 	beq	show_result_01
 	inc	posx
 show_result_01:
@@ -1031,7 +1031,7 @@ yaku_han_of_03:
 
 ; Returns X = name of the limit of best_* (0 if none).
 limit_name:
-	tst	best_fu
+	ldaa	best_fu
 	bne	limit_name_00
 	ldx	#s_yakuman
 	ldaa	best_han
@@ -1436,7 +1436,7 @@ show_push:
 print_signed:
 	stx	ry_v
 	ldaa	#CH_PLUS
-	tst	ry_v
+	ldab	ry_v
 	bpl	print_signed_00
 	clra
 	clrb

@@ -373,7 +373,7 @@ ai_discard_02:
 	bra	ai_discard_04
 ai_discard_03:
  ; An open tenpai without yaku (ev_best = 0) cannot win: it only defends.
- tst min_s
+ ldab min_s
  bne ai_discard_10
  jsr ev_discard
  jsr ai_open_furo
@@ -396,7 +396,7 @@ ai_discard_04:
 	jsr	least_danger
 	jmp	ai_discard_07
 ai_discard_05:
- tst min_s
+ ldab min_s
  bne ai_discard_06
  jsr ev_discard
  ; An open hand whose every tenpai has no yaku (ev_best = 0) chooses among
@@ -553,7 +553,7 @@ least_danger_00:
 	cmpa	wk_limit
 	bgt	least_danger_01
 	jsr	danger
- tst wk_limit
+ ldab wk_limit
  bne least_danger_02
  asla
  psha
@@ -574,7 +574,7 @@ least_danger_02:
  bcs least_danger_03
  bne least_danger_01
  ; A push in tenpai keeps the most live winning tiles (ev_discard).
- tst wk_limit
+ ldab wk_limit
  bne least_danger_05
  jsr ev_lk_x
  ldab 0,x
@@ -1101,7 +1101,7 @@ set_intents_00:
  ; Thresholded weights keep this pass cheap and avoid forcing a route.
  ; Kokushi and chiitoi are given up for good after a furo (a closed kan
  ; included); kokushi also when a yaochu kind is all shown.
- tst nfuro
+ ldab nfuro
  bne intent_no_chii
  ldaa pai_yao_kinds
  cmpa #8
@@ -1696,12 +1696,11 @@ off_suit_shape_00:
  ldaa wk_kind
  jsr kind_number
  ; The kind after 9 is a gap (count 0); 8 and 9 have no kind 2 above.
- ldab 1,x
  cmpa #8
+ ldab 1,x
  bcc off_suit_shape_01
  addb 2,x
 off_suit_shape_01:
- tstb
  bne off_suit_shape_03
 off_suit_shape_02:
  inc wk_kind
@@ -1899,7 +1898,7 @@ relevant:
  dec 0,x
  clr ac_kok_active
  clr spec_near
- tst nfuro
+ ldab nfuro
  bne relevant_00
  ; A draw lowers a special shape by one at most, and no shape of the 13
  ; tiles is below min_s: only a special shape at min_s can go below.
@@ -1916,7 +1915,7 @@ relevant:
  bne relevant_00
  inc ac_kok_active
 relevant_00:
- tst min_s
+ ldab min_s
  beq rel_tenpai
  ldaa #$FF
  bra rel_adjust
@@ -3026,7 +3025,7 @@ sanshoku_tile3:
 sanshoku_furo:
  cmpb #3
  beq sanshoku_shape
- tst nfuro
+ ldaa nfuro
  beq sanshoku_shape
  pshb
  ldaa ai_player

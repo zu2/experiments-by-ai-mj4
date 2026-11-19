@@ -3,7 +3,6 @@
 draw_hand:
 ui_hand:
  staa ht_p
- tsta
  beq ui_human
  jsr ui_band
  staa sm_y
@@ -285,7 +284,7 @@ ui_furo_tile:
  ; df_o: the place among the tiles of the tile drawn at df_j. A chi shows
  ; the called tile first, then the other two in order.
  ldaa df_j
- tst df_type
+ ldab df_type
  bne ui_furo_03
  ldab df_red
  lsrb
@@ -550,7 +549,7 @@ ui_header_00:
  ldx #s_honba
  jsr drawstr
  jsr ui_nokori
- tst kyotaku
+ ldaa kyotaku
  beq ui_header_dora
  ldaa #120
  staa stick_x
@@ -1113,7 +1112,7 @@ ui_mark_tsumo:
  staa ht_n
  deca
  staa ot_i
- tst ht_p
+ ldab ht_p
  bne ui_mark_tsumo_00
  jsr hand_tile_x
  ldaa posx

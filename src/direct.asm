@@ -95,7 +95,7 @@ sg_call_leaf_00:
  inc 1,x
  inc 2,x
 sg_call_leaf_01:
- tst heads_n
+ ldaa heads_n
  bne sg_skip
  ldaa 0,x
  cmpa #2
@@ -136,7 +136,7 @@ sg_leaf:
  bge sg_leaf_04
  ; leaf_parts returns the sum for all suits and honors. The result is
  ; capped below exactly as in the incremental early-exit implementation.
- tst sg_cap
+ ldab sg_cap
  beq sg_leaf_no_taatsu
  jsr leaf_parts
  cmpa sg_cap
@@ -332,8 +332,8 @@ al_try:
  ldaa al_x+1
  suba #<counts
  staa al_j
- ldab 0,x
  cmpa #K_HONOR
+ ldab 0,x
  bcc al_try_02
  cmpa #K_FIRST+2
  bcs al_try_00
@@ -351,7 +351,6 @@ al_try_01:
  bne al_try_03
  rts
 al_try_02:
- tstb
  bne al_try_03
  rts
 al_try_03:

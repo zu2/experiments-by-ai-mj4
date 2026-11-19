@@ -54,7 +54,7 @@ after_draw:
 	ldaa	#ABORT_KYUUSHU
 	jmp	abortive_draw
 after_draw_04:
-	tst	turn
+	ldaa	turn
 	bne	after_draw_01
 	jsr	human_turn
 	bra	after_draw_02
@@ -195,9 +195,8 @@ react_four:
  bne react_calls
  jsr ron_ok
  staa can_ron
- tsta
  beq react_11
- tst other
+ ldaa other
  bne react_ron_cpu
  tst auto_play
  bne react_ron_cpu
@@ -220,7 +219,7 @@ react_02:
  bra react_11
 react_calls:
  clr can_ron
- tst other
+ ldaa other
  bne react_cpu
  tst auto_play
  bne react_cpu
@@ -395,7 +394,7 @@ react_called:
 
 ; The player in turn called pon or chi and discards without drawing.
 call_discard:
-	tst	turn
+	ldab	turn
 	bne	calldisc_cpu
 	jsr	human_called
 	bra	call_discard_00
@@ -448,7 +447,7 @@ own_kan_00:
 	staa	other
 	jsr	ron_ok
 	beq	own_kan_01
-	tst	other
+	ldaa	other
 	bne	ownkan_chankan
 	jsr	ask_ron
 	tsta
@@ -874,6 +873,7 @@ kan_options_00:
 	ldab	ko_k
 	jsr	counts_x
 	ldaa	0,x
+	beq	kan_options_02
 	cmpa	#4
 	bne	kan_options_01
 	jsr	kan_riichi_ok
@@ -881,8 +881,6 @@ kan_options_00:
  jsr add_kan_option
 	bra	kan_options_02
 kan_options_01:
-	tsta
-	beq	kan_options_02
  jsr turn_player
 	tst	P_FLAG,x
 	bmi	kan_options_02
@@ -1067,7 +1065,7 @@ find_waits_01:
  bne find_waits_00
  clra
  jsr acc_search
- tst nfuro
+ ldab nfuro
  bne fw_result
  tst spec_off
  bne fw_result
