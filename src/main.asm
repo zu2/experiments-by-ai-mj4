@@ -1785,21 +1785,18 @@ tile_crow:
 drawstr_x:
  ldx 0,x
 drawstr:
-	stx	dst_ptr
-drawstr_00:
-	ldx	dst_ptr
+	; print_num ends its string with $FF instead of bit 7.
 	ldaa	0,x
 	cmpa	#$FF
 	beq	drawstr_01
-	inx
 	stx	dst_ptr
-	psha
 	anda	#$7F
 	jsr	drawchar
 	inc	posx
-	pula
-	tsta
-	bpl	drawstr_00
+	ldx	dst_ptr
+	tst	0,x
+	inx
+	bpl	drawstr
 drawstr_01:
 	rts
 
@@ -1825,32 +1822,21 @@ drawchar:
 ; X = string (not empty) whose last character has bit 7, A = pixel row, B =
 ; pixel column (a multiple of 8).
 text_px:
- staa tx_y
- stab tx_x
-text_px_00:
- ldaa 0,x
- inx
- stx dst_ptr
- psha
- anda #$7F
- bsr char_px
- ldx dst_ptr
- pula
- tsta
- bpl text_px_00
- rts
-; A = character. Draws it at tx_x, tx_y and moves tx_x to the next character.
-char_px:
- psha
- ldaa tx_y
- ldab tx_x
  jsr pixel_address
  staa ch_dst
  stab ch_dst+1
- ldab tx_x
- addb #8
- stab tx_x
- pula
+text_px_00:
+ stx dst_ptr
+ ldaa 0,x
+ anda #$7F
+ bsr char_at
+ ; The next cell is the next byte of the same row (no carry: 32 cells a row).
+ inc ch_dst+1
+ ldx dst_ptr
+ tst 0,x
+ inx
+ bpl text_px_00
+ rts
 ; A = character. Draws its 7 rows at ch_dst and clears the row below.
 char_at:
  ldx #font_set
@@ -2209,8 +2195,8 @@ dt_dst:	.ds	2 ; drawtile screen address
 dt_cnt:	.ds	1 ; drawtile rows left
 dst_ptr:	.ds	2 ; next character
 
-tx_x: .ds 1 ; pixel column of text_px
-tx_y: .ds 1 ; pixel row of text_px
+
+
 ch_dst:	.ds	2 ; drawchar screen address
 
 

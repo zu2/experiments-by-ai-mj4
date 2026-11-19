@@ -1238,13 +1238,11 @@ hint_add:
  ldx #hint_chars
  jsr addxb
  ldaa hint_y
- staa tx_y
  ldab hint_x
- stab tx_x
- ldaa 0,x
- jsr char_px
- ldaa tx_x
- staa hint_x
+ jsr text_px
+ ldab hint_x
+ addb #8
+ stab hint_x
  rts
 ; Removes the hint row.
 hint_clear:
@@ -1273,7 +1271,8 @@ hint_clear:
 hint_clear_00:
  rts
 hint_chars:
- .byte CH_C,CH_P,CH_K,CH_R
+ ; One-character strings for text_px.
+ .byte CH_C+$80,CH_P+$80,CH_K+$80,CH_R+$80
 ; Erase the previous marker before drawing the next discard.
 mark_clear:
  tst mark_live
