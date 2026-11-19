@@ -1574,15 +1574,15 @@ title_lines:
  .word s_title
  .byte 10,9
  .word s_subtitle
- .byte 6,12
+ .byte 11,12
  .word s_move_help
- .byte 6,13
+ .byte 11,13
  .word s_discard_help
- .byte 6,15
+ .byte 11,15
  .word s_win_help
- .byte 6,16
+ .byte 11,16
  .word s_call_help
- .byte 7,18
+ .byte 11,18
  .word s_start_help
  .byte 28,23
  .word s_build
