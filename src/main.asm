@@ -56,7 +56,8 @@ P_RIVER	.equ	KN+16
 P_RFLAG	.equ	KN+48
 P_FLAG	.equ	KN+80
 P_SCORE	.equ	KN+81
-PSIZE	.equ	KN+83
+P_BEFORE	.equ	KN+83 ; P_SCORE before the settlement (save_scores)
+PSIZE	.equ	KN+85
 
 ; Bits of P_FLAG. The bits that score_hand needs have the values of F_*.
 P_RIICHI	.equ	$80
@@ -876,21 +877,20 @@ page_wind:
  tst result_active
  beq page_advance
 	; Net transfer includes honba and the riichi pool, using the actual scores.
-	ldx	#ry_score_before
-	ldab	ui_sp
-	aslb
-	jsr	addxb
+	ldaa	ui_sp
+	jsr	player
 	ldab	ry_v+1
-	subb	1,x
+	subb	P_BEFORE+1,x
 	ldaa	ry_v
-	sbca	0,x
+	sbca	P_BEFORE,x
 	staa	ry_v
 	stab	ry_v+1
 	oraa	ry_v+1
 	beq	page_advance
 	ldaa	#8
 	staa	posx
- jsr print_score_x
+	ldx	P_BEFORE,x
+	jsr	print_score
 	ldaa	#16
 	staa	posx
 	ldx	ry_v
@@ -930,11 +930,10 @@ show_draw_00:
 	staa	posy
 	ldaa	#26
 	staa	posx
-	ldx	#ry_score_before
-	ldab	loop_p
-	aslb
-	jsr	addxb
- jsr print_score_x
+	ldaa	loop_p
+	jsr	player
+	ldx	P_BEFORE,x
+	jsr	print_score
 	; Replace the second line with status and exact point transfer.
 	ldaa	sr_row
 	inca
@@ -970,24 +969,15 @@ show_draw_10:
 
 ; Preserve each seat's score immediately before win or draw settlement.
 save_scores:
-	clr	loop_p
+	ldaa	#3
 save_scores_00:
-	ldaa	loop_p
 	jsr	player
-	ldx	P_SCORE,x
-	stx	ry_v
-	ldx	#ry_score_before
-	ldab	loop_p
-	aslb
-	jsr	addxb
-	ldaa	ry_v
-	staa	0,x
-	ldaa	ry_v+1
-	staa	1,x
-	inc	loop_p
-	ldaa	loop_p
-	cmpa	#4
-	bne	save_scores_00
+	ldab	P_SCORE,x
+	stab	P_BEFORE,x
+	ldab	P_SCORE+1,x
+	stab	P_BEFORE+1,x
+	deca
+	bpl	save_scores_00
 	rts
 
 ; Reveal all four hands in place. Keep the table, rivers and header intact.
@@ -1471,8 +1461,6 @@ print_signed_00:
 	jmp	drawchar
 
 ; X = score in units of 100. Prints it in 6 cells.
-print_score_x:
- ldx 0,x
 print_score:
 	stx	wk_num
 	ldaa	wk_num
@@ -2157,7 +2145,7 @@ win_tile:	.ds	1 ; tile of the ron (setup_score)
 ss_p:	.ds	2 ; next furo (setup_score)
 ; ry_tenpai is allocated in directpage.asm.
 ; ry_v is allocated in directpage.asm.
-ry_score_before:	.ds	8 ; scores before the settlement
+
 sr_i:	.ds	1 ; yaku index on the result page
 ; sr_row is allocated in directpage.asm.
 sr_id:	.ds	1 ; yaku number shown
