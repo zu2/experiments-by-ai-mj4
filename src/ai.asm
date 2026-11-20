@@ -1428,17 +1428,16 @@ kv_rules:
  .byte I_KOK,F_YAO,F_C1,0
  .byte 0,F_HONOR,F_C1+F_U0,6
  .byte 0,F_HONOR,F_C1+F_U1,5
+ .byte 0,F_HONOR,F_C1+F_U2,5 ; a single honor with a copy seen seldom makes a set
  .byte I_CHII,0,F_C2,0
  .byte I_TOI,0,F_C2,0
- .byte I_FLUSH,F_HONOR,F_C1+F_U2,1
+ .byte I_FLUSH,F_HONOR+F_YAKU,F_C1,0 ; flush keeps a single yakuhai over another honor
+ .byte I_FLUSH,F_HONOR,F_C1,1
  .byte I_FLUSH,F_KEEP,0,0
- .byte I_CHI,F_HONOR,F_C1+F_U2,1
  .byte I_CHI,F_YAO,0,0
  .byte I_CHI,F_M46,0,3
  .byte I_CHI,0,0,1
- .byte 0,F_HONOR+F_YAKU,F_C1+F_U2,2
  .byte 0,F_HONOR+F_YAKU,0,1
- .byte 0,F_HONOR,F_C1+F_U2,5
  .byte 0,F_HONOR,F_C1,4
  .byte 0,F_HONOR,0,3
  .byte 0,F_YAO,0,3 ; a 1 or a 9: the honors matched above
@@ -1734,9 +1733,24 @@ off_suit_tiles_01:
  ldaa wk_count
  rts
 ; A = kind, returns 1 for a numbered tile outside pai_max_suit, otherwise 0.
+; kind_off_suit (wk_kind) also returns 1 for a single honor with a copy seen,
+; which seldom makes a set; it keeps X = &counts[wk_kind] for an honor.
 ; Returns with N and Z set from A.
 kind_off_suit:
  ldaa wk_kind
+ cmpa #K_HONOR
+ bcs off_suit
+ jsr kind_counts_x
+ ldaa 0,x
+ cmpa #1
+ bne off_suit_01
+ jsr kind_unseen_x
+ ldaa 0,x
+ jsr kind_counts_x
+ cmpa #3
+ bcc off_suit_01
+ ldaa #1
+ rts
 off_suit:
  cmpa #K_HONOR
  bcc off_suit_01
