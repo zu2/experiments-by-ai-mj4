@@ -2572,6 +2572,8 @@ cflush_yes:
 call_flush_ok_00:
  clra
  rts
+KUITAN_LEFT .equ 40
+
 ; Returns A = 1 if the chi of ck_a and ck_b keeps a yaku.
 ; Returns with N and Z set from A.
 call_chi_yaku:
@@ -2606,7 +2608,28 @@ call_chi_yaku_02:
 	jsr	is_simple
 	beq	call_chi_yaku_03
 	ldaa	ck_b
-	jmp	is_simple
+	jsr	is_simple
+	beq	call_chi_yaku_03
+	; Early, a closed hand with fewer than two usable dora keeps a two-sided
+	; block for riichi: tanyao does not chi with it (two simples next to each
+	; other are always two-sided).
+	tst	nfuro
+	bne	call_chi_yaku_04
+	ldaa	draws_left
+	cmpa	#KUITAN_LEFT
+	bcs	call_chi_yaku_04
+	ldaa	pai_dora_use
+	cmpa	#2
+	bcc	call_chi_yaku_04
+	ldaa	ck_b
+	suba	ck_a
+	cmpa	#1
+	beq	call_chi_yaku_03
+	cmpa	#$FF
+	beq	call_chi_yaku_03
+call_chi_yaku_04:
+	ldaa	#1
+	rts
 call_chi_yaku_03:
 	ldab	call_kind
 	pshb
