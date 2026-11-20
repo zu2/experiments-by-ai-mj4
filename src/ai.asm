@@ -386,11 +386,37 @@ ai_discard_10:
  jsr least_danger
  ldaa fold_result
  cmpa #FC_DANGER
- bne ai_discard_07
+ bne ai_discard_13
  ; 36: danger_one 5 from one riichi (4 * dg_val[5]).
  ldaa wk_best
  cmpa #36
  bcc ai_discard_02
+ bra ai_discard_07
+ai_discard_13:
+ ; Against a riichi, a tenpai push with at most one live winning tile (ev_lk)
+ ; does not push a tile of danger 60 or more (wk_best is doubled in tenpai):
+ ; it folds. In the last draws the tenpai is kept for the payment at a drawn
+ ; hand, and the last place keeps pushing.
+ tst min_s
+ bne ai_discard_07
+ ldaa draws_left
+ cmpa #PUSH_FOLD_LEFT
+ bcs ai_discard_07
+ ldaa wk_best
+ cmpa #120
+ bcs ai_discard_07
+ jsr any_riichi
+ beq ai_discard_07
+ ldaa ai_player
+ jsr count_ge
+ cmpb #4
+ beq ai_discard_07
+ ldaa ad_pick
+ staa wk_kind
+ jsr ev_lk_x
+ ldaa 0,x
+ cmpa #2
+ bcs ai_discard_02
  bra ai_discard_07
 ai_discard_04:
 	jsr	least_danger
@@ -2851,6 +2877,7 @@ oc_build_06:
 ;            and 2-shanten or more.
 ; ai_discard and ai_call (call_shanten) both use it, so a call never makes
 ; a hand that folds. X and B are scratch.
+PUSH_FOLD_LEFT .equ 10
 FC_ATTACK .equ 0
 FC_PUSH .equ 1
 FC_DANGER .equ 2

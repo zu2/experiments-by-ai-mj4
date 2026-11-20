@@ -369,38 +369,42 @@ tobi_01:
 	ldaa	#1
 	rts
 
+; A = player. Returns B = the players (him included) with at least his
+; points. Keeps nothing else.
+count_ge:
+	jsr	player
+	ldab	P_SCORE,x
+	stab	ry_v
+	ldab	P_SCORE+1,x
+	stab	ry_v+1
+	clrb
+	ldaa	#3
+	staa	loop_p
+count_ge_00:
+	ldaa	loop_p
+	jsr	player
+	ldaa	P_SCORE+1,x
+	suba	ry_v+1
+	ldaa	P_SCORE,x
+	sbca	ry_v
+	bmi	count_ge_01
+	incb
+count_ge_01:
+	dec	loop_p
+	bpl	count_ge_00
+	rts
+
 ; Returns A = 1 if the dealer is strictly ahead of every other player.
 ; Returns with N and Z set from A.
 dealer_top:
 	ldaa	dealer
-	jsr	player
-	ldaa	P_SCORE,x
-	ldab	P_SCORE+1,x
-	staa	ry_v
-	stab	ry_v+1
-	clr	loop_p
-dealer_top_00:
-	ldaa	loop_p
-	cmpa	dealer
-	beq	dealer_top_01
-	jsr	player
-	ldab	ry_v+1
-	subb	P_SCORE+1,x
-	ldaa	ry_v
-	sbca	P_SCORE,x
-	bmi	dealer_top_02
-	bne	dealer_top_01
-	tstb
-	beq	dealer_top_02
-dealer_top_01:
-	inc	loop_p
-	ldaa	loop_p
-	cmpa	#4
-	bne	dealer_top_00
-	ldaa	#1
-	rts
-dealer_top_02:
+	jsr	count_ge
 	clra
+	cmpb	#1
+	bne	dealer_top_00
+	inca
+dealer_top_00:
+	tsta
 	rts
 
 
