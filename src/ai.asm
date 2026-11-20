@@ -2339,7 +2339,7 @@ ai_call:
 	oraa	rp_chi
 	beq	ca_none
  ; A call from 4 tiles leaves one tile (hadaka tanki), which cannot defend:
- ; only when nobody has a riichi or two furo.
+ ; only when nobody is a threat (any_threat).
  ldaa ai_player
  jsr player
  ldaa P_LEN,x
@@ -2860,8 +2860,14 @@ fold_check_01:
 any_riichi:
  ldaa #5
  bra any_riichi_03
+; A threat is a riichi or furo_threat of at least 2, or 3 while 50 draws or
+; more are left (two furo are seldom tenpai so early).
 any_threat:
  ldaa #2
+ ldab draws_left
+ cmpb #50
+ bcs any_riichi_03
+ inca
 any_riichi_03:
  staa threat_furo
 	ldab	#3
