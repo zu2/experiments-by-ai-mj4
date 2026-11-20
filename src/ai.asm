@@ -643,21 +643,48 @@ best_accept_10:
  staa 3,x
  ldaa ac_lower+4
  staa 4,x
+ ; keep_value orders the candidates (cc_bonus) but is not part of the
+ ; score: it compares kinds of tile, not whether the tile is in a block.
+ jsr keep_value
+ staa dora_unit
  ldx #cc_bonus
  ldab cc_slot
  jsr addxb
  ldaa 0,x
+ suba dora_unit
  ; Acceptance is in tile units, without a cap or scaling. Other terms
  ; total at most 61 here; saturate only if their final addition overflows.
 	adda	wk_score
  bcc accept_dora
  ldaa #$FF
 accept_dora:
- ; Each dora lost (cc_costs) takes an eighth of the acceptance, at least 1:
- ; a dora multiplies the value of the hand, not the number of winning tiles.
- ldab cc_costs-cc_bonus,x
- beq accept_compare
+ ; Each dora lost (cc_costs) and each han of a yakuhai pair broken takes an
+ ; eighth of the acceptance, at least 1: they multiply the value of the
+ ; hand, not the number of winning tiles.
  psha
+ ldab cc_costs-cc_bonus,x
+ ldaa wk_kind
+ cmpa #K_HONOR
+ bcs accept_dora_03
+ pshb
+ jsr kind_counts_x
+ ldaa 0,x
+ cmpa #2
+ bcs accept_dora_04
+ ldaa wk_kind
+ jsr is_yakuhai
+ pulb
+ aba
+ tab
+ bra accept_dora_03
+accept_dora_04:
+ pulb
+accept_dora_03:
+ tstb
+ bne accept_dora_05
+ pula
+ bra accept_compare
+accept_dora_05:
  ldaa wk_score
  lsra
  lsra
@@ -1232,8 +1259,9 @@ iw_off_suit_furo:
  oraa pai_block2
  rts
 
-; How much better it is to discard kind wk_kind, added to its acceptance by
-; discard_bonus: keep_value (the base) + intent_bonus (against an intent).
+; How much better it is to discard kind wk_kind, added by discard_bonus:
+; keep_value (the base) + intent_bonus (against an intent). best_accept
+; takes keep_value out again: it only orders the candidates.
 ;
 ; keep_value, the first that applies:
 ;   0  kokushi: a yaochu kind with 1 tile
@@ -1456,7 +1484,8 @@ ibn_two:
  ; Original 14-tile counts. dcc_cost and wk_bonus (toitoi) were
  ; computed by candidate ranking; cc_sanshoku is the 13-tile sanshoku value.
  ; A = complete final-score adjustment, cached with the shortlisted kind.
- ; The dora lost (dcc_cost) is taken from the acceptance in best_accept.
+ ; The dora lost (dcc_cost) and a yakuhai pair broken are taken from the
+ ; acceptance in best_accept.
 discard_bonus:
  ldaa #46
  adda wk_bonus
