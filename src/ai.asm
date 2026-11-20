@@ -1461,11 +1461,10 @@ discard_bonus:
  jsr intent_bonus
  adda wk_bonus
  staa wk_bonus
- ; 2 for each two-sided shape left, without a toitoi, chiitoi or kokushi
- ; intent.
- ldaa iw_toi
- oraa iw_chiitoi
- oraa iw_kok
+ ; 2 for each two-sided shape left, without a toitoi or kokushi intent
+ ; (chiitoi keeps its pairs by toi_filter instead).
+ ldaa intents
+ bita #I_TOI+I_KOK
  bne discard_bonus_01
  jsr ryan_pairs
  asla
@@ -1548,11 +1547,8 @@ cn_honor_weights:
 ; connection leaves X at the five-cell ns_buf for numbers. Isolation is unchanged.
 short_conn:
  jsr connection
- tst iw_chiitoi
- bne short_conn_02
- tst iw_toi
- bne short_conn_02
- tst iw_kok
+ ldab intents
+ bitb #I_TOI+I_KOK
  bne short_conn_02
  ldab wk_kind
  cmpb #K_HONOR
@@ -1647,11 +1643,13 @@ ad_filter_cand_02:
  clra
  rts
 
-; Toitoi keeps its pairs and triplets: when a single kind (one tile) that the
-; flush filter allows has sk = min_s, only such kinds are candidates.
+; Toitoi and chiitoi keep their pairs and triplets: when a single kind (one
+; tile) that the flush filter allows has sk = min_s, only such kinds are
+; candidates.
 toi_filter:
  clr toi_only
- tst iw_toi
+ ldaa intents
+ bita #I_TOI+I_CHII
  beq toi_filter_02
  clr wk_kind
 toi_filter_00:
