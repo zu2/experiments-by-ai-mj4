@@ -2001,7 +2001,7 @@ ask_ron_00:
 kans_done:	.ds	1 ; kans in this hand
 rinshan:	.ds	1 ; nonzero after a kan draw
 pending_dora:	.ds	1 ; kan dora to open after the discard
-; Cleared at the start of a hand from dora_of_kind to furo_facts_end.
+; Cleared at the start of a hand from river_bits to furo_facts_end.
 river_bits:	.ds	KN ; bit p: the kind passed after the riichi of player p; bit p+4: player p discarded it
 rp_bits:	.ds	1 ; react_stick: riichi players
 dora_of_kind:	.ds	KN ; open dora indicators that point to each kind (unshown_dora)
@@ -2065,7 +2065,7 @@ let_n:	.ds	1 ; nonzero while the action letters are shown
 	.code
 ; Clears the state of dora, calls, riichi and kans at the start of a hand.
 kyoku_init_calls:
-	ldx	#dora_of_kind
+	ldx	#river_bits
 kyoku_init_calls_00:
 	clr	0,x
 	inx
