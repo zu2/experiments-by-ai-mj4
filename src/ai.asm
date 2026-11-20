@@ -1851,16 +1851,10 @@ acceptance_10:
  ldx #counts
 acceptance_00:
  stx ac_ptr
- tst rel-counts,x
- bne acceptance_01
- tst ac_kok_active
+ ; acc_mark asked the draws that can lower a shape, with unseen copies only.
+ tst ac_yes-counts,x
  beq acceptance_04
- ldaa wk_draw
- jsr is_yaochu
- beq acceptance_04
-acceptance_01:
  ldaa unseen-counts,x
- beq acceptance_04
  staa wk_unseen
  inc 0,x
  ldab wk_draw
@@ -2693,7 +2687,6 @@ pai_suit_work: .ds 3 ; scan-only suit scores; alias inside work, no added RAM
  .ds KN-7
 furo_tiles: .ds KN ; tiles of each kind in the furo
 sk:	.ds	KN ; shanten after discarding each kind ($7F = not allowed)
-rel:	.ds	KN ; kinds that can lower the shanten (sum of nearby tiles)
 unseen: .ds KN ; tiles of each kind the computer cannot see (ai_unseen)
 ac_yes: .ds KN ; acc_mark result per kind: 0 no, 1 asked, 2 lowers the shanten
 ; scan_pai clears pai_acc_start..pai_acc_end. pai_block0..2 follow
@@ -2722,6 +2715,7 @@ pai_dora_use: .ds 1 ; usable dora tiles (paired or with a tile within 2)
 pai_dora_tan: .ds 1 ; usable simple dora kinds
 pai_chanta_cut: .ds 1 ; tiles chanta must cut (a non-chanta block counts 3)
 pai_acc_end:
+rel:	.ds	KN ; kinds that can lower the shanten (sum of nearby tiles)
 ; The candidate list sits after the pai_ block: pai_suit0-pai_suit_work,x
 ; must stay within 255.
 cc_insert_x:	.ds	2 ; cc_order slot to insert at

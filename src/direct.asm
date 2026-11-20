@@ -242,21 +242,21 @@ ad_forbidden_s: .ds 1 ; best shanten of a forbidden discard (127 if none)
 ; ac_yes: 0 = not asked, 1 = asked, 2 = lowers the shanten number.
 acc_mark:
  psha
- ldx #counts
+ ldx #unseen
 acc_mark_00:
  clra
- tst rel-counts,x
+ tst rel-unseen,x
  bne acc_mark_01
  tst ac_kok_active
  beq acc_mark_02
 acc_mark_01:
- ldab unseen-counts,x
+ ldab 0,x
  beq acc_mark_02
  inca
 acc_mark_02:
- staa ac_yes-counts,x
+ staa ac_yes-unseen,x
  inx
- cpx #counts+KN
+ cpx #unseen+KN
  bne acc_mark_00
  pula
 ; A = goal, ac_yes already made. Marks the asked draws that lower the value.
