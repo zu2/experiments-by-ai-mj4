@@ -500,6 +500,7 @@ ad_s_loop:
  jsr ad_allowed
  beq ad_s_loop_00
  ldaa sk-counts,x
+ staa skn-counts,x
  cmpa ad_norm_min
  bge ad_s_loop_03
  staa ad_norm_min
@@ -631,7 +632,7 @@ least_danger_01:
 	bne	least_danger_00
 	rts
 
-; Sets ad_pick to the kind with sk = min_s that leaves the most tiles that
+; Sets ad_pick to the candidate (choose_cands) that leaves the most tiles that
 ; lower the shanten number, and cc_lower to ac_lower of each candidate.
 best_accept:
 	jsr	flush_filter
@@ -752,7 +753,8 @@ best_accept_21:
 best_accept_22:
 	rts
 
-; Selects cc_limit kinds with sk = min_s, ordered by completed policy value.
+; Selects cc_limit kinds with sk = min_s (with ac_both, also skn =
+; ad_norm_min), ordered by completed policy value.
 ; Zero defaults to 4; values outside 4..6 are clamped at the next selection.
 ; CC_KEY_BASE is larger than any cc_cand_bonus (at most about 80 with the
 ; two-sided shapes of ryan_pairs), so cc_key does not wrap.
@@ -784,7 +786,17 @@ cand_loop:
  jsr kind_counts_x
  ldaa sk-counts,x
  cmpa min_s
+ beq cand_loop_00
+ ; With ac_both, a discard that keeps the ordinary shape at ad_norm_min is
+ ; a candidate too: four pairs do not decide for chiitoi.
+ cmpa #$7F
+ beq cand_next
+ tst ac_both
+ beq cand_next
+ ldaa skn-counts,x
+ cmpa ad_norm_min
  bne cand_next
+cand_loop_00:
  jsr ad_filter_cand
  beq cand_next
  jsr isolated_cand
@@ -1164,7 +1176,7 @@ set_intents_00:
  inc iw_kok
 intent_no_kok:
  ldaa pai_pairs
- cmpa #4
+ cmpa #5
  bcs intent_no_chii
  inc iw_chiitoi
 intent_no_chii:
@@ -2625,6 +2637,7 @@ furo_tiles: .ds KN ; tiles of each kind in the furo
 sk:	.ds	KN ; shanten after discarding each kind ($7F = not allowed)
 unseen: .ds KN ; tiles of each kind the computer cannot see (ai_unseen)
 ac_yes: .ds KN ; acc_mark result per kind: 0 no, 1 asked, 2 lowers the shanten
+skn: .ds KN ; discard_sk: ordinary-shape shanten after discarding each allowed kind
 ; scan_pai clears pai_acc_start..pai_acc_end. pai_block0..2 follow
 ; pai_suit0..2 (written as pai_block0-pai_suit0,x).
 pai_acc_start:
