@@ -2440,11 +2440,11 @@ call_pon_shanten:
 	; A qualified yakuhai is already a guaranteed yaku.
  tst call_yakuhai
  bne ai_call_30
-	; Same-shanten pon may also continue chanta or tanyao.
+	; Same-shanten pon may also continue chanta. Not tanyao: such a
+	; call only makes the hand cheaper.
 	jsr	call_flush_ok
 	oraa	iw_toi
 	oraa	iw_chi
-	oraa	iw_tanyao
 	beq	call_chi
 ai_call_30:
 	ldaa	#R_PON
@@ -2505,10 +2505,10 @@ call_ploop:
 	cmpa	call_shanten_now
 	blt	call_paccept
 	bgt	call_pnext
-	; Same-shanten chi needs an active route that call_chi_yaku kept.
+	; Same-shanten chi needs an active route that call_chi_yaku kept
+	; (not tanyao, as for pon).
 	jsr	call_flush_ok
 	oraa	iw_chi
-	oraa	iw_tanyao
 	beq	call_pnext
 call_paccept:
 	ldab	call_pat
