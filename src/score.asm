@@ -73,11 +73,12 @@ W_SHANPON	.equ	4
 A_YAOCHU	.equ	$01
 A_HONOR	.equ	$02
 A_GREEN	.equ	$04
-A_KIND	.equ	$08
+A_T28	.equ	$08 ; a 2 or an 8
 A_MAN	.equ	$10
 A_PIN	.equ	$20
 A_SOU	.equ	$40
 A_SUITS	.equ	$70
+A_M46	.equ	$80 ; a 4, 5 or 6
 
 ; Block types in btype: furo first, then the blocks of the closed hand.
 B_SEQ	.equ	$01

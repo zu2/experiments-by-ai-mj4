@@ -1271,6 +1271,19 @@ intent_fl_clear:
 intent_fl_store:
  staa intent_lock-minshun_n,x
 set_intents_80:
+ ; intents: one bit for each byte of intent_flags (I_*), in their order.
+ clra
+ ldx #intent_flags
+set_intents_81:
+ asla
+ tst 0,x
+ beq set_intents_82
+ inca
+set_intents_82:
+ inx
+ cpx #intent_flags_end
+ bne set_intents_81
+ staa intents
  rts
 
 ; A completed sequence or triplet outside the target suit blocks flush intent.
@@ -1288,224 +1301,149 @@ iw_off_suit_furo:
 ; How much better it is to discard kind wk_kind, added by discard_bonus:
 ; keep_value (the base) + intent_bonus (against an intent). best_accept
 ; takes keep_value out again: it only orders the candidates.
-;
-; keep_value, the first that applies:
-;   0  kokushi: a yaochu kind with 1 tile
-;   0  chiitoi or toitoi: 2 tiles or more
-;   0  flush: the suit pai_max_suit or an honor
-;   chanta: yaochu 0, 4-6 3, other 1
-;   honor: yakuhai 1, other 3 (4 with 1 tile)
-;   number: 1/9 3, 2/8 2, other 1 (number_bias + 1)
-; then, without kokushi, an honor with 1 tile: 6 - unseen with 0 or 1
-; unseen, one more with 2.
-;
-; intent_bonus, the largest that applies:
-;   tanyao: honor 2, terminal 1
-;   chanta: 4-6 2
-;   kokushi: not yaochu 2, yaochu with 2 tiles or more 1
-;   chiitoi or toitoi: 1 tile with 0 unseen 2, with 1 unseen 1
-;   flush with off-suit candidates only (flush_only): 2
+; Both return A = the value of the first rule of their table that matches the
+; intents and the facts of wk_kind (counts = 14 tiles). A rule is the
+; intents and the facts that must all be set, and the result.
+; intent_bonus lists its rules from the largest value down: the first match
+; is the largest.
 keep_value:
- jsr kv_base
- tst iw_kok
- bne keep_value_02
- psha
- ldaa wk_kind
- cmpa #K_HONOR
- bcs keep_value_01
- jsr kind_counts_x
- ldaa 0,x
- cmpa #1
- bne keep_value_01
- jsr kind_unseen_x
- ldaa 0,x
- cmpa #2
- bcs keep_value_00
- bne keep_value_01
- pula
- inca
- rts
-keep_value_00:
- ; 2 + seen copies = 6 - unseen copies (5 or 6).
- ins
- nega
- adda #6
- rts
-keep_value_01:
- pula
-keep_value_02:
- rts
-; Returns A = keep_value before the singleton honor adjustment.
-kv_base:
-	; Never shed a unique kokushi yaochu tile as an intent tie-break.
-	tst	iw_kok
-	beq	keep_chiitoi
- jsr kind_is_yaochu
-	beq	keep_chiitoi
- jsr kind_counts_x
-	ldaa	0,x
-	cmpa	#2
-	bcc	keep_chiitoi
-	clra
-	rts
-keep_chiitoi:
- ; Both pair routes preserve pairs/triplets before isolated singletons.
- ldaa iw_chiitoi
- oraa iw_toi
- beq keep_check_flush
- jsr kind_counts_x
- ldaa 0,x
- cmpa #2
- bcs keep_check_flush
- clra
- rts
-keep_check_flush:
- ; The target suit and all honors remain useful under honitsu.
- tst iw_flush
- beq keep_regular
- jsr kind_off_suit
- bne keep_regular
- clra
- rts
-keep_regular:
- tst iw_chi
- beq keep_no_chanta
- jsr kind_is_yaochu
- bne kv_base_01
- ldaa wk_kind
- jsr kind_number
- suba #4
- cmpa #2
- bhi kv_base_00
- ldaa #3
- rts
-keep_no_chanta:
-	ldaa	wk_kind
-	cmpa	#K_HONOR
-	bcs	keep_number
-	jsr	is_yakuhai
-	beq	keep_honor
-	bra	kv_base_00
-keep_honor:
- ; Only an isolated non-yakuhai honor is weaker than an isolated terminal.
- jsr kind_counts_x
- ldaa 0,x
- cmpa #1
- bne keep_honor_old
- ldaa #4
- rts
-keep_honor_old:
- ldaa #3
- rts
-keep_number:
- jsr number_bias
- inca
- rts
-kv_base_00:
-	ldaa	#1
-	rts
-kv_base_01:
-	clra
-	rts
-
-; A = suited kind. Higher values prefer discarding: 1/9=2, 2/8=1.
-number_bias:
- jsr kind_number
- cmpa #5
- bls number_bias_00
- nega
- adda #10
-number_bias_00:
- cmpa #2
- bhi number_bias_01
- nega
- adda #3
- rts
-number_bias_01:
- clra
- rts
-
-; The intent part of the table above keep_value.
+ ldx #kv_rules
+ bra rule_value
 intent_bonus:
-	clr	ibn_best
-
-	; Tanyao: terminals/honors are unwanted; 2/8 are less connected simples.
-	tst	iw_tanyao
-	beq	ibn_chanta
- jsr kind_is_yaochu
-	beq	intent_bonus_00
- ldaa wk_kind
- cmpa #K_HONOR
- bcc ibn_two
- ; keep_value already counts a terminal and a 2/8 (number_bias).
- ldaa #1
- staa ibn_best
-intent_bonus_00:
-
- ; Only 4-6 cannot participate in any chanta block. Keep 2/3/7/8
- ; available for 123/789, including completed sequences.
-ibn_chanta:
- tst iw_chi
- beq ibn_kokushi
- ldaa wk_kind
- cmpa #K_HONOR
- bcc ibn_kokushi
- jsr kind_number
- suba #4
- cmpa #2
- bhi ibn_kokushi
- bra ibn_two
-
-	; Kokushi: favor discarding suited simples; keep unique yaochu tiles.
-ibn_kokushi:
-	tst	iw_kok
-	beq	ibn_chiitoi
- jsr kind_is_yaochu
-	bne	ibn_kokushi_00
-	bra ibn_two
-ibn_kokushi_00:
- jsr kind_counts_x
-	ldaa	0,x
-	cmpa	#2
-	bcs	ibn_chiitoi
-	ldaa	#1
-	staa	ibn_best
-
-	; Chiitoi: singletons are expendable; pairs/triplets are retained.
-ibn_chiitoi:
-	ldaa iw_chiitoi
-	oraa iw_toi
-	beq	ibn_flush
- jsr kind_counts_x
-	ldaa	0,x
-	cmpa	#2
-	bcs	ibn_chiitoi_00
-	bra	ibn_flush
-ibn_chiitoi_00:
- jsr kind_unseen_x
-	ldaa	0,x
-	beq	ibn_chiitoi_01
-	cmpa	#2
-	bcc	ibn_flush
-	ldaa	#1
-	staa	ibn_best
-	bra	ibn_flush
-ibn_chiitoi_01:
-	bra ibn_two
-
-	; The candidate filter already restricts active flush discards to
-	; off-suit tiles. If none exist at min_s, every candidate is compatible.
-ibn_flush:
+ ldx #ib_rules
+rule_value:
+ stx rv_rule
+ ldaa intents
  tst flush_only
- beq ibn_flush_00
- bra ibn_two
-ibn_flush_00:
-	ldaa	ibn_best
-	rts
-; Bonus 2.
-ibn_two:
- ldaa #2
+ beq rule_value_02
+ oraa #I_FONLY
+rule_value_02:
+ staa rv_intent
+ ; Second fact byte: tiles in the hand, unseen copies (0, 1, 2 or more).
+ jsr kind_counts_x
+ ldab #F_C1
+ ldaa 0,x
+ cmpa #1
+ beq rule_value_10
+ ldab #F_C2
+rule_value_10:
+ stab rv_fact+1
+ jsr kind_unseen_x
+ ldaa 0,x
+ cmpa #3
+ bcc rule_value_13
+ ldab #F_U0
+rule_value_11:
+ deca
+ bmi rule_value_12
+ aslb
+ bra rule_value_11
+rule_value_12:
+ orab rv_fact+1
+ stab rv_fact+1
+rule_value_13:
+ ; First fact byte: F_YAO, F_HONOR, F_T28 and F_M46 are the bits of kattr.
+ ldab wk_kind
+ jsr kattr_x
+ ldaa 0,x
+ anda #F_YAO+F_HONOR+F_T28+F_M46
+ bita #F_YAO
+ bne rule_value_14
+ oraa #F_NYAO
+rule_value_14:
+ staa rv_fact
+ bita #F_HONOR
+ beq rule_value_22
+ ldaa wk_kind
+ jsr is_yakuhai
+ beq rule_value_22
+ ldaa rv_fact
+ oraa #F_YAKU
+ staa rv_fact
+rule_value_22:
+ jsr kind_off_suit
+ bne rule_value_30
+ ldaa rv_fact
+ oraa #F_KEEP
+ staa rv_fact
+rule_value_30:
+ ldx rv_rule
+rule_value_31:
+ ldaa rv_intent
+ anda 0,x
+ cmpa 0,x
+ bne rule_value_32
+ ldaa rv_fact
+ anda 1,x
+ cmpa 1,x
+ bne rule_value_32
+ ldaa rv_fact+1
+ anda 2,x
+ cmpa 2,x
+ bne rule_value_32
+ ldaa 3,x
  rts
+rule_value_32:
+ inx
+ inx
+ inx
+ inx
+ bra rule_value_31
+
+; Bits of intents (set_intents) and rv_intent (also flush_only).
+I_FONLY .equ $40
+I_TOI .equ $20
+I_KOK .equ $10
+I_CHI .equ $08
+I_CHII .equ $04
+I_TAN .equ $02
+I_FLUSH .equ $01
+F_YAO .equ A_YAOCHU
+F_HONOR .equ A_HONOR
+F_YAKU .equ $04
+F_T28 .equ A_T28
+F_KEEP .equ $10 ; the flush suit or an honor (not kind_off_suit)
+F_NYAO .equ $20 ; not yaochu
+F_M46 .equ A_M46
+F_C1 .equ $01 ; one tile in the hand
+F_C2 .equ $02 ; two or more
+F_U0 .equ $04 ; unseen copies 0
+F_U1 .equ $08
+F_U2 .equ $10
+
+; Intents (I_*), facts of the first and of the second byte (F_*), result.
+kv_rules:
+ .byte I_KOK,F_YAO,F_C1,0
+ .byte 0,F_HONOR,F_C1+F_U0,6
+ .byte 0,F_HONOR,F_C1+F_U1,5
+ .byte I_CHII,0,F_C2,0
+ .byte I_TOI,0,F_C2,0
+ .byte I_FLUSH,F_HONOR,F_C1+F_U2,1
+ .byte I_FLUSH,F_KEEP,0,0
+ .byte I_CHI,F_HONOR,F_C1+F_U2,1
+ .byte I_CHI,F_YAO,0,0
+ .byte I_CHI,F_M46,0,3
+ .byte I_CHI,0,0,1
+ .byte 0,F_HONOR+F_YAKU,F_C1+F_U2,2
+ .byte 0,F_HONOR+F_YAKU,0,1
+ .byte 0,F_HONOR,F_C1+F_U2,5
+ .byte 0,F_HONOR,F_C1,4
+ .byte 0,F_HONOR,0,3
+ .byte 0,F_YAO,0,3 ; a 1 or a 9: the honors matched above
+ .byte 0,F_T28,0,2
+ .byte 0,0,0,1
+ib_rules:
+ .byte I_FONLY,0,0,2
+ .byte I_TAN,F_HONOR,0,2
+ .byte I_CHI,F_M46,0,2
+ .byte I_KOK,F_NYAO,0,2
+ .byte I_CHII,0,F_C1+F_U0,2
+ .byte I_TOI,0,F_C1+F_U0,2
+ .byte I_TAN,F_YAO,0,1 ; a 1 or a 9: the honors matched above
+ .byte I_KOK,F_YAO,F_C2,1
+ .byte I_CHII,0,F_C1+F_U1,1
+ .byte I_TOI,0,F_C1+F_U1,1
+ .byte 0,0,0,0
 
  ; Original 14-tile counts. dcc_cost and wk_bonus (toitoi) were
  ; computed by candidate ranking; cc_sanshoku is the 13-tile sanshoku value.
@@ -2740,11 +2678,11 @@ iw_chiitoi: .ds 1 ; chiitoi intent
 iw_tanyao: .ds 1 ; tanyao intent
 iw_flush: .ds 1 ; flush intent
 intent_flags_end:
+intents: .ds 1 ; set_intents: one bit for each byte of intent_flags (I_*)
 pai_flush_score: ; alias: valid after scan_pai, until the next scan
 pai_suit_ptr: .ds 2 ; scan-only pointer; first byte is pai_flush_score afterward
 call_yakuhai: .ds 1 ; nonzero when call_kind is yakuhai
 ; pai_kind is allocated in directpage.asm.
-; ibn_best is allocated in directpage.asm.
 danger_player: .ds 1 ; riichi player danger_one is checking
 ; wk_limit is allocated in directpage.asm.
 ; wk_best is allocated in directpage.asm.
@@ -2762,6 +2700,9 @@ call_shanten_now:	.ds	1 ; shanten before the call
 ; call_kind is allocated in directpage.asm.
 call_flush: .ds 1 ; cached flush call eligibility before pattern trials
 flush_only:	.ds	1 ; output of flush_filter: 1 when only off-suit discards are candidates
+rv_rule: .ds 2 ; rule_value: the rule being matched
+rv_intent: .ds 1 ; rule_value: I_* of intent_flags
+rv_fact: .ds 2 ; rule_value: F_* of wk_kind
 toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
 	.code
 ; Returns A = the open furo of ai_player (chi, pon and open kan; an ankan
