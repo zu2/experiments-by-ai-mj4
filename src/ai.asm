@@ -726,63 +726,17 @@ best_accept_10:
  staa 3,x
  ldaa ac_lower+4
  staa 4,x
- ; keep_value orders the candidates (cc_bonus) but is not part of the
- ; score: it compares kinds of tile, not whether the tile is in a block.
- ldx #cc_bonus
+ ; Score = acceptance + cand_value - keep_value, 255 at most: keep_value
+ ; orders the candidates but compares kinds of tile, not whether the tile
+ ; is in a block.
+ ldx #cc_kv
  ldab cc_slot
  jsr addxb
- ldaa 0,x
- suba cc_kv-cc_bonus,x
- ; Acceptance is in tile units, without a cap or scaling. Other terms
- ; total at most 61 here; saturate only if their final addition overflows.
+ ldaa cc_value-cc_kv,x
+ suba 0,x
 	adda	wk_score
- bcc accept_dora
+ bcc accept_compare
  ldaa #$FF
-accept_dora:
- ; Each dora lost (cc_costs) and each han of a yakuhai pair broken takes an
- ; eighth of the acceptance, at least 1: they multiply the value of the
- ; hand, not the number of winning tiles.
- psha
- ldab cc_costs-cc_bonus,x
- ldaa wk_kind
- cmpa #K_HONOR
- bcs accept_dora_03
- pshb
- jsr kind_counts_x
- ldaa 0,x
- cmpa #2
- bcs accept_dora_04
- ldaa wk_kind
- jsr is_yakuhai
- pulb
- aba
- tab
- bra accept_dora_03
-accept_dora_04:
- pulb
-accept_dora_03:
- tstb
- bne accept_dora_05
- pula
- bra accept_compare
-accept_dora_05:
- ldaa wk_score
- lsra
- lsra
- lsra
- bne accept_dora_02
- inca
-accept_dora_02:
- staa dora_unit
- pula
-accept_dora_00:
- suba dora_unit
- bcs accept_dora_01
- decb
- bne accept_dora_00
- bra accept_compare
-accept_dora_01:
- clra
 accept_compare:
  cmpa wk_best
  bhi best_accept_20
@@ -808,13 +762,16 @@ best_accept_22:
 	rts
 
 ; Selects CC_LIMIT kinds of cand, ordered by completed policy value.
-; CC_KEY_BASE is larger than any cc_cand_bonus (at most about 80 with the
+; CC_KEY_BASE is larger than any cand_value (at most about 80 with the
 ; two-sided shapes of ryan_pairs), so cc_key does not wrap.
 CC_KEY_BASE .equ 90
-; DB_BASE is in cc_cand_bonus of every candidate: it does not change their
-; order, and keeps the score of best_accept above 0 when the dora and
-; yakuhai costs are taken from it.
+; DB_BASE is in the value of every candidate: it does not change their
+; order, and keeps the value above 0 when value_cost takes the dora and
+; yakuhai costs from it.
 DB_BASE .equ 46
+; Value of a dora lost, or a han of a yakuhai pair broken, in tiles of
+; acceptance.
+VALUE_W .equ 4
 choose_cands:
  ldx #cc_order
  ldab #CC_LIMIT
@@ -835,16 +792,16 @@ cand_loop:
  staa cc_isol_flag
  jsr sanshoku_cut
  staa cc_sanshoku
- ; cc_key = connection + dora lost + CC_KEY_BASE - cc_cand_bonus: the larger
- ; the bonus of discarding it, the earlier it is chosen.
+ ; cc_key = connection + CC_KEY_BASE - cand_value: the larger the value of
+ ; discarding it, the earlier it is chosen.
 cand_priority:
  jsr short_conn
- adda dcc_cost
  staa cc_key
  jsr toi_bonus
  staa wk_bonus
  jsr discard_bonus
- staa cc_cand_bonus
+ jsr value_cost
+ staa cand_value
  nega
  adda #CC_KEY_BASE
  adda cc_key
@@ -869,12 +826,8 @@ cc_rank_00:
  cmpa cc_key
  bhi cc_rank_02
  bne cc_rank_01
- ldaa cc_costs-cc_order,x
- cmpa dcc_cost
- bhi cc_rank_02
- bne cc_rank_01
- ldaa cc_bonus-cc_order,x
- cmpa cc_cand_bonus
+ ldaa cc_value-cc_order,x
+ cmpa cand_value
  bcs cc_rank_02
 cc_rank_01:
  inx
@@ -891,10 +844,8 @@ cc_rank_03:
  staa 1,x
  ldaa cc_ranks-cc_order,x
  staa cc_ranks-cc_order+1,x
- ldaa cc_bonus-cc_order,x
- staa cc_bonus-cc_order+1,x
- ldaa cc_costs-cc_order,x
- staa cc_costs-cc_order+1,x
+ ldaa cc_value-cc_order,x
+ staa cc_value-cc_order+1,x
  ldaa cc_kv-cc_order,x
  staa cc_kv-cc_order+1,x
  dex
@@ -906,10 +857,8 @@ cc_rank_04:
  staa 0,x
  ldaa cc_key
  staa cc_ranks-cc_order,x
- ldaa cc_cand_bonus
- staa cc_bonus-cc_order,x
- ldaa dcc_cost
- staa cc_costs-cc_order,x
+ ldaa cand_value
+ staa cc_value-cc_order,x
  ldaa cand_kv
  staa cc_kv-cc_order,x
 cand_next:
@@ -1509,9 +1458,8 @@ ib_rules:
 
  ; Original 14-tile counts. dcc_cost and wk_bonus (toitoi) were
  ; computed by candidate ranking; cc_sanshoku is the 13-tile sanshoku value.
- ; A = complete final-score adjustment, cached with the shortlisted kind.
- ; The dora lost (dcc_cost) and a yakuhai pair broken are taken from the
- ; acceptance in best_accept.
+ ; A = bonus of discarding wk_kind, keep_value (cand_kv) included; value_cost
+ ; takes the dora lost and a yakuhai pair broken from it.
 discard_bonus:
  ldaa #DB_BASE
  adda wk_bonus
@@ -1535,6 +1483,39 @@ discard_bonus:
  staa wk_bonus
 discard_bonus_01:
  ldaa wk_bonus
+ rts
+
+; A = discard_bonus of wk_kind. Returns A less VALUE_W for each dora lost
+; (dcc_cost) and each han of a yakuhai pair broken, 0 at least.
+value_cost:
+ ldab dcc_cost
+ psha
+ ldaa wk_kind
+ cmpa #K_HONOR
+ bcs value_cost_01
+ pshb
+ jsr kind_counts_x
+ pulb
+ ldaa 0,x
+ cmpa #2
+ bcs value_cost_01
+ ldaa wk_kind
+ jsr is_yakuhai
+ aba
+ tab
+value_cost_01:
+ pula
+ tstb
+ beq value_cost_03
+value_cost_02:
+ suba #VALUE_W
+ bcs value_cost_04
+ decb
+ bne value_cost_02
+value_cost_03:
+ rts
+value_cost_04:
+ clra
  rts
 
 ; Returns A = the pairs of kinds n, n+1 (n = 2 to 7) of one suit in counts
@@ -2718,17 +2699,15 @@ rel:	.ds	KN ; kinds that can lower the shanten (sum of nearby tiles)
 cc_insert_x:	.ds	2 ; cc_order slot to insert at
 ; cc_key is allocated in directpage.asm.
 cc_slot:	.ds	1 ; cc_order slot being scored
-; cc_order, cc_ranks, cc_bonus and cc_costs are read as offsets from a
+; cc_order, cc_ranks, cc_kv and cc_value are read as offsets from a
 ; cc_order entry (cc_ranks-cc_order,x and so on).
 cc_order:	.ds	CC_LIMIT ; candidate kinds ($FF = none)
 cc_ranks: .ds CC_LIMIT ; their ranks
-cc_bonus: .ds CC_LIMIT ; their discard_bonus values
-cc_costs: .ds CC_LIMIT ; their dora costs
-cc_kv: .ds CC_LIMIT ; their keep_value (part of cc_bonus)
+cc_kv: .ds CC_LIMIT ; their keep_value (part of cc_value)
+cc_value: .ds CC_LIMIT ; their cand_value
 cand_kv: .ds 1 ; keep_value of the candidate (discard_bonus)
-dora_unit: .ds 1 ; best_accept: acceptance taken for each dora lost
 cc_lower: .ds CC_LIMIT*5 ; ac_lower of each cc_order slot that best_accept evaluated
-cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
+cand_value: .ds 1 ; value of discarding the candidate being ranked (value_cost)
 ; set_intents clears intent_flags..intent_flags_end.
 intent_flags:
 iw_toi: .ds 1 ; toitoi intent
