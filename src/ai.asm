@@ -677,8 +677,23 @@ least_danger_01:
 ; Sets ad_pick to the candidate (choose_cands) that leaves the most tiles that
 ; lower the shanten number, and cc_lower to ac_lower of each candidate.
 best_accept:
-	jsr	flush_filter
- jsr toi_filter
+ jsr flush_base
+ jsr cand_build
+ ; Flush keeps the off-suit candidates; toitoi and chiitoi keep their pairs
+ ; and triplets: the single candidates. Each when there is one.
+ clr flush_only
+ tst iw_flush
+ beq best_accept_01
+ ldx #kind_off_suit
+ jsr cand_restrict
+ staa flush_only
+best_accept_01:
+ ldaa intents
+ bita #I_TOI+I_CHII
+ beq best_accept_02
+ ldx #kind_single
+ jsr cand_restrict
+best_accept_02:
 	jsr	choose_cands
  jsr ad_rel_build
 	ldaa	cc_order
@@ -825,21 +840,8 @@ cand_clear_order:
  bne cand_clear_order
  clr wk_kind
 cand_loop:
- jsr kind_counts_x
- ldaa sk-counts,x
- cmpa min_s
- beq cand_loop_00
- ; With ac_both, a discard that keeps the ordinary shape at ad_norm_min is
- ; a candidate too: four pairs do not decide for chiitoi.
- cmpa #$7F
- beq cand_next
- tst ac_both
- beq cand_next
- ldaa skn-counts,x
- cmpa ad_norm_min
- bne cand_next
-cand_loop_00:
- jsr ad_filter_cand
+ jsr kind_cand_x
+ tst 0,x
  beq cand_next
  jsr isolated_cand
  staa cc_isol_flag
@@ -1544,7 +1546,7 @@ discard_bonus:
  adda wk_bonus
  staa wk_bonus
  ; 2 for each two-sided shape left, without a toitoi or kokushi intent
- ; (chiitoi keeps its pairs by toi_filter instead).
+ ; (chiitoi keeps its pairs by cand_restrict in best_accept instead).
  ldaa intents
  bita #I_TOI+I_KOK
  bne discard_bonus_01
@@ -1654,105 +1656,132 @@ short_conn_01:
 short_conn_02:
  rts
 
-; Restrict equal-shanten attack candidates to off-suit discards when possible.
-; Defense and the minimum-shanten calculation are unchanged.
-flush_filter:
- clr flush_only
+; With flush intent, an open hand without an off-suit discard at min_s
+; discards an off-suit tile even at a higher shanten: min_s becomes the
+; lowest sk of the off-suit kinds.
+flush_base:
  tst iw_flush
- beq flush_filter_23
+ beq flush_base_09
+ jsr ai_open_furo
+ beq flush_base_09
  clr wk_kind
-flush_filter_21:
+flush_base_00:
  jsr kind_counts_x
  ldaa sk-counts,x
  cmpa min_s
- bne flush_filter_22
+ bne flush_base_01
  jsr kind_off_suit
- beq flush_filter_22
- inc flush_only
- rts
-flush_filter_22:
+ bne flush_base_09
+flush_base_01:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_END
- bne flush_filter_21
- ; An open hand discards an off-suit tile even at a higher shanten: min_s
- ; becomes the lowest sk of the off-suit kinds.
- jsr ai_open_furo
- beq flush_filter_23
+ bne flush_base_00
  ldaa #$7F
  staa wk_count
  clr wk_kind
-flush_filter_24:
+flush_base_02:
  jsr kind_off_suit
- beq flush_filter_25
+ beq flush_base_03
  jsr ad_allowed
- beq flush_filter_25
+ beq flush_base_03
  jsr sk_exact
  cmpa wk_count
- bcc flush_filter_25
+ bcc flush_base_03
  staa wk_count
-flush_filter_25:
+flush_base_03:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_HONOR
- bne flush_filter_24
+ bne flush_base_02
  ldaa wk_count
  cmpa #$7F
- beq flush_filter_23
+ beq flush_base_09
  staa min_s
- inc flush_only
-flush_filter_23:
- rts
-; X = &counts[wk_kind]. Returns A = 1 if kind wk_kind may be a candidate
-; under the flush and toitoi filters.
-; Returns with N and Z set from A.
-ad_filter_cand:
- tst flush_only
- beq ad_filter_cand_00
- jsr kind_off_suit
- beq ad_filter_cand_02
-ad_filter_cand_00:
- tst toi_only
- beq ad_filter_cand_01
- ; kind_off_suit keeps X.
- ldaa 0,x
- deca
- bne ad_filter_cand_02
-ad_filter_cand_01:
- ldaa #1
- rts
-ad_filter_cand_02:
- clra
+flush_base_09:
  rts
 
-; Toitoi and chiitoi keep their pairs and triplets: when a single kind (one
-; tile) that the flush filter allows has sk = min_s, only such kinds are
-; candidates.
-toi_filter:
- clr toi_only
- ldaa intents
- bita #I_TOI+I_CHII
- beq toi_filter_02
+; Marks the candidates of best_accept in cand: sk = min_s, and with ac_both
+; also skn = ad_norm_min (four pairs do not decide for chiitoi).
+cand_build:
  clr wk_kind
-toi_filter_00:
+cand_build_00:
+ jsr kind_cand_x
+ clr 0,x
  jsr kind_counts_x
- ldaa 0,x
- deca
- bne toi_filter_01
  ldaa sk-counts,x
  cmpa min_s
- bne toi_filter_01
- jsr ad_filter_cand
- beq toi_filter_01
- inc toi_only
- rts
-toi_filter_01:
+ beq cand_build_01
+ cmpa #$7F
+ beq cand_build_02
+ tst ac_both
+ beq cand_build_02
+ ldaa skn-counts,x
+ cmpa ad_norm_min
+ bne cand_build_02
+cand_build_01:
+ jsr kind_cand_x
+ inc 0,x
+cand_build_02:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_END
- bne toi_filter_00
-toi_filter_02:
+ bne cand_build_00
  rts
+
+; Returns X = &cand[wk_kind].
+kind_cand_x:
+ ldab wk_kind
+ ldx #cand
+ jmp addxb
+
+; X = routine that tests kind wk_kind (A = 1 if it has the property). If a
+; candidate has the property, removes the candidates without it and returns
+; A = 1; else returns A = 0 and keeps them.
+; Returns with N and Z set from A.
+cand_restrict:
+ stx cr_test
+ clr wk_count
+cand_restrict_00:
+ clr wk_kind
+cand_restrict_01:
+ jsr kind_cand_x
+ tst 0,x
+ beq cand_restrict_03
+ ldx cr_test
+ jsr 0,x
+ tst wk_count
+ bne cand_restrict_02
+ tsta
+ beq cand_restrict_03
+ inc wk_count
+ bra cand_restrict_00
+cand_restrict_02:
+ tsta
+ bne cand_restrict_03
+ jsr kind_cand_x
+ clr 0,x
+cand_restrict_03:
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_END
+ bne cand_restrict_01
+ ldaa wk_count
+ rts
+
+; Returns A = 1 if the hand has one tile of kind wk_kind.
+; Returns with N and Z set from A.
+kind_single:
+ jsr kind_counts_x
+ ldaa 0,x
+ cmpa #1
+ beq kind_single_00
+ clra
+ rts
+kind_single_00:
+ tsta
+ rts
+
 ; Returns A = 1 if the hand (counts) has a pair of an off-suit kind, or two
 ; off-suit tiles of one suit within 2 of each other.
 ; Returns with N and Z set from A.
@@ -2454,7 +2483,7 @@ ai_call_10:
  ldaa iw_flush
  staa call_flush
  ; A flush call needs the off-suit tiles to be isolated, or at most two
- ; of them; flush_filter discards them after the call.
+ ; of them; best_accept keeps them as the only candidates after the call.
  jsr off_suit_shape
  beq ai_call_20
  jsr off_suit_tiles
@@ -2795,11 +2824,11 @@ dg_sides:	.ds	1 ; suji sides that exist
 call_shanten_now:	.ds	1 ; shanten before the call
 ; call_kind is allocated in directpage.asm.
 call_flush: .ds 1 ; cached flush call eligibility before pattern trials
-flush_only:	.ds	1 ; output of flush_filter: 1 when only off-suit discards are candidates
+flush_only:	.ds	1 ; 1 when best_accept keeps only off-suit candidates
 rv_rule: .ds 2 ; rule_value: the rule being matched
 rv_intent: .ds 1 ; rule_value: I_* of intent_flags
 rv_fact: .ds 2 ; rule_value: F_* of wk_kind
-toi_only:	.ds	1 ; output of toi_filter: 1 when only single kinds are candidates
+cr_test: .ds 2 ; routine of cand_restrict
 	.code
 ; Returns A = the open furo of ai_player (chi, pon and open kan; an ankan
 ; leaves the hand closed). Returns with N and Z set from A.
@@ -3426,5 +3455,6 @@ tie_ukeire: .ds 1 ; output of tie_policy: 1 when equal scores compare acceptance
 
  .bss
 ac_ptr: .ds 2 ; &counts[draw]
+cand: .ds KN ; candidates of best_accept (cand_build, cand_restrict)
 ac_lower: .ds 5 ; output of acceptance: 1 bit for each kind that lowers the shanten
  .code
