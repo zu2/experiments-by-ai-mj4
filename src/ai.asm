@@ -2886,7 +2886,7 @@ fold_check_01:
  rts
 
 any_riichi:
- ldaa #5
+ ldaa #4
  bra any_riichi_03
 ; A threat is a riichi or furo_threat of at least 2, or 3 while 50 draws or
 ; more are left (two furo are seldom tenpai so early).
@@ -2902,12 +2902,9 @@ any_riichi_03:
 any_riichi_00:
 	cmpb	ai_player
 	beq	any_riichi_01
-	tba
-	jsr	player
-	tst	P_FLAG,x
-	bmi	any_riichi_02
+ tba
  pshb
- jsr furo_threat
+ jsr threat_weight
  pulb
  cmpa threat_furo
  bcc any_riichi_02
@@ -2919,6 +2916,25 @@ any_riichi_01:
 any_riichi_02:
 	ldaa	#1
 	rts
+
+; A = player. Returns A = his threat weight, which follows the tenpai rate
+; measured in CPU games: riichi 4; else furo_threat, 3 at most (0, 1, 2, 3:
+; 25%, 50%, 69% tenpai). X and B are scratch.
+; Returns with N and Z set from A.
+threat_weight:
+ jsr player
+ tst P_FLAG,x
+ bmi threat_weight_01
+ jsr furo_threat
+ cmpa #3
+ bls threat_weight_00
+ ldaa #3
+threat_weight_00:
+ tsta
+ rts
+threat_weight_01:
+ ldaa #4
+ rts
 
 ; X = player. Returns A = his furo, one more with a pon or an open kan of a
 ; dora. X and B are scratch.
@@ -2954,35 +2970,17 @@ furo_threat_02:
  rts
 
 ; Returns A = danger of discarding wk_kind: the sum over the other players
-; of weight * dg_val[danger_one], at most 126. The weight follows the
-; tenpai rate measured in CPU games: riichi 4; else by furo_threat 0, 1,
-; 2, 3 or more: 0, 1, 2, 3 (25%, 50%, 69% tenpai).
+; of threat_weight * dg_val[danger_one], at most 126.
 danger:
 	clr	danger_player
 	clr	danger_max
 danger_00:
-	ldaa	danger_player
-	cmpa	ai_player
-	beq	danger_01
-	ldaa	danger_player
-	jsr	player
- jsr furo_threat
- tab
-	ldaa	danger_player
-	jsr	player
- ; C = riichi: weight 3 + C.
- ldaa P_FLAG,x
- asla
- bcs danger_02
- tstb
+ ldaa danger_player
+ cmpa ai_player
  beq danger_01
- cmpb #3
- bls danger_03
-danger_02:
- ldab #3
- adcb #0
-danger_03:
- stab dg_weight
+ jsr threat_weight
+ beq danger_01
+ staa dg_weight
 	jsr	danger_one
  ; oc_mask: suits whose danger from this player is half. kind_suit gives 3
  ; for an honor, a bit that oc_mask never has.
