@@ -2288,8 +2288,6 @@ danger_one_06:
 	ldab	4,x
 	bne	danger_one_08
 danger_one_07:
-	cmpa	#3
-	bcs	danger_one_08
 	deca
 danger_one_08:
 	rts

@@ -174,9 +174,6 @@ search:
  beq search_01
  jsr se_counts_x
 search_00:
- ldaa se_kind
- cmpa #K_END
- beq search_01
  tst 0,x
  bne search_02
  inc se_kind
@@ -216,7 +213,6 @@ search_04:
 search_05:
  pula
  staa se_kind
- clra
 ; Returns X = &counts[se_kind].
 se_counts_x:
  ldab se_kind
@@ -277,9 +273,6 @@ acc_leaf:
  ldaa #4
  suba sets_n
  staa al_cap
- suba heads_n
- cmpa acc_goal
- bgt acc_leaf_04
  jsr leaf_parts
  ldab heads_n
  stab al_heads
@@ -394,8 +387,6 @@ al_seq:
  jsr al_seq_try
  bmi leaf_yes
 leaf_seq_mid:
- ldaa al_j
- beq leaf_head
  ldx al_x
  dex
  tst 0,x
@@ -404,15 +395,10 @@ leaf_seq_mid:
  bmi leaf_yes
  bra leaf_seq_low
 leaf_seq_down:
- ldaa al_j
- beq leaf_head
  dex
  tst 0,x
  beq leaf_head
 leaf_seq_low:
- ldaa al_j
- cmpa #2
- bcs leaf_head
  dex
  tst 0,x
  beq leaf_head

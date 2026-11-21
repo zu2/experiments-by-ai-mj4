@@ -280,12 +280,6 @@ ev1_discard_02:
  ldab cc_value-cc_order,x
  cmpb e1_value
  bcs ev1_discard_08
- staa wk_kind
- jsr kind_counts_x
- ldaa sk-counts,x
- cmpa #1
- bne ev1_discard_08
- ldaa wk_kind
 ev1_discard_05:
  staa e1_i
  ; best_accept kept ac_lower of each cc_order slot in cc_lower.

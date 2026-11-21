@@ -22,10 +22,7 @@ is_agari_01:
 	rts
 
 ; X = routine. Calls it once for every kind with two or more tiles in counts,
-; with two of them taken out and head_kind = that kind. Stops at the first
-; routine that returns A != 0. Returns A = that value (0 if none). counts is
-; restored.
-; Returns with N and Z set from A.
+; with two of them taken out and head_kind = that kind. counts is restored.
 each_head:
 	stx	eh_routine
 	ldaa	#K_FIRST
@@ -40,21 +37,15 @@ each_head_00:
 	staa	0,x
 	ldx	eh_routine
 	jsr	0,x
-	psha
 	ldab	head_kind
 	jsr	counts_x
 	inc	0,x
 	inc	0,x
-	pula
-	tsta
-	bne	each_head_02
 each_head_01:
 	inc	head_kind
 	ldaa	head_kind
 	cmpa	#K_END
 	bne	each_head_00
-	clra
-each_head_02:
 	rts
 
 ; Returns A = shanten number with one more furo; nfuro is restored.
