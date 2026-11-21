@@ -1155,6 +1155,7 @@ best_y:	.ds	16 ; yaku of the best result
 closed_flag:	.ds	1 ; 1 when the hand is closed
 nkan:	.ds	1 ; kans
 ; attr_and is allocated in directpage.asm.
+cur_y:	.ds	16 ; yaku numbers of the decomposition (cur_n)
 an_x:	.ds	2 ; work entry analyse checks
 fy_trip:	.ds	1 ; wind triplets
 fy_pair:	.ds	1 ; wind pairs
@@ -1164,7 +1165,6 @@ ym_extra:	.ds	1 ; extra yakuman han
 cur_n:	.ds	1 ; yaku of the decomposition
 cur_han:	.ds	1 ; its han
 ; cur_fu is allocated in directpage.asm.
-cur_y:	.ds	16 ; its yaku numbers
 ; head_kind is allocated in directpage.asm.
 btype:	.ds	4 ; block types
 bkind:	.ds	4 ; block kinds

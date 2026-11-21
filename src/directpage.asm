@@ -107,7 +107,7 @@ stick_x .equ $00E3 ; x of the riichi stick
 tb_n_live .equ $00E4 ; live pairs
 ura_n .equ $00E5 ; ura dora in the hand
 al_x .equ $00E6 ; &counts[draw]
-em_q .equ $00E8 ; destination of em_move, or B entry
+e1_dst .equ $00E8 ; ev1_discard: destination of the tenpai draws
 sm_src .equ $00EA ; image address
 wk_score .equ $00ED ; shared work: acceptance of the candidate (best_accept)
 cop_pat .equ $00EF ; chi pattern call_options checks

@@ -137,13 +137,7 @@ ev_prepare_00:
 ; counts is the 13-tile hand after discarding wk_kind. A dead wait is
 ; still a wait for permanent furiten.
 ev_acceptance:
- ldaa #$FF
- staa em_e+3
- staa em_e+6
  jsr find_waits
-; The same from waits. A wait whose points em_e holds is not scored again.
-ev_tally:
- clr em_wn
  clr wk_accept
  clr ev_yacc
  clr ev_furiten
@@ -155,7 +149,6 @@ ev_acceptance_00:
  stx ev_wait_ptr
  tst 0,x
  beq ev_acceptance_11
- jsr em_wait
  ldab wk_draw
  jsr unseen_x
  ldaa 0,x
@@ -177,16 +170,6 @@ evacc_is_furiten:
 evacc_live_wait:
  ldaa wk_unseen
  beq ev_acceptance_11
- ldx em_wx
- beq evacc_score
- ldaa 0,x
- bita #$40
- bne evacc_score
- inx
- ldab wk_unseen
- jsr ev_add_pts
- bra ev_acceptance_11
-evacc_score:
  ; The inputs of score_hand that change with the discard and the wait.
  ldab wk_draw
  jsr counts_x
@@ -202,16 +185,6 @@ evacc_score:
  adda 0,x
  staa dora_n
  jsr score_hand
- ldx em_wx
- beq evacc_no_slot
- ldaa best_pts
- staa 1,x
- ldaa best_pts+1
- staa 2,x
- ldaa 0,x
- anda #$3F
- staa 0,x
-evacc_no_slot:
  ; At most four additions; ev_add_pts saturates at $FFFF.
  ldx #best_pts
  ldab wk_unseen
@@ -277,7 +250,6 @@ ev1_discard:
  staa e1_kk1
  ldaa kk2
  staa e1_kk2
- jsr em_begin
  jsr ad_rel_build
  ldx #e1_rec
  stx e1_end
@@ -328,15 +300,24 @@ ev1_discard_05:
  ldx #cc_lower
  jsr addxb
 ev1_discard_06:
- stx em_ptr
+ stx e1_src
  ldx e1_end
  ldaa e1_i
  staa 0,x
  inx
- stx em_q
- ldx em_ptr
+ stx e1_dst
  ldab #5
- jsr em_move
+ev1_discard_07:
+ ldx e1_src
+ ldaa 0,x
+ inx
+ stx e1_src
+ ldx e1_dst
+ staa 0,x
+ inx
+ stx e1_dst
+ decb
+ bne ev1_discard_07
  ldx e1_end
  clr 6,x
  clr 7,x
@@ -452,7 +433,6 @@ ev1_discard_33:
  jsr addxb
  cpx e1_end
  bne ev1_discard_31
- jsr em_end
  ldaa e1_spec
  staa spec_off
  jmp discard_sk
@@ -589,7 +569,7 @@ ev1_draw_24:
  stx e1_other
  ldaa e1_d
  staa wk_kind
- jsr em_value
+ jsr ev_value
  ldx e1_j
  jsr ev1_best
  ldx e1_other
@@ -662,365 +642,6 @@ ev1_best_00:
 ev1_best_01:
  rts
 
-; Results of ev_acceptance kept from the last ev1_discard of each CPU player
-; (1-3). With H the hand and x0 = ad_pick when it began, B = H - x0 and a
-; record (r, e) is the hand T = B - r + e of discards i, d with x0 one of
-; them and r the other. Now with H' = B + y, the hand of i', d', e' is that T
-; when y is i' and r is d', or y is d' and r is i', and e is e'.
-; A table: em_fsig, dora_cnt, sflags, kyotaku, B (kinds, then $FF; 14 bytes), then
-; EM_N records of r, e, ev_hand_aka and two (wait, points); wait bit 7 =
-; none, bit 6 = points not made.
-EM_N .equ 8
-EM_SIZE .equ 9
-EM_HEAD .equ 18
-EM_STRIDE .equ EM_HEAD+EM_N*EM_SIZE
-
-; Sets em_x0, and em_use = 1 with em_y and em_n when the table of ai_player
-; is of this hand.
-em_begin:
- clr em_use
- clr em_new_n
- ldaa ad_pick
- staa em_x0
- ldab ai_player
- beq em_begin_09
- ldx #em_count
- jsr addxb
- ldaa 0,x
- beq em_begin_09
- staa em_n
- jsr em_fsig
- psha
- jsr em_table_x
- pula
- cmpa 0,x
- bne em_begin_09
- ldaa dora_cnt
- cmpa 1,x
- bne em_begin_09
- ldaa kyotaku
- cmpa 3,x
- bne em_begin_09
- ; y = H' - B: B and the kinds of counts in order agree but for one tile.
- inx
- inx
- inx
- inx
- stx em_q
- clr em_t
- clr em_k
-em_begin_00:
- ldab em_k
- jsr counts_x
- ldaa 0,x
- beq em_begin_03
-em_begin_01:
- ldx em_q
- ldab 0,x
- cmpb em_k
- bne em_begin_02
- inx
- stx em_q
- bra em_begin_04
-em_begin_02:
- bcs em_begin_09
- ldab em_k
- stab em_y
- inc em_t
-em_begin_04:
- deca
- bne em_begin_01
-em_begin_03:
- inc em_k
- ldab em_k
- cmpb #K_END
- bne em_begin_00
- ldx em_q
- ldaa 0,x
- inca
- bne em_begin_09
- ldaa em_t
- cmpa #1
- bne em_begin_09
- staa em_use
-em_begin_09:
- rts
-
-; X = the table of ai_player (1-3).
-em_table_x:
- ldx #em_table
- ldaa ai_player
-em_table_x_00:
- deca
- beq em_table_x_01
- ldab #EM_STRIDE
- jsr addxb
- bra em_table_x_00
-em_table_x_01:
- rts
-
-; A = furo + kans of ai_player: in a hand, every call and kan makes it larger.
-em_fsig:
- jsr ai_furo_x
- ldaa minkan_n-minshun_n,x
- adda ankan_n-minshun_n,x
- adda nfuro
- rts
-
-; Like ev_value for ev1_draw (wk_kind = d, e1_i = i, e1_e = e): ev_sum.
-em_value:
- jsr ev_hand_prep
- jsr em_lookup
- beq em_value_01
- ; waits = the waits of the record.
- ldx #waits
- ldab #KN
-em_value_00:
- clr 0,x
- inx
- decb
- bne em_value_00
- ldaa em_e+3
- jsr em_set_wait
- ldaa em_e+6
- jsr em_set_wait
- jsr ev_tally
- bra em_value_02
-em_value_01:
- jsr ev_acceptance
-em_value_02:
- jsr em_keep
- jmp ev_value_restore
-; A = wait byte of em_e: sets waits of its kind.
-em_set_wait:
- tsta
- bmi em_set_wait_00
- anda #$3F
- tab
- ldx #waits
- jsr addxb
- inc 0,x
-em_set_wait_00:
- rts
-; A = y or x0. When it is e1_i or wk_kind: B = the other and A = 1, else A = 0.
-; Returns with N and Z set from A.
-em_other:
- ldab wk_kind
- cmpa e1_i
- beq em_other_00
- ldab e1_i
- cmpa wk_kind
- beq em_other_00
- clra
- rts
-em_other_00:
- ldaa #1
- rts
-
-; Returns A = 1 with em_e+3 to em_e+8 copied from a record of the hand, 0 if
-; none.
-; Returns with N and Z set from A.
-em_lookup:
- tst em_use
- beq em_lookup_09
- ldaa em_y
- jsr em_other
- beq em_lookup_09
- stab em_r
- jsr em_table_x
- ldaa sflags
- cmpa 2,x
- bne em_lookup_09
- ldab #EM_HEAD
- jsr addxb
- ldaa em_n
- staa em_k
-em_lookup_01:
- ldaa 0,x
- cmpa em_r
- bne em_lookup_02
- ldaa 1,x
- cmpa e1_e
- bne em_lookup_02
- ldaa 2,x
- cmpa ev_hand_aka
- bne em_lookup_02
- inx
- inx
- inx
- ldab #6
- jsr em_move_e3
- ldaa #1
- rts
-em_lookup_02:
- ldab #EM_SIZE
- jsr addxb
- dec em_k
- bne em_lookup_01
-em_lookup_09:
- clra
- rts
-
-; In ev_tally, at the wait wk_draw: em_wx = its place in em_e if it is one of
-; the first two, else 0; the place keeps its points if it is of wk_draw, else
-; it becomes wk_draw without points. em_wn counts the waits.
-em_wait:
- ldx #0
- stx em_wx
- ldab em_wn
- inc em_wn
- cmpb #2
- bcc em_wait_09
- ldx #em_e+3
- tstb
- beq em_wait_00
- inx
- inx
- inx
-em_wait_00:
- stx em_wx
- ldaa 0,x
- eora wk_draw
- anda #$BF
- beq em_wait_09
- ldaa wk_draw
- oraa #$40
- staa 0,x
-em_wait_09:
- rts
-
-; After em_lookup or ev_acceptance: em_e becomes a record of em_new when x0
-; is i or d, em_new has room and there are at most two waits.
-em_keep:
- tst ai_player
- beq em_keep_09
- ldaa em_wn
- cmpa #3
- bcc em_keep_09
- ldaa em_new_n
- cmpa #EM_N
- bcc em_keep_09
- ldaa em_x0
- jsr em_other
- beq em_keep_09
- stab em_e
- ldaa e1_e
- staa em_e+1
- ldaa ev_hand_aka
- staa em_e+2
- ldx #em_new
- ldaa em_new_n
- inc em_new_n
-em_keep_01:
- tsta
- beq em_keep_02
- ldab #EM_SIZE
- jsr addxb
- deca
- bra em_keep_01
-em_keep_02:
- stx em_q
- ldx #em_e
- ldab #EM_SIZE
- jmp em_move
-em_keep_09:
- rts
-
-; Copies B bytes from X to em_q (em_move_e3: to em_e+3).
-em_move_e3:
- stx em_ptr
- ldx #em_e+3
- stx em_q
- ldx em_ptr
-em_move:
- ldaa 0,x
- inx
- stx em_ptr
- ldx em_q
- staa 0,x
- inx
- stx em_q
- ldx em_ptr
- decb
- bne em_move
- rts
-
-; End of ev1_discard: keeps em_new for the next call when ad_pick is x0.
-em_end:
- ldab ai_player
- beq em_end_09
- ldx #em_count
- jsr addxb
- ldaa ad_pick
- cmpa em_x0
- beq em_end_00
- clr 0,x
- rts
-em_end_00:
- ldaa em_new_n
- staa 0,x
- beq em_end_09
- jsr em_fsig
- psha
- jsr em_table_x
- pula
- staa 0,x
- ldaa dora_cnt
- staa 1,x
- ldaa sflags
- staa 2,x
- ldaa kyotaku
- staa 3,x
- ; B: the kinds of counts without one x0, then $FF.
- inx
- inx
- inx
- inx
- stx em_q
- clr em_k
-em_end_01:
- ldab em_k
- jsr counts_x
- ldaa 0,x
- ldab em_k
- cmpb em_x0
- bne em_end_02
- deca
-em_end_02:
- tsta
- beq em_end_04
- ldx em_q
-em_end_03:
- stab 0,x
- inx
- deca
- bne em_end_03
- stx em_q
-em_end_04:
- inc em_k
- ldaa em_k
- cmpa #K_END
- bne em_end_01
- ldx em_q
- ldaa #$FF
- staa 0,x
- ; The records.
- jsr em_table_x
- ldab #EM_HEAD
- jsr addxb
- stx em_q
- clra
- ldab em_new_n
-em_end_05:
- adda #EM_SIZE
- decb
- bne em_end_05
- tab
- ldx #em_new
- jmp em_move
-em_end_09:
- rts
-
  .bss
 e1_spec: .ds 1 ; spec_off before ev1_discard
 e1_dora: .ds 1 ; ev_base_dora of the hand (14 tiles)
@@ -1057,18 +678,5 @@ e1_kk1: .ds 1 ; kk1 of the caller
 e1_kk2: .ds 1 ; kk2 of the caller
 e1_sec: .ds 1 ; $0B when ai_discard began
 e1_frame: .ds 1 ; $0C when ai_discard began
-em_table: .ds 3*EM_STRIDE ; tables of players 1-3
-em_new: .ds EM_N*EM_SIZE ; records of this ev1_discard
-em_new_n: .ds 1 ; records in em_new
-em_e: .ds EM_SIZE ; record being made (ev_acceptance writes the waits)
-em_wn: .ds 1 ; waits ev_acceptance found
-em_wx: .ds 2 ; place of the current wait in em_e, 0 if none
-em_use: .ds 1 ; 1 when the table of ai_player is of this hand
-em_n: .ds 1 ; records in that table
-em_x0: .ds 1 ; ad_pick when ev1_discard began
-em_y: .ds 1 ; H' - B
-em_r: .ds 1 ; r em_lookup looks for
-em_t: .ds 1 ; tiles of H' not in B
-em_k: .ds 1 ; kind or record count
-em_ptr: .ds 2 ; source of em_move
-; em_q is allocated in directpage.asm.
+e1_src: .ds 2 ; ev1_discard: source of the tenpai draws
+; e1_dst is allocated in directpage.asm.
