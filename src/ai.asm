@@ -349,6 +349,7 @@ ai_discard:
 	ldaa	ai_player
 	jsr	eval_load
  jsr ai_unseen
+ jsr chii_check
  ; The start time for ev1_discard: $0B seconds, $0C frames (0..59), kept by the IRQ.
 ai_discard_00:
  ldab $0C
@@ -472,10 +473,50 @@ ai_discard_11:
 	bne	ai_discard_07
 	jsr	ev1_discard
 ai_discard_07:
+ clr chii_off
 	ldaa	ai_player
 	ldab	ad_pick
 	jmp	hand_pick
 
+
+; counts = 14 tiles. Sets chii_off for four pairs with a
+; set (a triplet or three kinds in a row) or three two-sided shapes: people
+; play such a hand for sets, not for chiitoi. With a furo no special shape
+; is counted, so chii_off changes nothing there.
+chii_check:
+ clr chii_off
+ jsr spec_count
+ ldaa SP_PAIRS,x
+ cmpa #4
+ bne chii_check_09
+ ldx #counts+K_FIRST
+ ldab #K_FIRST
+chii_check_00:
+ ldaa 0,x
+ cmpa #3
+ bcc chii_check_08
+ cmpb #K_HONOR
+ bcc chii_check_01
+ tsta
+ beq chii_check_01
+ tst 1,x
+ beq chii_check_01
+ tst 2,x
+ bne chii_check_08
+chii_check_01:
+ inx
+ incb
+ cmpb #K_END
+ bne chii_check_00
+ ; Kind 0 is no tile: ryan_pairs takes nothing out of the hand.
+ clr wk_kind
+ jsr ryan_pairs
+ cmpa #3
+ bcs chii_check_09
+chii_check_08:
+ inc chii_off
+chii_check_09:
+ rts
 
 ; counts = 14 tiles. Sets sk of every kind (shanten after discarding it, $7F if
 ; not allowed by kk1/kk2), min_s (lowest of them) and ad_forbidden_s.
@@ -3249,11 +3290,14 @@ spec_before:
  ldx spec_x
 spec_before_00:
  rts
-; X = a set. Returns A = the lower of the chiitoi and kokushi shanten. Keeps X.
+; X = a set. Returns A = the lower of the chiitoi and kokushi shanten (only
+; kokushi with chii_off). Keeps X.
 spec_shanten:
  ldaa SP_YAO,x
  ldab SP_YPAIRS,x
  jsr kok_sh
+ tst chii_off
+ bne spec_shanten_00
  psha
  ldaa SP_PAIRS,x
  ldab SP_KINDS,x
@@ -3320,6 +3364,7 @@ spec14: .ds 4 ; special-shape values of the 14 tiles (SP_*)
 spec13: .ds 4 ; ... after the discard of wk_kind
 spec_drawn: .ds 4 ; ... after one more draw
 ad_norm_min: .ds 1 ; lowest ordinary-shape shanten of discard_sk
+chii_off: .ds 1 ; 1 while ai_discard does not count chiitoi (chii_check)
 ac_both: .ds 1 ; 1 while acceptance also counts the ordinary shape one shanten behind
 spec_low: .ds 1 ; special-shape shanten of spec14: no discard goes below it
 spec_save: .ds 2 ; the set of spec_step
