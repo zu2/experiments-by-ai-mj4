@@ -77,16 +77,14 @@ shanten_11:
 
  ; ai_discard-only entry: counts stays at fourteen tiles; X points at wk_kind.
 shanten_lim:
- ; A discard does not lower a special shape: spec_low is a lower bound.
+ ; A discard does not lower a special shape: spec_low is a lower bound. It
+ ; raises it by one at most, so spec_before is then sk or below.
  ldaa spec_low
  cmpa sk-counts,x
  bge shanten_lim_01
- jsr spec_before
- cmpa sk-counts,x
- ble shanten_lim_00
+ jmp spec_before
 shanten_lim_01:
  ldaa sk-counts,x
-shanten_lim_00:
  rts
 
 ; X = counts of one suit. Returns A = taatsu; X unchanged.

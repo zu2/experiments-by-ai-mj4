@@ -881,10 +881,8 @@ scan_pai_00:
  beq pai_edge
  cmpa #7
  bne scan_pai_10
+ ; kind_number gives 11 to 17 for an honor: only number tiles come here.
 pai_edge:
- ldaa pai_kind
- cmpa #K_HONOR
- bcc scan_pai_10
  ; Disjoint complete 123/789 sequences; the terminal is counted below.
  ldaa 0,x
  cmpa 1,x
