@@ -69,6 +69,13 @@ ev_lk_x:
  ldx #ev_lk
  jmp addxb
 
+; Like ev_value with the waits of fw_bits (discard_sk_waits) in place of
+; find_waits: for a hand with no chiitoi or kokushi.
+ev_value_waits:
+ jsr ev_hand_prep
+ jsr fw_expand
+ jsr ev_tally
+ bra ev_value_restore
 ev_value:
  jsr ev_hand_prep
  jsr ev_acceptance
@@ -94,6 +101,49 @@ ev_hand_prep:
  dec ev_hand_aka
 ev_value_00:
  rts
+
+; waits from fw_bits of wk_kind, without a kind of which 4 tiles are held
+; (counts is the 13 tiles), as find_waits makes them.
+fw_expand:
+ ldab wk_kind
+ tba
+ asla
+ asla
+ aba
+ tab
+ ldx #fw_bits
+ jsr addxb
+ stx fw_src
+ ldx #counts
+fw_expand_00:
+ stx fw_cx
+ ldx fw_src
+ ldaa 0,x
+ inx
+ stx fw_src
+ staa fw_cur
+ ldaa #8
+ staa fw_left
+ ldx fw_cx
+fw_expand_01:
+ clrb
+ lsr fw_cur
+ bcc fw_expand_02
+ ldaa 0,x
+ adda furo_tiles-counts,x
+ cmpa #4
+ bcc fw_expand_02
+ ldab #2
+fw_expand_02:
+ stab ac_yes-counts,x
+ inx
+ cpx #counts+KN
+ beq fw_expand_03
+ dec fw_left
+ bne fw_expand_01
+ bra fw_expand_00
+fw_expand_03:
+ jmp fw_result
 
 ; The full setup is performed once on the original 14-tile hand. Per-discard
 ; dora and red counts are obtained by subtracting the actual physical discard.
@@ -138,6 +188,7 @@ ev_prepare_00:
 ; still a wait for permanent furiten.
 ev_acceptance:
  jsr find_waits
+ev_tally:
  clr wk_accept
  clr ev_yacc
  clr ev_furiten
@@ -333,6 +384,7 @@ ev1_discard_10:
  ; pairs) or kokushi (13 kinds) can win or be tenpai.
  ldaa spec_off
  staa e1_spec
+ clr e1_reg
  ldaa nfuro
  bne ev1_discard_15
  jsr spec_prep14
@@ -345,6 +397,7 @@ ev1_discard_10:
 ev1_discard_15:
  ldaa #SPEC_NONE
  staa spec_off
+ inc e1_reg
 ev1_discard_16:
  ; ev_prepare depends on the hand only by ev_base_dora: ev1_draw makes it
  ; for each hand - i + e from the value of the hand.
@@ -464,20 +517,8 @@ ev1_fits_01:
 ev1_draw:
  jsr demo_poll
  ldaa e1_e
- tab
- lsrb
- lsrb
- lsrb
+ jsr kind_bit
  stab e1_ebyte
- anda #7
- tab
- ldaa #1
-ev1_draw_00:
- decb
- bmi ev1_draw_01
- asla
- bra ev1_draw_00
-ev1_draw_01:
  staa e1_ebit
  ldx #e1_rec
 ev1_draw_02:
@@ -509,7 +550,13 @@ ev1_draw_10:
  jsr unseen_x
  dec 0,x
  clr wk_limit
+ tst e1_reg
+ beq ev1_draw_03
+ jsr discard_sk_waits
+ bra ev1_draw_04
+ev1_draw_03:
  jsr discard_sk_lim
+ev1_draw_04:
  ldab min_s
  bne ev1_draw_30
  ldx #dora_of_kind
@@ -571,7 +618,13 @@ ev1_draw_24:
  stx e1_other
  ldaa e1_d
  staa wk_kind
+ tst e1_reg
+ beq ev1_draw_25
+ jsr ev_value_waits
+ bra ev1_draw_26
+ev1_draw_25:
  jsr ev_value
+ev1_draw_26:
  ldx e1_j
  jsr ev1_best
  ldx e1_other
@@ -646,6 +699,11 @@ ev1_best_01:
 
  .bss
 e1_spec: .ds 1 ; spec_off before ev1_discard
+e1_reg: .ds 1 ; 1 when ev1_discard set SPEC_NONE: ev1_draw takes waits from batch_leaf
+fw_src: .ds 2 ; fw_expand: next byte of fw_bits
+fw_cx: .ds 2 ; fw_expand: &counts[kind]
+fw_cur: .ds 1 ; fw_expand: bits left of the byte
+fw_left: .ds 1 ; fw_expand: bits left in fw_cur
 e1_dora: .ds 1 ; ev_base_dora of the hand (14 tiles)
 e1_aka: .ds 1 ; ev_base_aka of the hand
 ev_own_bit: .ds 1 ; ev_prepare: bit of the computer's own discards in river_bits

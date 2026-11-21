@@ -1153,9 +1153,6 @@ best_y:	.ds	16 ; yaku of the best result
 closed_flag:	.ds	1 ; 1 when the hand is closed
 nkan:	.ds	1 ; kans
 ; attr_and is allocated in directpage.asm.
-ym_n:	.ds	1 ; yakuman found
-ym_y:	.ds	12 ; their numbers
-cur_y:	.ds	16 ; yaku numbers of the decomposition (cur_n)
 an_x:	.ds	2 ; work entry analyse checks
 fy_trip:	.ds	1 ; wind triplets
 fy_pair:	.ds	1 ; wind pairs

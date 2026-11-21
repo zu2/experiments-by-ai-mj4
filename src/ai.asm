@@ -499,6 +499,12 @@ chii_check_08:
 chii_check_09:
  rts
 
+; Like discard_sk_lim with wk_limit 0, and fw_bits gets the regular-shape
+; waits after each discard (batch_prepare_waits).
+discard_sk_waits:
+ jsr spec_prep14
+ jsr batch_prepare_waits
+ bra discard_sk_01
 ; counts = 14 tiles. Sets sk of every kind (shanten after discarding it, $7F if
 ; not allowed by kk1/kk2), min_s (lowest of them) and ad_forbidden_s.
 discard_sk:
@@ -507,6 +513,7 @@ discard_sk:
 discard_sk_lim:
  jsr spec_prep14
  jsr batch_prepare_lim
+discard_sk_01:
 	ldaa	#$7F
 	staa	min_s
  staa ad_forbidden_s
@@ -1834,21 +1841,9 @@ acceptance_03:
  adda wk_unseen
  staa wk_accept
  ldaa wk_draw
- tab
- lsrb
- lsrb
- lsrb
+ jsr kind_bit
  ldx #ac_lower
  jsr addxb
- anda #7
- tab
- ldaa #1
-acceptance_11:
- decb
- bmi acceptance_12
- asla
- bra acceptance_11
-acceptance_12:
  oraa 0,x
  staa 0,x
 acceptance_04:

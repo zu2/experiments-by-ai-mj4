@@ -40,6 +40,25 @@ counts_x:
 counts_x_ldx:
  ldx #counts
  rts
+; A = kind. Returns A = its bit (1 << kind % 8) and B = kind / 8: its place
+; in a set of kinds of 5 bytes (ac_lower, fw_bits, ev1_discard records).
+kind_bit:
+ tab
+ lsrb
+ lsrb
+ lsrb
+ anda #7
+ pshb
+ tab
+ ldaa #1
+kind_bit_00:
+ decb
+ bmi kind_bit_01
+ asla
+ bra kind_bit_00
+kind_bit_01:
+ pulb
+ rts
 ; X = X + B
 addxb:
 	stx	addxb_tmp

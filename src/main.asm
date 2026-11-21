@@ -2107,6 +2107,11 @@ shuffle_00:
 	.bss
 bss_start:
 ; seed is allocated in directpage.asm.
+; The first bss of all, from $2F00: fi_copy reads these two lists within one
+; page (build.py checks it).
+ym_y:	.ds	12 ; yakuman numbers found (ym_n, score.asm)
+cur_y:	.ds	16 ; yaku numbers of the decomposition (cur_n, score.asm)
+ym_n:	.ds	1 ; yakuman found
 rnd_t0:	.ds	1 ; rand scratch
 rnd_t1:	.ds	1 ; rand scratch
 ; posx is allocated in directpage.asm.

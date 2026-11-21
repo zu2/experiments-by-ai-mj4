@@ -43,7 +43,7 @@ sg_entry_x:
 sg_four:
  ldaa sg_batch
  cmpa #3
- beq sg_leaf_call
+ bcc sg_leaf_call
  tst heads_n
  bne sg_leaf_call
  ldx #counts
@@ -532,6 +532,10 @@ batch_prepare:
  ldaa #$7F
  staa wk_limit
 batch_prepare_lim:
+ ldaa #3
+; A = sg_batch: 3, or 4 to collect the waits too (batch_prepare_waits).
+batch_prepare_mode:
+ psha
  ldaa wk_limit
  inca
  jsr sg_lmax_set
@@ -543,8 +547,21 @@ batch_prepare_00:
  cpx #counts+KN
  bne batch_prepare_00
  ldx #batch_leaf
- ldaa #3
+ pula
  jmp sg_start
+; Like batch_prepare_lim with wk_limit 0, and fw_bits of each kind d gets the
+; regular-shape waits of counts - d: the leaves of value 0 have 4 sets and 1
+; tile (tanki), or 3 sets, a head and a taatsu. Every such leaf is visited.
+batch_prepare_waits:
+ ldx #fw_bits
+batch_prepare_01:
+ clr 0,x
+ inx
+ cpx #fw_bits+KN*5
+ bne batch_prepare_01
+ clr wk_limit
+ ldaa #4
+ bra batch_prepare_mode
 batch_leaf:
  ldaa #4
  suba sets_n
@@ -562,7 +579,13 @@ batch_leaf_00:
  beq batch_leaf_12
  ldaa ba_bound
  cmpa sk-counts,x
- bge batch_leaf_12
+ blt batch_leaf_01
+ bgt batch_leaf_12
+ ; An equal value is only needed for its waits.
+ ldab sg_batch
+ cmpb #4
+ bne batch_leaf_12
+batch_leaf_01:
  dec 0,x
  ldaa ba_k
  cmpa #10
@@ -604,6 +627,15 @@ batch_leaf_10:
  suba heads_n
  sba
  ldx ba_ptr
+ tsta
+ bne batch_leaf_02
+ ldab sg_batch
+ cmpb #4
+ bne batch_leaf_02
+ jsr bw_collect
+ clra
+ ldx ba_ptr
+batch_leaf_02:
  cmpa sk-counts,x
  bge batch_leaf_11
  staa sk-counts,x
@@ -641,7 +673,76 @@ sg_lmax_set_00:
  aba
  staa sg_lmax
  rts
+; counts (without ba_k) is the 1 or 2 tiles left at a leaf of value 0. Sets
+; in fw_bits of ba_k the waits: a single tile or a pair waits on itself, two
+; neighbours on both outer kinds of their suit, two with a gap on the middle.
+bw_collect:
+ ldaa ba_k
+ tab
+ asla
+ asla
+ aba
+ staa bw_off
+ clrb
+ ldx #counts
+bw_collect_00:
+ tst 0,x
+ bne bw_collect_01
+ inx
+ incb
+ bra bw_collect_00
+bw_collect_01:
+ stab bw_a
+ ldaa 0,x
+ cmpa #2
+ bcc bw_collect_09
+bw_collect_02:
+ inx
+ incb
+ cmpb #K_END
+ beq bw_collect_09
+ tst 0,x
+ beq bw_collect_02
+ subb bw_a
+ ldaa bw_a
+ cmpb #1
+ beq bw_collect_03
+ inca
+ bra bw_set
+bw_collect_03:
+ ; Neighbours: below a and above a + 1, where still in the suit.
+ jsr kind_number
+ cmpa #1
+ beq bw_collect_04
+ ldaa bw_a
+ deca
+ bsr bw_set
+bw_collect_04:
+ ldaa bw_a
+ inca
+ jsr kind_number
+ cmpa #9
+ beq bw_collect_05
+ ldaa bw_a
+ adda #2
+ bra bw_set
+bw_collect_05:
+ rts
+bw_collect_09:
+ ldaa bw_a
+; A = kind: sets its bit in fw_bits of ba_k.
+bw_set:
+ jsr kind_bit
+ addb bw_off
+ ldx #fw_bits
+ jsr addxb
+ oraa 0,x
+ staa 0,x
+ rts
  .bss
+bw_a: .ds 1 ; first kind left at the leaf (bw_collect)
+bw_off: .ds 1 ; ba_k * 5: the waits of ba_k in fw_bits
+fw_bits: .ds KN*5 ; regular-shape waits of counts - d for each d (batch_prepare_waits)
 ba_cap: .ds 1 ; taatsu cap (4 - sets_n)
 ba_bound: .ds 1 ; lowest value a discard can reach
 ba_k: .ds 1 ; kind tried
