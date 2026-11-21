@@ -250,53 +250,49 @@ ev1_discard:
  staa e1_kk1
  ldaa kk2
  staa e1_kk2
- jsr ad_rel_build
  ldx #e1_rec
  stx e1_end
- ; ad_pick first, then the other 1-shanten discards in kind order.
- ldaa #$FF
- staa e1_k
- ldaa ad_pick
- bra ev1_discard_02
+ ; Pass 2 records ad_pick; pass 1 the other candidates of cc_order that keep
+ ; 1-shanten and lose no more value (cc_value: dora and yakuhai) than ad_pick.
+ ldaa #2
+ staa e1_pass
+ev1_discard_00:
+ clr e1_k
 ev1_discard_01:
- inc e1_k
- ldaa e1_k
- cmpa #K_END
- beq ev1_discard_10
+ ldab e1_k
+ ldx #cc_order
+ jsr addxb
+ ldaa 0,x
+ cmpa #$FF
+ beq ev1_discard_09
+ ldab cc_value-cc_order,x
  cmpa ad_pick
- beq ev1_discard_01
+ bne ev1_discard_02
+ stab e1_value
+ ldab e1_pass
+ cmpb #2
+ beq ev1_discard_05
+ bra ev1_discard_08
+ev1_discard_02:
+ ldab e1_pass
+ cmpb #2
+ beq ev1_discard_08
+ ldab cc_value-cc_order,x
+ cmpb e1_value
+ bcs ev1_discard_08
  staa wk_kind
  jsr kind_counts_x
  ldaa sk-counts,x
  cmpa #1
- bne ev1_discard_01
- ldaa e1_k
-ev1_discard_02:
- staa e1_i
- staa wk_kind
- ; best_accept, just before, kept ac_lower of the kinds in cc_order.
- ldx #cc_order
- clrb
-ev1_discard_03:
- ldaa 0,x
- cmpa e1_i
- beq ev1_discard_05
- cmpa #$FF
- beq ev1_discard_04
- inx
- incb
- cmpb #CC_LIMIT
- bne ev1_discard_03
-ev1_discard_04:
- jsr candidate_acceptance
- ldx #ac_lower
- bra ev1_discard_06
+ bne ev1_discard_08
+ ldaa wk_kind
 ev1_discard_05:
- tba
- asla
- asla
- aba
- tab
+ staa e1_i
+ ; best_accept kept ac_lower of each cc_order slot in cc_lower.
+ ldab e1_k
+ aslb
+ aslb
+ addb e1_k
  ldx #cc_lower
  jsr addxb
 ev1_discard_06:
@@ -324,7 +320,19 @@ ev1_discard_07:
  ldab #E1_SIZE
  jsr addxb
  stx e1_end
- bra ev1_discard_01
+ev1_discard_08:
+ inc e1_k
+ ldaa e1_k
+ cmpa #CC_LIMIT
+ bne ev1_discard_01
+ev1_discard_09:
+ dec e1_pass
+ bne ev1_discard_00
+ ; With ad_pick alone there is nothing to compare.
+ ldx e1_end
+ cpx #e1_rec+E1_SIZE
+ bne ev1_discard_10
+ rts
 ev1_discard_10:
  ; A hand - i + e - d + w has at most one more pair and one more yaochu kind
  ; than the hand: with 4 pairs and 10 yaochu kinds at most, no chiitoi (7
@@ -665,7 +673,7 @@ e1_end: .ds 2 ; end of the records
 e1_j: .ds 2 ; record of the discard i being tried
 e1_other: .ds 2 ; record of the discard d, 0 if d has none
 e1_tot: .ds 2 ; largest total so far
-e1_k: .ds 1 ; kind ev1_discard checks for a record
+e1_k: .ds 1 ; cc_order slot ev1_discard checks for a record
 ; e1_i is allocated in directpage.asm.
 e1_d: .ds 1 ; tenpai discard d
 e1_e: .ds 1 ; draw e
@@ -678,5 +686,6 @@ e1_kk1: .ds 1 ; kk1 of the caller
 e1_kk2: .ds 1 ; kk2 of the caller
 e1_sec: .ds 1 ; $0B when ai_discard began
 e1_frame: .ds 1 ; $0C when ai_discard began
+e1_value: .ds 1 ; cc_value of ad_pick
 e1_src: .ds 2 ; ev1_discard: source of the tenpai draws
 ; e1_dst is allocated in directpage.asm.
