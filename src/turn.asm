@@ -2012,7 +2012,7 @@ minkou_n:	.ds	4 ; minkou (pon)
 minkan_n:	.ds	4 ; minkan (open kan, added kan included)
 ankan_n:	.ds	4 ; ankan (closed kan)
 furo_attr:	.ds	4 ; FURO_NO_CHANTA, FURO_NO_TANYAO
-intent_lock:	.ds	4 ; set_intents: bit 7 flush (bits 0-1 its suit), bit 6 toitoi
+intent_lock:	.ds	4 ; set_intents: bit 6 toitoi
 em_count:	.ds	4 ; records in em_table of each player (ev.asm)
 fold_bits:	.ds	1 ; bit of each player whose last ai_discard folded (ai.asm)
 furo_facts_end:

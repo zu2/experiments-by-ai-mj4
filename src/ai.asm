@@ -1243,45 +1243,74 @@ intent_toi_off:
  anda #$BF
 intent_toi_store:
  staa intent_lock-minshun_n,x
- ; Flush stays locked with its suit until an off-suit set blocks it.
- ldaa intent_lock-minshun_n,x
- bpl intent_fl_new
- anda #3
- staa pai_max_suit
- inc iw_flush
- jsr iw_off_suit_furo
- bne intent_fl_clear
- bra intent_fl_lock
-intent_fl_new:
+ ; Flush: only when the off-suit tiles do not help: the hand without them
+ ; has the same shanten number (sh_general) as the whole hand. A pair of an
+ ; honor with no unseen copy counts there as a single tile, since it makes
+ ; no set. Before two shanten the hand waits: off-suit isolated tiles go
+ ; first anyway.
  ldaa pai_flush_score
  adda pai_honor_pts
-	 cmpa #8
+ cmpa #8
  bcs set_intents_80
  inc iw_flush
-intent_fl_check:
  jsr iw_off_suit_furo
  bne intent_fl_clear
- ; Physical off-suit count; no shanten or taatsu search.
- ldaa pai_suit0
- adda pai_suit1
- adda pai_suit2
- suba pai_max
- cmpa #5
+ jsr sh_general
+ staa wk_left
+ cmpa #3
  bcc intent_fl_clear
-intent_fl_lock:
- jsr ai_furo_x
- ldaa intent_lock-minshun_n,x
- anda #$40
- oraa #$80
- oraa pai_max_suit
- bra intent_fl_store
+ ldab #K_END-1
+intent_fl_save:
+ pshb
+ jsr counts_x
+ pulb
+ tba
+ jsr off_suit
+ bne intent_fl_save_00
+ cmpb #K_HONOR
+ bcs intent_fl_save_01
+ tst unseen-counts,x
+ bne intent_fl_save_01
+ ldaa 0,x
+ psha
+ cmpa #2
+ bcs intent_fl_save_01
+ ldaa #1
+ staa 0,x
+ bra intent_fl_save_01
+intent_fl_save_00:
+ ldaa 0,x
+ psha
+ clr 0,x
+intent_fl_save_01:
+ decb
+ bne intent_fl_save
+ jsr sh_general
+ suba wk_left
+ staa wk_left
+ ldab #1
+intent_fl_rest:
+ pshb
+ jsr counts_x
+ pulb
+ tba
+ jsr off_suit
+ bne intent_fl_rest_00
+ cmpb #K_HONOR
+ bcs intent_fl_rest_01
+ tst unseen-counts,x
+ bne intent_fl_rest_01
+intent_fl_rest_00:
+ pula
+ staa 0,x
+intent_fl_rest_01:
+ incb
+ cmpb #K_END
+ bne intent_fl_rest
+ tst wk_left
+ beq set_intents_80
 intent_fl_clear:
  clr iw_flush
- jsr ai_furo_x
- ldaa intent_lock-minshun_n,x
- anda #$40
-intent_fl_store:
- staa intent_lock-minshun_n,x
 set_intents_80:
  ; intents: one bit for each byte of intent_flags (I_*), in their order.
  clra
