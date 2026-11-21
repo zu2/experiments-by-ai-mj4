@@ -677,7 +677,6 @@ least_danger_01:
 ; Sets ad_pick to the candidate (choose_cands) that leaves the most tiles that
 ; lower the shanten number, and cc_lower to ac_lower of each candidate.
 best_accept:
- jsr flush_base
  jsr cand_build
  ; Flush keeps the off-suit candidates; toitoi and chiitoi keep their pairs
  ; and triplets: the single candidates. Each when there is one.
@@ -1631,51 +1630,6 @@ short_conn_00:
 short_conn_01:
  suba #3
 short_conn_02:
- rts
-
-; With flush intent, an open hand without an off-suit discard at min_s
-; discards an off-suit tile even at a higher shanten: min_s becomes the
-; lowest sk of the off-suit kinds.
-flush_base:
- tst iw_flush
- beq flush_base_09
- jsr ai_open_furo
- beq flush_base_09
- clr wk_kind
-flush_base_00:
- jsr kind_counts_x
- ldaa sk-counts,x
- cmpa min_s
- bne flush_base_01
- jsr kind_off_suit
- bne flush_base_09
-flush_base_01:
- inc wk_kind
- ldaa wk_kind
- cmpa #K_END
- bne flush_base_00
- ldaa #$7F
- staa wk_count
- clr wk_kind
-flush_base_02:
- jsr kind_off_suit
- beq flush_base_03
- jsr ad_allowed
- beq flush_base_03
- jsr sk_exact
- cmpa wk_count
- bcc flush_base_03
- staa wk_count
-flush_base_03:
- inc wk_kind
- ldaa wk_kind
- cmpa #K_HONOR
- bne flush_base_02
- ldaa wk_count
- cmpa #$7F
- beq flush_base_09
- staa min_s
-flush_base_09:
  rts
 
 ; Marks the candidates of best_accept in cand: sk = min_s, and with ac_both
