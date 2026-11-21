@@ -2972,7 +2972,7 @@ furo_threat_02:
  rts
 
 ; Returns A = danger of discarding wk_kind: the sum over the other players
-; of threat_weight * dg_val[danger_one], at most 126.
+; of threat_weight * dg_val[danger_one], at most 254.
 danger:
 	clr	danger_player
 	clr	danger_max
@@ -3021,9 +3021,9 @@ danger_01:
 	cmpa	#4
 	bne	danger_00
 	ldaa	danger_max
- cmpa #$7F
- bcs danger_09
- ldaa #$7E
+ cmpa #$FF
+ bne danger_09
+ deca
 danger_09:
 	rts
 ; danger_one 0..7 to a value in proportion to the deal-in rate.
