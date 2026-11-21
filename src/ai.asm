@@ -830,11 +830,8 @@ cand_loop:
  beq cand_next
  jsr isolated_cand
  staa cc_isol_flag
- jsr kind_counts_x
  jsr sanshoku_cut
  staa cc_sanshoku
- jsr kind_counts_x
- inc 0,x
  ; cc_key = connection + dora lost + CC_KEY_BASE - cc_cand_bonus: the larger
  ; the bonus of discarding it, the earlier it is chosen.
 cand_priority:
@@ -3056,19 +3053,15 @@ ld_live:	.ds	1 ; least_danger: ev_lk of ad_pick
 ; find_waits writes waits as waits-ac_yes,x: waits stays within 255 bytes after ac_yes.
 waits: .ds KN ; output of find_waits: 1 for each winning kind
 waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)
-
-	.bss
- .bss
- .bss
  .code
-; Independent three-colour progress, original or post-discard counts.
-; At least one full sequence, each suit represented, six of nine kinds.
-; Bonus = distinct covered kinds - 5 (1..4), best target only.
-; Every missing required kind must have an unseen copy. A minshun supplies
-; its exact sequence; a pon/kan furo supplies nothing. No hand mutation.
+; Three-colour progress of counts without one tile of wk_kind (counts is
+; restored). At least one full sequence, each suit represented, six of nine
+; kinds. Returns A = distinct covered kinds - 5 (1..4) of the best target,
+; 0 if none. Every missing required kind must have an unseen copy. A minshun
+; supplies its exact sequence; a pon/kan furo supplies nothing.
 sanshoku_cut:
+ jsr kind_counts_x
  dec 0,x
-sanshoku_near:
  clr s3_best
  ldaa #K_FIRST
 sanshoku_pattern:
@@ -3165,6 +3158,8 @@ sanshoku_near_20:
  inca
  cmpa #K_FIRST+7
  bne sanshoku_pattern
+ jsr kind_counts_x
+ inc 0,x
  ldaa s3_best
  rts
  .bss
