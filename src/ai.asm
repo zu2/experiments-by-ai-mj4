@@ -728,13 +728,11 @@ best_accept_10:
  staa 4,x
  ; keep_value orders the candidates (cc_bonus) but is not part of the
  ; score: it compares kinds of tile, not whether the tile is in a block.
- jsr keep_value
- staa dora_unit
  ldx #cc_bonus
  ldab cc_slot
  jsr addxb
  ldaa 0,x
- suba dora_unit
+ suba cc_kv-cc_bonus,x
  ; Acceptance is in tile units, without a cap or scaling. Other terms
  ; total at most 61 here; saturate only if their final addition overflows.
 	adda	wk_score
@@ -813,6 +811,10 @@ best_accept_22:
 ; CC_KEY_BASE is larger than any cc_cand_bonus (at most about 80 with the
 ; two-sided shapes of ryan_pairs), so cc_key does not wrap.
 CC_KEY_BASE .equ 90
+; DB_BASE is in cc_cand_bonus of every candidate: it does not change their
+; order, and keeps the score of best_accept above 0 when the dora and
+; yakuhai costs are taken from it.
+DB_BASE .equ 46
 choose_cands:
  ldx #cc_order
  ldab #CC_LIMIT
@@ -828,6 +830,7 @@ cand_loop:
  jsr kind_cand_x
  tst 0,x
  beq cand_next
+ jsr dora_cut_cost
  jsr isolated_cand
  staa cc_isol_flag
  jsr sanshoku_cut
@@ -836,9 +839,7 @@ cand_loop:
  ; the bonus of discarding it, the earlier it is chosen.
 cand_priority:
  jsr short_conn
- staa cc_key
- jsr dora_cut_cost
- adda cc_key
+ adda dcc_cost
  staa cc_key
  jsr toi_bonus
  staa wk_bonus
@@ -894,6 +895,8 @@ cc_rank_03:
  staa cc_bonus-cc_order+1,x
  ldaa cc_costs-cc_order,x
  staa cc_costs-cc_order+1,x
+ ldaa cc_kv-cc_order,x
+ staa cc_kv-cc_order+1,x
  dex
  decb
  bne cc_rank_03
@@ -907,6 +910,8 @@ cc_rank_04:
  staa cc_bonus-cc_order,x
  ldaa dcc_cost
  staa cc_costs-cc_order,x
+ ldaa cand_kv
+ staa cc_kv-cc_order,x
 cand_next:
  inc wk_kind
  ldaa wk_kind
@@ -1508,11 +1513,12 @@ ib_rules:
  ; The dora lost (dcc_cost) and a yakuhai pair broken are taken from the
  ; acceptance in best_accept.
 discard_bonus:
- ldaa #46
+ ldaa #DB_BASE
  adda wk_bonus
  adda cc_sanshoku
  staa wk_bonus
  jsr keep_value
+ staa cand_kv
  adda wk_bonus
  staa wk_bonus
  jsr intent_bonus
@@ -1790,8 +1796,8 @@ off_suit:
 off_suit_01:
  clra
  rts
-; A non-dora singleton with no neighbour within two, before discard.
-; Minimum-shanten and flush legality are checked by the caller.
+; A non-dora singleton with no neighbour within two, before discard: dcc_cost
+; is that of wk_kind (dora_cut_cost). The caller checks the candidates.
 ; Returns with N and Z set from A.
 isolated_cand:
  jsr kind_counts_x
@@ -1801,7 +1807,7 @@ isolated_cand:
  jsr connection
  cmpa #1
  bne isolated_cand_00
- jsr dora_cut_cost
+ tst dcc_cost
  bne isolated_cand_00
  ldaa #1
  rts
@@ -2718,6 +2724,8 @@ cc_order:	.ds	CC_LIMIT ; candidate kinds ($FF = none)
 cc_ranks: .ds CC_LIMIT ; their ranks
 cc_bonus: .ds CC_LIMIT ; their discard_bonus values
 cc_costs: .ds CC_LIMIT ; their dora costs
+cc_kv: .ds CC_LIMIT ; their keep_value (part of cc_bonus)
+cand_kv: .ds 1 ; keep_value of the candidate (discard_bonus)
 dora_unit: .ds 1 ; best_accept: acceptance taken for each dora lost
 cc_lower: .ds CC_LIMIT*5 ; ac_lower of each cc_order slot that best_accept evaluated
 cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
