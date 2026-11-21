@@ -347,6 +347,8 @@ ev1_discard_10:
  ; A hand - i + e - d + w has at most one more pair and one more yaochu kind
  ; than the hand: with 4 pairs and 10 yaochu kinds at most, no chiitoi (7
  ; pairs) or kokushi (13 kinds) can win or be tenpai.
+ ldaa spec_off
+ staa e1_spec
  ldaa nfuro
  bne ev1_discard_15
  jsr spec_prep14
@@ -357,7 +359,8 @@ ev1_discard_10:
  cmpa #11
  bcc ev1_discard_16
 ev1_discard_15:
- inc spec_off
+ ldaa #SPEC_NONE
+ staa spec_off
 ev1_discard_16:
  ; ev_prepare depends on the hand only by ev_base_dora: ev1_draw makes it
  ; for each hand - i + e from the value of the hand.
@@ -449,7 +452,8 @@ ev1_discard_33:
  cpx e1_end
  bne ev1_discard_31
  jsr em_end
- clr spec_off
+ ldaa e1_spec
+ staa spec_off
  jmp discard_sk
 
 ; A = kind. Returns A = 1 if a draw of the kind fits the intent: the flush
@@ -1017,6 +1021,7 @@ em_end_09:
  rts
 
  .bss
+e1_spec: .ds 1 ; spec_off before ev1_discard
 e1_dora: .ds 1 ; ev_base_dora of the hand (14 tiles)
 e1_aka: .ds 1 ; ev_base_aka of the hand
 ev_own_bit: .ds 1 ; ev_prepare: bit of the computer's own discards in river_bits

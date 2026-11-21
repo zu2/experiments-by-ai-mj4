@@ -97,7 +97,7 @@ score_hand:
 	ldab	nfuro
 	bne	score_hand_01
 	tst	spec_off
-	bne	score_hand_01
+	bmi	score_hand_01
 	jsr	spec_count
 	ldaa	SP_PAIRS,x
 	ldab	SP_KINDS,x

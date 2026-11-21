@@ -1065,7 +1065,7 @@ find_waits_01:
  ldab nfuro
  bne fw_result
  tst spec_off
- bne fw_result
+ bmi fw_result
  ; Chiitoi tenpai: the single tile.
  jsr spec_count
  ldaa SP_PAIRS,x

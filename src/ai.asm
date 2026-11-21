@@ -473,18 +473,18 @@ ai_discard_11:
 	bne	ai_discard_07
 	jsr	ev1_discard
 ai_discard_07:
- clr chii_off
+ clr spec_off
 	ldaa	ai_player
 	ldab	ad_pick
 	jmp	hand_pick
 
 
-; counts = 14 tiles. Sets chii_off for four pairs with a
+; counts = 14 tiles. Sets spec_off to SPEC_NO_CHII for four pairs with a
 ; set (a triplet or three kinds in a row) or three two-sided shapes: people
 ; play such a hand for sets, not for chiitoi. With a furo no special shape
-; is counted, so chii_off changes nothing there.
+; is counted, so SPEC_NO_CHII changes nothing there.
 chii_check:
- clr chii_off
+ clr spec_off
  jsr spec_count
  ldaa SP_PAIRS,x
  cmpa #4
@@ -514,7 +514,8 @@ chii_check_01:
  cmpa #3
  bcs chii_check_09
 chii_check_08:
- inc chii_off
+ ldaa #SPEC_NO_CHII
+ staa spec_off
 chii_check_09:
  rts
 
@@ -527,7 +528,7 @@ discard_sk_lim:
  ldaa #8
  staa spec_low
  tst spec_off
- bne discard_sk_00
+ bmi discard_sk_00
  jsr spec_prep14
 discard_sk_00:
  jsr batch_prepare_lim
@@ -3279,7 +3280,7 @@ spec_before:
  tst nfuro
  bne spec_before_00
  tst spec_off
- bne spec_before_00
+ bmi spec_before_00
  stx spec_x
  ldab 0,x
  decb
@@ -3290,13 +3291,16 @@ spec_before:
  ldx spec_x
 spec_before_00:
  rts
-; X = a set. Returns A = the lower of the chiitoi and kokushi shanten (only
-; kokushi with chii_off). Keeps X.
+; X = a set. Returns A = the lower of the chiitoi and kokushi shanten that
+; spec_off counts (8 with SPEC_NONE). Keeps X.
 spec_shanten:
+ ldaa #8
+ tst spec_off
+ bmi spec_shanten_00
  ldaa SP_YAO,x
  ldab SP_YPAIRS,x
  jsr kok_sh
- tst chii_off
+ ldab spec_off
  bne spec_shanten_00
  psha
  ldaa SP_PAIRS,x
@@ -3356,7 +3360,12 @@ spec_step_00:
 spec_step_01:
  rts
  .bss
-spec_off: .ds 1 ; nonzero while ev1_discard knows no chiitoi or kokushi can be tenpai or win
+; spec_off: the special shapes not counted. ai_discard sets SPEC_NO_CHII (chii_check)
+; and clears it at its end; ev1_discard sets SPEC_NONE and puts back the value
+; it found.
+SPEC_NO_CHII .equ $01
+SPEC_NONE .equ $81
+spec_off: .ds 1 ; SPEC_NO_CHII, SPEC_NONE or 0
 ; spec_cnt, spec14, spec13 and spec_drawn are in this order: spec_prep14 and
 ; spec_step write at 4,x.
 spec_cnt: .ds 4 ; special-shape values of counts (spec_count)
@@ -3364,7 +3373,6 @@ spec14: .ds 4 ; special-shape values of the 14 tiles (SP_*)
 spec13: .ds 4 ; ... after the discard of wk_kind
 spec_drawn: .ds 4 ; ... after one more draw
 ad_norm_min: .ds 1 ; lowest ordinary-shape shanten of discard_sk
-chii_off: .ds 1 ; 1 while ai_discard does not count chiitoi (chii_check)
 ac_both: .ds 1 ; 1 while acceptance also counts the ordinary shape one shanten behind
 spec_low: .ds 1 ; special-shape shanten of spec14: no discard goes below it
 spec_save: .ds 2 ; the set of spec_step
@@ -3382,7 +3390,7 @@ ac_special:
  ldaa wk_draw
  bsr spec_add
  ldx #spec_drawn
- bsr spec_shanten
+ jsr spec_shanten
  cmpa min_s
  blt ac_special_08
  jmp acceval_regular
