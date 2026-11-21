@@ -911,7 +911,6 @@ scan_pai_10:
  ldaa pai_kind
  cmpa #K_HONOR
  bcc pai_dora_seen
- ldx #counts
  jsr near_sum
  ldab 2,x
  cba
@@ -1001,7 +1000,6 @@ scan_pai_21:
  cmpa #2
  bhi scan_pai_30
  ldaa pai_kind
- ldx #counts
  jsr near_sum
  ldab 2,x
  cba
@@ -1572,7 +1570,6 @@ connection:
  ldaa 0,x
  rts
 connection_00:
- ldx #counts
  jmp near_sum
 cn_honor_weights:
  .byte 0,1,4,8,8
@@ -1896,7 +1893,6 @@ ad_rel_build_00:
  ldaa 0,x
  beq ad_rel_build_01
  ldaa wk_first
- ldx #counts
  jsr near_sum
 ad_rel_build_01:
  ldx #rel

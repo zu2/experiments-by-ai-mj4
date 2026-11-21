@@ -79,40 +79,35 @@ mul_bits:	.ds	1 ; bits left
 bss_all_end:
 
  .code
-; A = kind, X = counts. Sum of this kind and the kinds within 2 of it. The
-; Suited neighbours are clipped by rank; honors include only themselves.
+; A = kind. Returns A = counts of this kind and of the kinds within 2 of it
+; in its suit (an honor: itself only), X = ns_buf with the five counts.
+; counts of 0, 10, 20 and 30 are always 0: k - 1 and k + 1 need no rank check,
+; k - 2 does for a 1 and k + 2 for a 9.
 near_sum:
- psha
  tab
- jsr addxb
- ldaa 0,x
- staa ns_buf+2
+ jsr counts_x
+ ldab 0,x
+ stab ns_buf+2
  clr ns_buf
  clr ns_buf+1
  clr ns_buf+3
  clr ns_buf+4
- pula
  cmpa #K_HONOR
  bcc near_sum_02
  jsr kind_number
  dex
  dex
- cmpa #2
- bls near_sum_00
- ldab 0,x
- stab ns_buf
-near_sum_00:
- cmpa #1
- beq near_sum_01
  ldab 1,x
  stab ns_buf+1
+ ldab 3,x
+ stab ns_buf+3
+ cmpa #1
+ beq near_sum_01
+ ldab 0,x
+ stab ns_buf
 near_sum_01:
  cmpa #9
  beq near_sum_02
- ldab 3,x
- stab ns_buf+3
- cmpa #8
- bcc near_sum_02
  ldab 4,x
  stab ns_buf+4
 near_sum_02:
