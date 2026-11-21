@@ -551,8 +551,8 @@ ad_s_loop_02:
  rts
 
 ; discard_sk keeps sk exact only up to min_s: batch_leaf skips the leaves
-; above wk_limit. For an open hand (no chiitoi or kokushi), makes sk of the
-; allowed kind wk_kind exact. Returns A = sk.
+; above wk_limit. Makes sk of the allowed kind wk_kind exact (counts is the 14
+; tiles of discard_sk). Returns A = sk.
 sk_exact:
  jsr kind_counts_x
  ldaa sk-counts,x
@@ -564,6 +564,8 @@ sk_exact:
  jsr kind_counts_x
  inc 0,x
  pula
+ staa sk-counts,x
+ jsr shanten_lim
  staa sk-counts,x
 sk_exact_00:
  rts
@@ -610,11 +612,14 @@ least_danger_00:
 least_danger_02:
  ; Of equal danger, the discard with the lower sk (nearer to tenpai); of
  ; equal sk too, the one with the lower connection, so that the blocks stay.
- jsr kind_counts_x
- ldab sk-counts,x
+ ; sk above min_s is not exact: ld_sk and this sk are made exact by sk_exact.
 	cmpa	wk_best
- bcs least_danger_03
+ bcs least_danger_07
  bne least_danger_01
+ psha
+ jsr sk_exact
+ tab
+ pula
  cmpb ld_sk
  bcs least_danger_03
  bne least_danger_01
@@ -635,10 +640,14 @@ least_danger_05:
  cmpa ld_conn
  bcc least_danger_01
  bra least_danger_04
+least_danger_07:
+ psha
+ jsr sk_exact
+ tab
+ pula
 least_danger_03:
 	staa	wk_best
  stab ld_sk
-least_danger_07:
  ldab ev_furiten
  stab ld_furi
  jsr ev_lk_x
