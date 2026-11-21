@@ -311,6 +311,7 @@ oc_x: .ds 2 ; oc_build: the player
 rp_n: .ds 1 ; ryan_pairs: pairs found
 rp_s: .ds 1 ; ryan_pairs: suits left
 fold_result: .ds 1 ; input of fold_check: shanten; output: the result
+fold_limit: .ds 1 ; output of fold_check: fold at this danger or more
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
 
@@ -385,32 +386,12 @@ ai_discard_10:
 	ldaa	min_s
 	staa	wk_limit
  jsr least_danger
- ldaa fold_result
- cmpa #FC_DANGER
- bne ai_discard_13
- ; 36: danger_one 5 from one riichi (4 * dg_val[5]).
  ldaa wk_best
- cmpa #36
- bcc ai_discard_02
- bra ai_discard_07
-ai_discard_13:
- ; Against a riichi, a tenpai push with at most one live winning tile (ev_lk)
- ; does not push a tile of danger 60 or more: it folds. In the last draws the tenpai is kept for the payment at a drawn
- ; hand, and the last place keeps pushing.
+ cmpa fold_limit
+ bcs ai_discard_07
+ ; A tenpai folds only with at most one live winning tile (ev_lk).
  tst min_s
- bne ai_discard_07
- ldaa draws_left
- cmpa #PUSH_FOLD_LEFT
- bcs ai_discard_07
- ldaa wk_best
- cmpa #60
- bcs ai_discard_07
- jsr any_riichi
- beq ai_discard_07
- ldaa ai_player
- jsr count_ge
- cmpb #4
- beq ai_discard_07
+ bne ai_discard_02
  ldaa ad_pick
  staa wk_kind
  jsr ev_lk_x
@@ -2847,10 +2828,13 @@ oc_build_06:
 ; A = shanten of the hand ai_player keeps. Returns A = fold_result with N and Z:
 ; FC_ATTACK  nobody is a threat (any_threat).
 ; FC_PUSH    a threat, but the hand is near: push with the least danger.
-; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left: fold when
-;            every discard that keeps the shanten has danger 5 or more.
+; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left.
 ; FC_FOLD    fold: draws_left / 4 draws cannot reach tenpai, or a threat
 ;            and 2-shanten or more.
+; Sets fold_limit: a push folds at this danger or more. Against a riichi it
+; is 36 (danger_one 5 from one riichi, 4 * dg_val[5]) for FC_DANGER, and 60
+; for a tenpai except in the last draws, where the tenpai is kept for the
+; payment at a drawn hand, and for the last place, which keeps pushing.
 ; ai_discard and ai_call (call_shanten) both use it, so a call never makes
 ; a hand that folds. X and B are scratch.
 PUSH_FOLD_LEFT .equ 10
@@ -2860,6 +2844,8 @@ FC_DANGER .equ 2
 FC_FOLD .equ 3
 fold_check:
  staa fold_result
+ ldaa #$FF
+ staa fold_limit
  ldab draws_left
  lsrb
  lsrb
@@ -2872,15 +2858,28 @@ fold_check:
  ldaa #FC_FOLD
  cmpb #2
  bcc fold_check_01
- ldaa #FC_PUSH
- decb
- bne fold_check_01
  jsr any_riichi
  beq fold_check_00
+ tst fold_result
+ bne fold_check_02
+ ldaa draws_left
+ cmpa #PUSH_FOLD_LEFT
+ bcs fold_check_00
+ ldaa ai_player
+ jsr count_ge
+ cmpb #4
+ beq fold_check_00
+ ldaa #60
+ staa fold_limit
+ bra fold_check_00
+fold_check_02:
  ldaa draws_left
  cmpa #40
+ bcc fold_check_00
+ ldaa #36
+ staa fold_limit
  ldaa #FC_DANGER
- bcs fold_check_01
+ bra fold_check_01
 fold_check_00:
  ldaa #FC_PUSH
 fold_check_01:
