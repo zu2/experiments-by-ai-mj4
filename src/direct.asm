@@ -4,8 +4,14 @@ sh_general:
  ldaa #8
  jsr sg_lmax_set
 sh_general_lim:
- clr sg_batch
-sg_init:
+ ldx #sg_leaf
+ clra
+; X = routine called at each leaf (and head of four sets), A = sg_batch.
+; Every search sets both, so no search depends on an earlier one.
+sg_start:
+ stx sg_call_leaf+1
+ stx sg_call_head+1
+ staa sg_batch
  clr sg_left
  ldaa nfuro
  staa sets_n
@@ -265,13 +271,8 @@ acc_search:
  inca
  jsr sg_lmax_set
  ldx #acc_leaf
- stx sg_call_leaf+1
- stx sg_call_head+1
- jsr sh_general_lim
- ldx #sg_leaf
- stx sg_call_leaf+1
- stx sg_call_head+1
- rts
+ clra
+ jmp sg_start
 acc_leaf:
  ldaa #4
  suba sets_n
@@ -556,13 +557,8 @@ batch_prepare_00:
  cpx #counts+KN
  bne batch_prepare_00
  ldx #batch_leaf
- stx sg_call_leaf+1
  ldaa #3
- staa sg_batch
- jsr sg_init
- ldx #sg_leaf
- stx sg_call_leaf+1
- rts
+ jmp sg_start
 batch_leaf:
  ldaa #4
  suba sets_n
