@@ -1,6 +1,6 @@
 ; Computer players 1..3; ai_player selects the current thinker.
-CC_LIMIT_MIN .equ 4
-CC_LIMIT_MAX .equ 6
+; Candidates that best_accept evaluates (choose_cands).
+CC_LIMIT .equ 4
 
 ; Computer's turn. Returns A = action, B = tile or kind, decl.
 cpu_turn:
@@ -805,32 +805,18 @@ best_accept_20:
 best_accept_21:
 	inc	cc_slot
 	ldaa	cc_slot
-	cmpa	cc_limit
+	cmpa	#CC_LIMIT
 	bne	best_accept_10
 best_accept_22:
 	rts
 
-; Selects cc_limit kinds with sk = min_s (with ac_both, also skn =
-; ad_norm_min), ordered by completed policy value.
-; Zero defaults to 4; values outside 4..6 are clamped at the next selection.
+; Selects CC_LIMIT kinds of cand, ordered by completed policy value.
 ; CC_KEY_BASE is larger than any cc_cand_bonus (at most about 80 with the
 ; two-sided shapes of ryan_pairs), so cc_key does not wrap.
 CC_KEY_BASE .equ 90
 choose_cands:
- ldaa cc_limit
- cmpa #CC_LIMIT_MIN
- bcc choose_cands_limit_low_ok
- ldaa #CC_LIMIT_MIN
- staa cc_limit
- bra choose_cands_limit_ok
-choose_cands_limit_low_ok:
- cmpa #CC_LIMIT_MAX
- bls choose_cands_limit_ok
- ldaa #CC_LIMIT_MAX
- staa cc_limit
-choose_cands_limit_ok:
  ldx #cc_order
- ldab cc_limit
+ ldab #CC_LIMIT
  ldaa #$FF
 cand_clear_order:
  staa 0,x
@@ -880,9 +866,7 @@ cc_rank:
  clr cc_key
 cc_rank_value:
  ldx #cc_order
- ldab cc_limit
-cc_rank_scan:
-	ldab cc_limit
+ ldab #CC_LIMIT
 cc_rank_00:
  ldaa cc_ranks-cc_order,x
  cmpa cc_key
@@ -904,14 +888,7 @@ cc_rank_02:
  stx cc_insert_x
  decb
  beq cc_rank_04
- ldx #cc_order+2
- ldaa cc_limit
- cmpa #4
- beq cc_rank_03
- inx
- cmpa #6
- bne cc_rank_03
- inx
+ ldx #cc_order+CC_LIMIT-2
 cc_rank_03:
  ldaa 0,x
  staa 1,x
@@ -2784,15 +2761,14 @@ rel:	.ds	KN ; kinds that can lower the shanten (sum of nearby tiles)
 cc_insert_x:	.ds	2 ; cc_order slot to insert at
 ; cc_key is allocated in directpage.asm.
 cc_slot:	.ds	1 ; cc_order slot being scored
-cc_limit:	.ds	1 ; active shortlist size, 4..6 (zero defaults to 4)
 ; cc_order, cc_ranks, cc_bonus and cc_costs are read as offsets from a
 ; cc_order entry (cc_ranks-cc_order,x and so on).
-cc_order:	.ds	6 ; up to 6 candidate kinds ($FF = none)
-cc_ranks: .ds 6 ; their ranks
-cc_bonus: .ds 6 ; their discard_bonus values
-cc_costs: .ds 6 ; their dora costs
+cc_order:	.ds	CC_LIMIT ; candidate kinds ($FF = none)
+cc_ranks: .ds CC_LIMIT ; their ranks
+cc_bonus: .ds CC_LIMIT ; their discard_bonus values
+cc_costs: .ds CC_LIMIT ; their dora costs
 dora_unit: .ds 1 ; best_accept: acceptance taken for each dora lost
-cc_lower: .ds 6*5 ; ac_lower of each cc_order slot that best_accept evaluated
+cc_lower: .ds CC_LIMIT*5 ; ac_lower of each cc_order slot that best_accept evaluated
 cc_cand_bonus: .ds 1 ; discard_bonus of the candidate being ranked
 ; set_intents clears intent_flags..intent_flags_end.
 intent_flags:

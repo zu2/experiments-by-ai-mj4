@@ -312,7 +312,7 @@ ev1_discard_03:
  beq ev1_discard_04
  inx
  incb
- cmpb cc_limit
+ cmpb #CC_LIMIT
  bne ev1_discard_03
 ev1_discard_04:
  jsr candidate_acceptance
