@@ -505,12 +505,7 @@ discard_sk:
  ldaa #$7F
  staa wk_limit
 discard_sk_lim:
- ldaa #8
- staa spec_low
- tst spec_off
- bmi discard_sk_00
  jsr spec_prep14
-discard_sk_00:
  jsr batch_prepare_lim
 	ldaa	#$7F
 	staa	min_s
@@ -3176,8 +3171,10 @@ SP_PAIRS .equ 2
 SP_YPAIRS .equ 3
 ; spec14 of the 14 tiles of ai_discard (spec_prep14), spec13 after the
 ; discard of wk_kind (spec_cut), spec_drawn after one more draw (spec_add).
+; A special shape at 8 or more never goes below the regular shape (8 at
+; most): spec_low is then $7F, and shanten_lim does not look at it.
 spec_prep14:
- ldaa #8
+ ldaa #$7F
  tst nfuro
  bne spec_prep14_00
  jsr spec_count
@@ -3190,6 +3187,9 @@ spec_prep14_01:
  bne spec_prep14_01
  ldx #spec14
  jsr spec_shanten
+ cmpa #8
+ bcs spec_prep14_00
+ ldaa #$7F
 spec_prep14_00:
  staa spec_low
  rts
@@ -3200,14 +3200,10 @@ ad_spec_values:
  ldab 0,x
  ldaa wk_kind
  bra spec_cut
-; X = &counts[wk_kind] of the 14 tiles. Returns A = special-shape shanten
-; after discarding one tile of wk_kind (8 with a furo). Keeps X.
+; X = &counts[wk_kind] of the 14 tiles, with no furo (shanten_lim calls it
+; only when spec_low is below $7F). Returns A = special-shape shanten after
+; discarding one tile of wk_kind. Keeps X.
 spec_before:
- ldaa #8
- tst nfuro
- bne spec_before_00
- tst spec_off
- bmi spec_before_00
  stx spec_x
  ldab 0,x
  decb
@@ -3216,14 +3212,10 @@ spec_before:
  ldx #spec13
  bsr spec_shanten
  ldx spec_x
-spec_before_00:
  rts
 ; X = a set. Returns A = the lower of the chiitoi and kokushi shanten that
-; spec_off counts (8 with SPEC_NONE). Keeps X.
+; spec_off counts. Keeps X.
 spec_shanten:
- ldaa #8
- tst spec_off
- bmi spec_shanten_00
  ldaa SP_YAO,x
  ldab SP_YPAIRS,x
  jsr kok_sh
@@ -3301,7 +3293,7 @@ spec13: .ds 4 ; ... after the discard of wk_kind
 spec_drawn: .ds 4 ; ... after one more draw
 ad_norm_min: .ds 1 ; lowest ordinary-shape shanten of discard_sk
 ac_both: .ds 1 ; 1 while acceptance also counts the ordinary shape one shanten behind
-spec_low: .ds 1 ; special-shape shanten of spec14: no discard goes below it
+spec_low: .ds 1 ; special-shape shanten of spec14 (no discard goes below it), or $7F
 spec_save: .ds 2 ; the set of spec_step
 spec_x: .ds 2 ; X kept by spec_before
 spec_delta: .ds 1 ; 1 or -1 in spec_step

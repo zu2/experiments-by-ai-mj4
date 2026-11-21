@@ -96,8 +96,6 @@ score_hand:
 	jsr	find_yakuman
 	ldab	nfuro
 	bne	score_hand_01
-	tst	spec_off
-	bmi	score_hand_01
 	jsr	spec_count
 	ldaa	SP_PAIRS,x
 	ldab	SP_KINDS,x

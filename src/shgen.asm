@@ -12,13 +12,16 @@ kok_sh_00:
  adda #13
  rts
 
-; Sets spec_cnt (SP_*) of counts. Returns X = #spec_cnt.
+; Sets spec_cnt (SP_*) of counts. Returns X = #spec_cnt. With SPEC_NONE all
+; four are 0: chiitoi and kokushi are 13 shanten.
 spec_count:
  ldx #spec_cnt
  clr SP_KINDS,x
  clr SP_YAO,x
  clr SP_PAIRS,x
  clr SP_YPAIRS,x
+ tst spec_off
+ bmi spec_count_04
  ldx #counts
 spec_count_00:
  ldaa 0,x
@@ -31,23 +34,39 @@ spec_count_01:
  inx
  cpx #counts+K_END
  bne spec_count_00
- ldx #yao_offsets
+ ; The 13 yaochu kinds, at fixed places of counts.
+ ldx #counts
+ ldaa K_FIRST,x
+ bsr spec_count_yao
+ ldaa K_FIRST+8,x
+ bsr spec_count_yao
+ ldaa K_FIRST+10,x
+ bsr spec_count_yao
+ ldaa K_FIRST+18,x
+ bsr spec_count_yao
+ ldaa K_FIRST+20,x
+ bsr spec_count_yao
+ ldaa K_FIRST+28,x
+ bsr spec_count_yao
+ ldab #7
 spec_count_02:
- stx yao_ptr
- ldab 0,x
- jsr counts_x
- ldaa 0,x
- beq spec_count_03
- inc spec_cnt+SP_YAO
- cmpa #2
- bcs spec_count_03
- inc spec_cnt+SP_YPAIRS
-spec_count_03:
- ldx yao_ptr
+ ldaa K_EAST,x
+ bsr spec_count_yao
  inx
- cpx #yao_offsets+13
+ decb
  bne spec_count_02
  ldx #spec_cnt
+spec_count_04:
+ rts
+; A = tiles of a yaochu kind: counts it in SP_YAO and SP_YPAIRS. Keeps B and X.
+spec_count_yao:
+ tsta
+ beq spec_count_05
+ inc spec_cnt+SP_YAO
+ cmpa #2
+ bcs spec_count_05
+ inc spec_cnt+SP_YPAIRS
+spec_count_05:
  rts
 
 ; A = pairs, B = kinds. Returns A = chiitoi shanten 6 - pairs + max(0, 7 - kinds).
