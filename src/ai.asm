@@ -1491,7 +1491,7 @@ value_cost:
  bcs value_cost_01
  ldaa wk_kind
  jsr is_yakuhai
- aba
+ adda dcc_cost
  tab
 value_cost_01:
  pula
