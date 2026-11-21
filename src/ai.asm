@@ -2101,18 +2101,14 @@ toib_used:
  asla
  adda toi_slots
  staa toi_slots
+ ; The toitoi shanten 8 - toi_slots is a regular shanten too: min_s or more.
  ldaa #8
  suba toi_slots
  suba min_s
- bcs toib_equal
  cmpa #2
  bcc toi_bonus_00
  nega
  adda #2
- bra toib_live
-toib_equal:
- ldaa #2
-toib_live:
  tst tb_n_live
  beq toib_done
  inca
@@ -2570,15 +2566,12 @@ call_chi_yaku:
  beq call_chi_yaku_02
  tst pai_chanta_cut
  bne call_chi_yaku_02
+ ; The lowest of the three: chi_kinds always makes ck_a < ck_b.
  ldaa call_kind
  cmpa ck_a
  bls call_chi_yaku_00
  ldaa ck_a
 call_chi_yaku_00:
- cmpa ck_b
- bls call_chi_yaku_01
- ldaa ck_b
-call_chi_yaku_01:
  jsr kind_number
  cmpa #1
  beq cflush_yes
@@ -2586,16 +2579,11 @@ call_chi_yaku_01:
  beq cflush_yes
  bra call_chi_yaku_03
 call_chi_yaku_02:
- ; Tanyao needs a hand and furo without yaochu, as in call_yaku_ok.
+ ; Tanyao needs a hand and furo without yaochu, as in call_yaku_ok. ck_a
+ ; and ck_b are tiles of that hand: only call_kind may be a yaochu tile.
  tst pai_yaochu
  bne call_chi_yaku_03
  jsr call_is_simple
-	beq	call_chi_yaku_03
-	ldaa	ck_a
-	jsr	is_simple
-	beq	call_chi_yaku_03
-	ldaa	ck_b
-	jsr	is_simple
 	beq	call_chi_yaku_03
 	; Early, a closed hand with fewer than two usable dora keeps a two-sided
 	; block for riichi: tanyao does not chi with it (two simples next to each
@@ -2611,8 +2599,6 @@ call_chi_yaku_02:
 	ldaa	ck_b
 	suba	ck_a
 	cmpa	#1
-	beq	call_chi_yaku_03
-	cmpa	#$FF
 	beq	call_chi_yaku_03
 call_chi_yaku_04:
 	ldaa	#1
