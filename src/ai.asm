@@ -934,6 +934,7 @@ pai_dora_seen:
  inc pai_trips
 pai_toi_value:
  ldaa pai_kind
+ ldab ai_player
  jsr is_yakuhai
  beq pai_pair_dora
  inc pai_ypairs
@@ -1357,6 +1358,7 @@ rule_value_14:
  bita #F_HONOR
  beq rule_value_22
  ldaa wk_kind
+ ldab ai_player
  jsr is_yakuhai
  beq rule_value_22
  ldaa rv_fact
@@ -1490,6 +1492,7 @@ value_cost:
  cmpa #2
  bcs value_cost_01
  ldaa wk_kind
+ ldab ai_player
  jsr is_yakuhai
  adda dcc_cost
  tab
@@ -2171,13 +2174,13 @@ is_dora_kind:
  staa dora_hits
  rts
 
-; A = kind. Returns A = 1 for a dragon, the round wind or the seat wind of
-; the computer, 2 for a double wind (Z set for 0).
+; A = kind, B = player. Returns A = 1 for a dragon, the round wind or the
+; seat wind of the player, 2 for a double wind (Z set for 0). B is scratch.
 is_yakuhai:
 	cmpa	#K_HAKU
 	bcc	is_yakuhai_04
 	staa	iyk_kind
- ldaa ai_player
+ tba
  jsr winds_of
  pshb
  clrb
@@ -2196,16 +2199,16 @@ is_yakuhai_04:
 	ldaa	#1
 	rts
 
-; Returns A = danger of discarding kind wk_kind against the riichi of
-; player danger_player (0 = safe ... 7), ordered by the deal-in rates
-; measured in checks/20261118_fold_tenpai/danger_rate.md:
-;   honor, unseen 0-1 / 2 / 3+          1 / 2 / 5
+; Returns A = deal-in rate of discarding kind wk_kind against the riichi of
+; player danger_player, in 0.5% units, from the rates of Tenhou houou
+; games (kobalab.net 2021-01-16, gimite.net):
+;   honor, unseen 0-1 / 2 / 3 / 4       0 / 1 / 5 / 9
 ;   number, rank 1 2 3 4 5 6 7 8 9
-;     all suji sides passed             3 5 6 4 4 4 6 5 3
-;     no suji side passed               6 7 7 7 7 7 7 7 6
-;     4-6 with one of two sides passed  6
-; A number one lower (not below 2) when no sequence with it can be made
-; from unseen tiles (kabe).
+;     all suji sides passed             4 7 9 6 6 6 9 7 4
+;     no suji side passed              13 15 17 23 23 23 17 15 13
+;     4-6 with one of two sides passed 14
+; A number is 6 at most when no sequence with it can be made from unseen
+; tiles (kabe; no-chance 2.7-3.3%).
 danger_one:
 	ldab	wk_kind
 	jsr	in_opp_river
@@ -2253,7 +2256,7 @@ danger_one_03:
 	ldx	#dg_none_tab-1
 	tsta
 	beq	danger_one_04
-	ldaa	#6
+	ldaa	#14
 	bra	danger_one_05
 danger_one_04:
 	ldab	dg_rank
@@ -2277,15 +2280,17 @@ danger_one_06:
 	ldab	4,x
 	bne	danger_one_08
 danger_one_07:
-	deca
+	cmpa	#6
+	bcs	danger_one_08
+	ldaa	#6
 danger_one_08:
 	rts
 dg_honor_tab:
- .byte 1,1,2,5,5
+ .byte 0,0,1,5,9
 dg_suji_tab:
- .byte 3,5,6,4,4,4,6,5,3
+ .byte 4,7,9,6,6,6,9,7,4
 dg_none_tab:
- .byte 6,7,7,7,7,7,7,7,6
+ .byte 13,15,17,23,23,23,17,15,13
 
 ; B = kind. Returns A nonzero if the riichi player danger_player cannot ron
 ; it: it is in his river, or it passed after his riichi (river_bits).
@@ -2360,6 +2365,7 @@ ai_call_01:
 	bra	ai_call_10
 ai_call_00:
 	ldaa	call_kind
+	ldab	ai_player
 	jsr	is_yakuhai
 	staa	call_yakuhai
 ai_call_10:
@@ -2809,7 +2815,7 @@ oc_build_06:
 ; FC_FOLD    fold: draws_left / 4 draws cannot reach tenpai, or a threat
 ;            and 2-shanten or more.
 ; Sets fold_limit: a push folds at this danger or more. Against a riichi it
-; is 36 (danger_one 5 from one riichi, 4 * dg_val[5]) for FC_DANGER, and 60
+; is 36 (a 3-7 suji tile against one riichi, 4 * 9) for FC_DANGER, and 60
 ; for a tenpai except in the last draws, where the tenpai is kept for the
 ; payment at a drawn hand, and for the last place, which keeps pushing.
 ; ai_discard and ai_call (call_shanten) both use it, so a call never makes
@@ -2948,7 +2954,10 @@ furo_threat_02:
  rts
 
 ; Returns A = danger of discarding wk_kind: the sum over the other players
-; of threat_weight * dg_val[danger_one], at most 254.
+; of threat_weight * danger_one, at most 254. Both are weighted by the mean
+; deal-in loss of Tenhou houou games (mahjong_math on note.com, doraaka):
+; threat_weight 1.5 times for the dealer; danger_one 1.5 times for a dora
+; and in the ippatsu turn, 1.25 times for a yakuhai of the player.
 danger:
 	clr	danger_player
 	clr	danger_max
@@ -2959,6 +2968,14 @@ danger_00:
  jsr threat_weight
  beq danger_01
  staa dg_weight
+ ldaa danger_player
+ cmpa dealer
+ bne danger_10
+ ldaa dg_weight
+ lsra
+ adda dg_weight
+ staa dg_weight
+danger_10:
 	jsr	danger_one
  ; oc_mask: suits whose danger from this player is half. kind_suit gives 3
  ; for an honor, a bit that oc_mask never has.
@@ -2977,17 +2994,46 @@ danger_05:
  bcc danger_06
  lsra
 danger_06:
- tab
- ldx #dg_val
- jsr addxb
+ staa dg_value
+ staa dg_sum
+ ldab wk_kind
+ jsr is_dora_kind
+ beq danger_11
+ ldaa dg_value
+ lsra
+ adda dg_sum
+ staa dg_sum
+danger_11:
+ ldaa danger_player
+ jsr player
+ ldaa P_FLAG,x
+ bita #P_IPPATSU
+ beq danger_12
+ ldaa dg_value
+ lsra
+ adda dg_sum
+ staa dg_sum
+danger_12:
+ ldaa wk_kind
+ ldab danger_player
+ jsr is_yakuhai
+ beq danger_13
+ ldaa dg_value
+ lsra
+ lsra
+ adda dg_sum
+ staa dg_sum
+danger_13:
  ldab dg_weight
  clra
 danger_07:
- adda 0,x
+ adda dg_sum
+ bcs danger_14
  decb
  bne danger_07
  adda danger_max
  bcc danger_08
+danger_14:
  ldaa #$FF
 danger_08:
  staa danger_max
@@ -3002,13 +3048,12 @@ danger_01:
  deca
 danger_09:
 	rts
-; danger_one 0..7 to a value in proportion to the deal-in rate.
-dg_val:
- .byte 0,1,2,4,6,9,16,22
 	.bss
 ; ai_player is allocated in directpage.asm.
 danger_max:	.ds	1 ; sum of the danger over the players
 dg_weight:	.ds	1 ; weight of danger_player in danger
+dg_value:	.ds	1 ; danger: danger_one of danger_player
+dg_sum:	.ds	1 ; danger: dg_value with the loss weights
 ld_sk:	.ds	1 ; least_danger: sk of ad_pick
 ld_conn:	.ds	1 ; least_danger: connection of ad_pick
 ld_live:	.ds	1 ; least_danger: ev_lk of ad_pick
