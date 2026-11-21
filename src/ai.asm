@@ -395,8 +395,7 @@ ai_discard_10:
  bra ai_discard_07
 ai_discard_13:
  ; Against a riichi, a tenpai push with at most one live winning tile (ev_lk)
- ; does not push a tile of danger 60 or more (wk_best is doubled in tenpai):
- ; it folds. In the last draws the tenpai is kept for the payment at a drawn
+ ; does not push a tile of danger 60 or more: it folds. In the last draws the tenpai is kept for the payment at a drawn
  ; hand, and the last place keeps pushing.
  tst min_s
  bne ai_discard_07
@@ -404,7 +403,7 @@ ai_discard_13:
  cmpa #PUSH_FOLD_LEFT
  bcs ai_discard_07
  ldaa wk_best
- cmpa #120
+ cmpa #60
  bcs ai_discard_07
  jsr any_riichi
  beq ai_discard_07
@@ -607,8 +606,8 @@ ad_allowed_00:
 	rts
 
 ; Sets ad_pick to the kind with sk <= wk_limit and the lowest danger.
-; With wk_limit = 0 (a push in tenpai), the danger is doubled and a
-; furiten tenpai adds 1, so of two equal dangers the live tenpai is taken.
+; With wk_limit = 0 (a push in tenpai), of two equal dangers the tenpai
+; that is not furiten is taken.
 least_danger:
  jsr oc_build
  jsr ev_prepare
@@ -624,13 +623,9 @@ least_danger_00:
 	jsr	danger
  ldab wk_limit
  bne least_danger_02
- asla
  psha
  jsr ev_value
  pula
- tst ev_furiten
- beq least_danger_02
- inca
 least_danger_02:
  ; Of equal danger, the discard with the lower sk (nearer to tenpai); of
  ; equal sk too, the one with the lower connection, so that the blocks stay.
@@ -645,6 +640,10 @@ least_danger_02:
  ; A push in tenpai keeps the most live winning tiles (ev_discard).
  ldab wk_limit
  bne least_danger_05
+ ldab ev_furiten
+ cmpb ld_furi
+ bcs least_danger_07
+ bne least_danger_01
  jsr ev_lk_x
  ldab 0,x
  cmpb ld_live
@@ -658,6 +657,9 @@ least_danger_05:
 least_danger_03:
 	staa	wk_best
  stab ld_sk
+least_danger_07:
+ ldab ev_furiten
+ stab ld_furi
  jsr ev_lk_x
  ldab 0,x
 least_danger_06:
@@ -3019,7 +3021,6 @@ danger_01:
 	cmpa	#4
 	bne	danger_00
 	ldaa	danger_max
- ; least_danger doubles it and adds 1: stay below its start $FF.
  cmpa #$7F
  bcs danger_09
  ldaa #$7E
@@ -3035,6 +3036,7 @@ dg_weight:	.ds	1 ; weight of danger_player in danger
 ld_sk:	.ds	1 ; least_danger: sk of ad_pick
 ld_conn:	.ds	1 ; least_danger: connection of ad_pick
 ld_live:	.ds	1 ; least_danger: ev_lk of ad_pick
+ld_furi:	.ds	1 ; least_danger: ev_furiten of ad_pick (tenpai push only)
 ; find_waits writes waits as waits-ac_yes,x: waits stays within 255 bytes after ac_yes.
 waits: .ds KN ; output of find_waits: 1 for each winning kind
 waits_old: .ds KN ; waits before an ankan (kan_riichi_ok)

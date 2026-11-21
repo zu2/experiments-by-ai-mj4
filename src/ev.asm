@@ -172,7 +172,8 @@ ev_acceptance_00:
  cmpa wk_kind
  bne evacc_live_wait
 evacc_is_furiten:
- inc ev_furiten
+ ldaa #1
+ staa ev_furiten
 evacc_live_wait:
  ldaa wk_unseen
  beq ev_acceptance_11
@@ -1032,7 +1033,7 @@ ev_best_waits: .ds 1 ; its acceptance
 ev_lk: .ds KN ; live winning tiles of each tenpai discard (ev_discard)
 ev_yacc: .ds 1 ; live winning tiles with yaku of ev_value
 ev_has_best: .ds 1 ; 1 once ev_best is set
-ev_furiten: .ds 1 ; nonzero when a wait is in our river or is the discard
+ev_furiten: .ds 1 ; 1 when a wait is in our river or is the discard, else 0
 ev_base_dora: .ds 1 ; dora of the 14 tiles
 ev_hand_dora: .ds 1 ; input of ev_acceptance: dora after the discard
 ev_hand_aka: .ds 1 ; input of ev_acceptance: red fives after the discard
