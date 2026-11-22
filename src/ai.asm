@@ -1324,7 +1324,15 @@ intent_toi_store:
  bne intent_fl_clear
  jsr sh_general
  staa wk_left
- cmpa #3
+ ; A yakuhai pair or two usable dora make the flush worth one shanten more.
+ ldab pai_ypairs
+ bne intent_fl_wide
+ ldab pai_dora_use
+ cmpb #2
+ bcc intent_fl_wide
+ inca
+intent_fl_wide:
+ cmpa #4
  bcc intent_fl_clear
  ldab #K_END-1
 intent_fl_save:
@@ -2604,8 +2612,8 @@ ai_call_30:
 
 ; If yakuhai value is insufficient, try other routes without relaxing shanten.
 ; Another yakuhai: 3 han (2 for the dealer) of the yakuhai and usable dora
-; (pai_dora_use), a set, a furo, another yakuhai pair, or for the dealer
-; two other blocks. The shanten may stay the same.
+; (pai_dora_use), a set, a furo, a flush call (call_flush), another yakuhai
+; pair, or for the dealer two other blocks. The shanten may stay the same.
 yakuhai_call:
 	; A double wind skips the extra value test, not the shanten check.
 	ldaa	call_yakuhai
@@ -2622,6 +2630,7 @@ call_yakuhai_han:
 	ldaa	nfuro
 	oraa	pai_trips
 	oraa	pai_blocks
+	oraa	call_flush
 	bne	yakuhai_call_00
 	ldaa	pai_ypairs
 	cmpa	#2
