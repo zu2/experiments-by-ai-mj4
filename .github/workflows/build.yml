@@ -1,0 +1,50 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  BINTOOLS_COMMIT: 791db957f9fb451dfb0b7faf8a77aa435a75ed7b
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Pillow
+        run: python3 -m pip install pillow
+
+      - name: Fetch Fuzix-Bintools
+        run: |
+          git clone https://codeberg.org/EtchedPixels/Fuzix-Bintools vendor/bintools \
+            || git clone https://github.com/EtchedPixels/Fuzix-Bintools vendor/bintools
+          git -C vendor/bintools checkout "$BINTOOLS_COMMIT"
+
+      - name: Build
+        run: python3 build.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mj4
+          path: |
+            mj4.raw
+            mj4.s19
+            build/mj4.map
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" mj4.raw mj4.s19 --title "$GITHUB_REF_NAME" --generate-notes
