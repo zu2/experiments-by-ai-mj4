@@ -293,10 +293,13 @@ ev_add_pts_01:
 ; search stops once 3 seconds have passed since ai_discard began, so every
 ; candidate has its value over the same draws. ad_pick changes only to a larger
 ; value. counts, unseen, kk1 and kk2 are restored; sk and min_s are made again.
+; A = 1 (push_value against a riichi): every cc_order candidate that keeps
+; 1-shanten gets a record, and the totals are made even for ad_pick alone.
 ; A record per candidate: kind, 5 bytes of tenpai draws (from ac_lower),
 ; total (3 bytes), best of the current draw (3 bytes).
 E1_SIZE .equ 10
 ev1_discard:
+ staa e1_all
  ldaa kk1
  staa e1_kk1
  ldaa kk2
@@ -328,6 +331,8 @@ ev1_discard_02:
  ldab e1_pass
  cmpb #2
  beq ev1_discard_08
+ tst e1_all
+ bne ev1_discard_05
  ldab cc_value-cc_order,x
  cmpb e1_value
  bcs ev1_discard_08
@@ -374,6 +379,8 @@ ev1_discard_09:
  dec e1_pass
  bne ev1_discard_00
  ; With ad_pick alone there is nothing to compare.
+ tst e1_all
+ bne ev1_discard_10
  ldx e1_end
  cpx #e1_rec+E1_SIZE
  bne ev1_discard_10
@@ -739,5 +746,6 @@ e1_kk2: .ds 1 ; kk2 of the caller
 e1_sec: .ds 1 ; $0B when ai_discard began
 e1_frame: .ds 1 ; $0C when ai_discard began
 e1_value: .ds 1 ; cc_value of ad_pick
+e1_all: .ds 1 ; A of ev1_discard: 1 records every candidate
 e1_src: .ds 2 ; ev1_discard: source of the tenpai draws
 ; e1_dst is allocated in directpage.asm.

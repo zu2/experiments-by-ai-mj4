@@ -311,7 +311,7 @@ oc_x: .ds 2 ; oc_build: the player
 rp_n: .ds 1 ; ryan_pairs: pairs found
 rp_s: .ds 1 ; ryan_pairs: suits left
 fold_result: .ds 1 ; input of fold_check: shanten; output: the result
-fold_limit: .ds 1 ; output of fold_check: fold at this danger or more
+push_by_value: .ds 1 ; output of fold_check: 1 when push_value decides
 threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
  .code
 
@@ -383,20 +383,23 @@ ai_discard_03:
  ldx ev_best
  beq ai_discard_02
 ai_discard_10:
+ tst push_by_value
+ bne ai_discard_12
 	ldaa	min_s
 	staa	wk_limit
  jsr least_danger
- ldaa wk_best
- cmpa fold_limit
- bcs ai_discard_07
- ; A tenpai folds only with at most one live winning tile (ev_lk).
+ bra ai_discard_07
+ai_discard_12:
  tst min_s
- bne ai_discard_02
- ldaa ad_pick
- staa wk_kind
- jsr ev_lk_x
- ldaa 0,x
- cmpa #2
+ beq ai_discard_13
+	jsr	set_intents
+ jsr toi_prepare
+ jsr tie_policy
+	jsr	best_accept
+ ldaa #1
+	jsr	ev1_discard
+ai_discard_13:
+ jsr push_value
  bcs ai_discard_02
  bra ai_discard_07
 ai_discard_04:
@@ -451,6 +454,7 @@ ai_discard_11:
 	ldaa	min_s
 	cmpa	#1
 	bne	ai_discard_07
+	clra
 	jsr	ev1_discard
 ai_discard_07:
  clr spec_off
@@ -667,6 +671,118 @@ least_danger_01:
 	cmpa	#K_END
 	bne	least_danger_00
 	rts
+
+; Push against a riichi by value. Score of a discard i = V(i) - (danger(i) << pf_k):
+; for a tenpai (min_s = 0) V is ev_sum of each tenpai discard; for 1-shanten
+; V is the total of each record of ev1_discard (A = 1) / 16, near the unit
+; of ev_sum. Sets ad_pick to the largest score. Returns C set (fold)
+; when the largest score is negative.
+push_value:
+ jsr oc_build
+ clr pv_has
+ ldaa #$FF
+ staa pv_best
+ tst min_s
+ bne push_value_02
+ jsr ev_prepare
+ clr wk_kind
+push_value_00:
+ jsr ad_allowed
+ beq push_value_01
+ tst sk-counts,x
+ bne push_value_01
+ jsr ev_value
+ ldx ev_sum
+ stx pv_v
+ jsr pv_score
+push_value_01:
+ inc wk_kind
+ ldaa wk_kind
+ cmpa #K_END
+ bne push_value_00
+ bra push_value_04
+push_value_02:
+ ldx #e1_rec
+push_value_03:
+ stx pv_rec
+ ldaa 0,x
+ staa wk_kind
+ ldx 6,x
+ stx pv_v
+ ldab #4
+push_value_05:
+ lsr pv_v
+ ror pv_v+1
+ decb
+ bne push_value_05
+ jsr pv_score
+ ldx pv_rec
+ ldab #E1_SIZE
+ jsr addxb
+ cpx e1_end
+ bne push_value_03
+push_value_04:
+ ldaa pv_best
+ asla
+ rts
+
+; Score of wk_kind = pv_v - (danger << pf_k), 3 bytes signed (the first is 0
+; or $FF); danger << pf_k stops at $FFFF. Keeps the largest in pv_best and its
+; kind in ad_pick; the first of equal scores stays.
+pv_score:
+ jsr danger
+ staa pv_prod+1
+ clr pv_prod
+ ldab pf_k
+ beq pv_score_04
+pv_score_03:
+ asl pv_prod+1
+ rol pv_prod
+ bcs pv_score_05
+ decb
+ bne pv_score_03
+ bra pv_score_04
+pv_score_05:
+ ldx #$FFFF
+ stx pv_prod
+pv_score_04:
+ ldab pv_v+1
+ subb pv_prod+1
+ ldaa pv_v
+ sbca pv_prod
+ staa pv_new+1
+ stab pv_new+2
+ ldaa #0
+ sbca #0
+ staa pv_new
+ tst pv_has
+ beq pv_score_01
+ cmpa pv_best
+ beq pv_score_00
+ tsta
+ bne pv_score_02
+ bra pv_score_01
+pv_score_00:
+ ldaa pv_new+1
+ cmpa pv_best+1
+ bhi pv_score_01
+ bcs pv_score_02
+ ldaa pv_new+2
+ cmpa pv_best+2
+ bls pv_score_02
+pv_score_01:
+ ldx pv_new
+ stx pv_best
+ ldaa pv_new+2
+ staa pv_best+2
+ ldaa wk_kind
+ staa ad_pick
+ inc pv_has
+pv_score_02:
+ rts
+; k of push_value.
+pf_k:
+ .byte 1
 
 ; Sets ad_pick to the candidate (choose_cands) that leaves the most tiles that
 ; lower the shanten number, and cc_lower to ac_lower of each candidate.
@@ -2814,10 +2930,10 @@ oc_build_06:
 ; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left.
 ; FC_FOLD    fold: draws_left / 4 draws cannot reach tenpai, or a threat
 ;            and 2-shanten or more.
-; Sets fold_limit: a push folds at this danger or more. Against a riichi it
-; is 36 (a 3-7 suji tile against one riichi, 4 * 9) for FC_DANGER, and 60
-; for a tenpai except in the last draws, where the tenpai is kept for the
-; payment at a drawn hand, and for the last place, which keeps pushing.
+; Sets push_by_value: against a riichi, push_value decides between a push
+; and a fold for FC_DANGER, and for a tenpai except in the last draws, where
+; the tenpai is kept for the payment at a drawn hand, and for the last place,
+; which keeps pushing. Else a push always pushes.
 ; ai_discard and ai_call (call_shanten) both use it, so a call never makes
 ; a hand that folds. X and B are scratch.
 PUSH_FOLD_LEFT .equ 10
@@ -2827,8 +2943,7 @@ FC_DANGER .equ 2
 FC_FOLD .equ 3
 fold_check:
  staa fold_result
- ldaa #$FF
- staa fold_limit
+ clr push_by_value
  ldab draws_left
  lsrb
  lsrb
@@ -2852,15 +2967,13 @@ fold_check:
  jsr count_ge
  cmpb #4
  beq fold_check_00
- ldaa #60
- staa fold_limit
+ inc push_by_value
  bra fold_check_00
 fold_check_02:
  ldaa draws_left
  cmpa #40
  bcc fold_check_00
- ldaa #36
- staa fold_limit
+ inc push_by_value
  ldaa #FC_DANGER
  bra fold_check_01
 fold_check_00:
@@ -2956,7 +3069,7 @@ furo_threat_02:
 ; Returns A = danger of discarding wk_kind: the sum over the other players
 ; of threat_weight * danger_one, at most 254. Both are weighted by the mean
 ; deal-in loss of Tenhou houou games (mahjong_math on note.com, doraaka):
-; threat_weight 1.5 times for the dealer; danger_one 1.5 times for a dora
+; threat_weight 2 times for the dealer; danger_one 1.5 times for a dora
 ; and in the ippatsu turn, 1.25 times for a yakuhai of the player.
 danger:
 	clr	danger_player
@@ -2971,10 +3084,7 @@ danger_00:
  ldaa danger_player
  cmpa dealer
  bne danger_10
- ldaa dg_weight
- lsra
- adda dg_weight
- staa dg_weight
+ asl dg_weight
 danger_10:
 	jsr	danger_one
  ; oc_mask: suits whose danger from this player is half. kind_suit gives 3
@@ -3051,6 +3161,12 @@ danger_09:
 	.bss
 ; ai_player is allocated in directpage.asm.
 danger_max:	.ds	1 ; sum of the danger over the players
+pv_has: .ds 1 ; push_value: a score is kept
+pv_rec: .ds 2 ; push_value: record of ev1_discard
+pv_v: .ds 2 ; pv_score: value of the discard
+pv_prod: .ds 2 ; pv_score: danger << pf_k
+pv_new: .ds 3 ; pv_score: score of the discard
+pv_best: .ds 3 ; pv_score: largest score
 dg_weight:	.ds	1 ; weight of danger_player in danger
 dg_value:	.ds	1 ; danger: danger_one of danger_player
 dg_sum:	.ds	1 ; danger: dg_value with the loss weights
