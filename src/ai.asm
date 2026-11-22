@@ -1101,7 +1101,6 @@ pai_block:
  addb pai_chanta_cut
  stab pai_chanta_cut
 scan_pai_20:
- inc pai_blocks
  ldx pai_suit_ptr
  ldab #1
  stab pai_block0-pai_suit0,x
@@ -2628,8 +2627,8 @@ ai_call_30:
 
 ; If yakuhai value is insufficient, try other routes without relaxing shanten.
 ; Another yakuhai: 3 han (2 for the dealer) of the yakuhai and usable dora
-; (pai_dora_use), a set, a furo, a flush call (call_flush), another yakuhai
-; pair, or for the dealer two other blocks. The shanten may stay the same.
+; (pai_dora_use), a furo, a flush call (call_flush), another yakuhai pair,
+; or for the dealer two other blocks. The shanten may stay the same.
 yakuhai_call:
 	; A double wind skips the extra value test, not the shanten check.
 	ldaa	call_yakuhai
@@ -2644,8 +2643,6 @@ call_yakuhai_han:
 	cmpa	#2
 	bcc	yakuhai_call_00
 	ldaa	nfuro
-	oraa	pai_trips
-	oraa	pai_blocks
 	oraa	call_flush
 	bne	yakuhai_call_00
 	ldaa	pai_ypairs
@@ -2857,7 +2854,6 @@ pai_block2: .ds 1 ; 1 if sou has a complete block
 pai_max_suit: .ds 1 ; suit with the largest flush score (0..2)
 pai_honor_pts: .ds 1 ; honor pairs 1, triplets 2
 pai_ypairs: .ds 1 ; yakuhai kinds with 2 or more tiles
-pai_blocks: .ds 1 ; complete blocks of the suits
 pai_dora_use: .ds 1 ; usable dora tiles (paired or with a tile within 2)
 pai_dora_tan: .ds 1 ; usable simple dora kinds
 pai_chanta_cut: .ds 1 ; tiles chanta must cut (a non-chanta block counts 3)
