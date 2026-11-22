@@ -1299,6 +1299,19 @@ intent_toi_sum:
  adda pai_toi_yaku
 intent_toi_cmp:
  cmpa #8
+ bcc intent_toi_on
+ ; Four pairs with two more han (mangan with toitoi): yakuhai and usable
+ ; dora, or the flush score of iw_flush.
+ ldaa pai_pairs
+ cmpa #4
+ bcs intent_toi_off
+ ldaa pai_ypairs
+ adda pai_dora_use
+ cmpa #2
+ bcc intent_toi_on
+ ldaa pai_flush_score
+ adda pai_honor_pts
+ cmpa #8
  bcs intent_toi_off
 intent_toi_on:
  inc iw_toi
