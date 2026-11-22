@@ -679,7 +679,7 @@ least_danger_01:
 	bne	least_danger_00
 	rts
 
-; Push against a riichi by value. Score of a discard i = V(i) - (danger(i) << pf_k):
+; Push against a riichi by value. Score of a discard i = V(i) - (danger(i) << 1):
 ; for a tenpai (min_s = 0) V is ev_sum of each tenpai discard; for 1-shanten
 ; V is the total of each record of ev1_discard (A = 1) / 16, near the unit
 ; of ev_sum. Sets ad_pick to the largest score. Returns C set (fold)
@@ -733,26 +733,15 @@ push_value_04:
  asla
  rts
 
-; Score of wk_kind = pv_v - (danger << pf_k), 3 bytes signed (the first is 0
-; or $FF); danger << pf_k stops at $FFFF. Keeps the largest in pv_best and its
+; Score of wk_kind = pv_v - (danger << 1), 3 bytes signed (the first is 0
+; or $FF). Keeps the largest in pv_best and its
 ; kind in ad_pick; the first of equal scores stays.
 pv_score:
  jsr danger
- staa pv_prod+1
  clr pv_prod
- ldab pf_k
- beq pv_score_04
-pv_score_03:
- asl pv_prod+1
+ asla
  rol pv_prod
- bcs pv_score_05
- decb
- bne pv_score_03
- bra pv_score_04
-pv_score_05:
- ldx #$FFFF
- stx pv_prod
-pv_score_04:
+ staa pv_prod+1
  ldab pv_v+1
  subb pv_prod+1
  ldaa pv_v
@@ -787,9 +776,6 @@ pv_score_01:
  inc pv_has
 pv_score_02:
  rts
-; k of push_value.
-pf_k:
- .byte 1
 
 ; Sets ad_pick to the candidate (choose_cands) that leaves the most tiles that
 ; lower the shanten number, and cc_lower to ac_lower of each candidate.
@@ -3229,7 +3215,7 @@ danger_max:	.ds	1 ; sum of the danger over the players
 pv_has: .ds 1 ; push_value: a score is kept
 pv_rec: .ds 2 ; push_value: record of ev1_discard
 pv_v: .ds 2 ; pv_score: value of the discard
-pv_prod: .ds 2 ; pv_score: danger << pf_k
+pv_prod: .ds 2 ; pv_score: danger << 1
 pv_new: .ds 3 ; pv_score: score of the discard
 pv_best: .ds 3 ; pv_score: largest score
 dg_weight:	.ds	1 ; weight of danger_player in danger
