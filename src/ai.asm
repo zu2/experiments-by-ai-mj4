@@ -1956,9 +1956,18 @@ acceptance_03:
  pula
  cmpa min_s
  bge acceptance_04
- ldaa wk_accept
- adda wk_unseen
+ jsr acc_weight
+ bmi acceptance_07
+ ldaa wk_unseen
+ tstb
+ beq acceptance_05
+ adda #2
+ lsra
+ lsra
+acceptance_05:
+ adda wk_accept
  staa wk_accept
+acceptance_07:
  ldaa wk_draw
  jsr kind_bit
  ldx #ac_lower
@@ -1973,6 +1982,62 @@ acceptance_04:
  cmpa #K_END
  bne acceptance_00
  ldaa wk_accept
+ rts
+
+; wk_draw = a draw that lowers the shanten number (min_s 1 or more), counts =
+; the hand without it, rel = its near_sum of every kind. Returns B = 0, 2 or
+; $FF (N set): acceptance adds wk_unseen, (wk_unseen + 2) / 4 or nothing.
+; A draw next to one tile only, an isolated one (rel 1), counts 1/4 when it
+; makes a kanchan or a pair and 1/16 when it makes a penchan; every other
+; draw counts 1. Tenpai, chanta, chiitoi, toitoi and kokushi count 1.
+acc_weight:
+ tst min_s
+ beq acc_weight_02
+ ldaa intents
+ bita #I_CHI+I_CHII+I_TOI+I_KOK
+ bne acc_weight_02
+ ldaa wk_draw
+ jsr near_sum
+ cmpa #1
+ bne acc_weight_02
+ clrb
+acc_weight_00:
+ tst 0,x
+ bne acc_weight_01
+ inx
+ incb
+ bra acc_weight_00
+acc_weight_01:
+ ; B = 2 + the tile - the draw.
+ stab aw_i
+ addb wk_draw
+ subb #2
+ ldx #rel
+ jsr addxb
+ ldaa 0,x
+ cmpa #1
+ bne acc_weight_02
+ ; A pair or a kanchan 2; next to the draw 0, or $FF for a penchan.
+ ldab #2
+ ldaa aw_i
+ cmpa #1
+ beq acc_weight_03
+ cmpa #3
+ bne acc_weight_04
+acc_weight_03:
+ ldab #$FF
+ ldaa wk_draw
+ jsr is_yaochu
+ bne acc_weight_04
+ ldaa wk_draw
+ adda aw_i
+ suba #2
+ jsr is_yaochu
+ bne acc_weight_04
+acc_weight_02:
+ clrb
+acc_weight_04:
+ tstb
  rts
 
  ; Acceptance needs only to know whether the shanten value drops.
@@ -3503,4 +3568,5 @@ tie_ukeire: .ds 1 ; output of tie_policy: 1 when equal scores compare acceptance
 ac_ptr: .ds 2 ; &counts[draw]
 cand: .ds KN ; candidates of best_accept (cand_build, cand_restrict)
 ac_lower: .ds 5 ; output of acceptance: 1 bit for each kind that lowers the shanten
+aw_i: .ds 1 ; acc_weight: 2 + the tile next to the draw - the draw
  .code
