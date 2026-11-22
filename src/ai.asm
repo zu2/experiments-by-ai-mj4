@@ -317,7 +317,8 @@ threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
 
 ; Returns A = 1 if the computer declares riichi with the tile ai_tile.
 ; It declares whenever it may: closed, tenpai after the discard, 1000
-; points, 4 live draws left.
+; points, 4 live draws left; but not with 12 or 13 yaochu kinds in the 13
+; tiles: that tenpai is kokushi, which riichi does not raise.
 ai_riichi:
  jsr ai_can_riichi
  beq ai_riichi_00
@@ -327,7 +328,13 @@ ai_riichi:
  tst sk-counts,x
  bne ai_riichi_00
  dec 0,x
+ jsr spec_count
+ ldab SP_YAO,x
+ clra
+ cmpb #12
+ bcc ai_riichi_01
  jsr find_waits
+ai_riichi_01:
  psha
  ldab ad_pick
  jsr	counts_x
