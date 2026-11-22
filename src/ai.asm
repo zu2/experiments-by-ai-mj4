@@ -1301,7 +1301,10 @@ intent_toi_cmp:
  cmpa #8
  bcc intent_toi_on
  ; Four pairs with two more han (mangan with toitoi): yakuhai and usable
- ; dora, or the flush score of iw_flush.
+ ; dora, or the flush score of iw_flush. Not late: toitoi needs several pons.
+ ldaa draws_left
+ cmpa #30
+ bcs intent_toi_off
  ldaa pai_pairs
  cmpa #4
  bcs intent_toi_off
