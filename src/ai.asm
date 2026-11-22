@@ -1222,10 +1222,6 @@ pai_max_loop:
  bcc pai_max_next
  ldaa 0,x
  stab pai_max_suit
- pshb
- ldab pai_suit0-pai_suit_work,x
- stab pai_max
- pulb
 pai_max_next:
  inx
  incb
@@ -2838,7 +2834,6 @@ pai_suit2: .ds 1 ; sou tiles
 pai_block0: .ds 1 ; 1 if man has a complete block
 pai_block1: .ds 1 ; 1 if pin has a complete block
 pai_block2: .ds 1 ; 1 if sou has a complete block
-pai_max: .ds 1 ; physical tiles of the suit selected by the flush score
 pai_max_suit: .ds 1 ; suit with the largest flush score (0..2)
 pai_honor_pts: .ds 1 ; honor pairs 1, triplets 2
 pai_ypairs: .ds 1 ; yakuhai kinds with 2 or more tiles
@@ -2848,8 +2843,6 @@ pai_dora_tan: .ds 1 ; usable simple dora kinds
 pai_chanta_cut: .ds 1 ; tiles chanta must cut (a non-chanta block counts 3)
 pai_acc_end:
 rel:	.ds	KN ; kinds that can lower the shanten (sum of nearby tiles)
-; The candidate list sits after the pai_ block: pai_suit0-pai_suit_work,x
-; must stay within 255.
 cc_insert_x:	.ds	2 ; cc_order slot to insert at
 ; cc_key is allocated in directpage.asm.
 cc_slot:	.ds	1 ; cc_order slot being scored
