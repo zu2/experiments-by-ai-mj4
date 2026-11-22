@@ -2552,9 +2552,18 @@ ai_call_10:
  bcs ai_call_20
  clr call_flush
 ai_call_20:
+ ; Four pairs alone do not stop a call: chiitoi is not counted (kokushi is).
+ jsr spec_count
+ ldaa SP_PAIRS,x
+ cmpa #4
+ bne ai_call_23
+ ldaa #SPEC_NO_CHII
+ staa spec_off
+ai_call_23:
 	jsr	shanten
 	staa	call_shanten_now
  jsr call_before_ukeire
+ clr spec_off
  ; In tenpai, the value of not calling for call_ev_more.
  tst call_shanten_now
  bne ai_call_22
