@@ -3421,13 +3421,17 @@ spec_before:
  ldx spec_x
  rts
 ; X = a set. Returns A = the lower of the chiitoi and kokushi shanten that
-; spec_off counts. Keeps X.
+; spec_off counts. Chiitoi counts from four pairs: people play for it only
+; then. Keeps X.
 spec_shanten:
  ldaa SP_YAO,x
  ldab SP_YPAIRS,x
  jsr kok_sh
  ldab spec_off
  bne spec_shanten_00
+ ldab SP_PAIRS,x
+ cmpb #4
+ bcs spec_shanten_00
  psha
  ldaa SP_PAIRS,x
  ldab SP_KINDS,x
