@@ -2980,14 +2980,8 @@ oc_build_07:
  inx
  decb
  bne oc_build_04
- ldaa #1
  ldab oc_s
- beq oc_build_09
-oc_build_08:
- asla
- decb
- bne oc_build_08
-oc_build_09:
+ jsr player_bit
  ldab oc_n
  cmpb #3
  bcc oc_build_10

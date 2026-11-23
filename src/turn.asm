@@ -1401,14 +1401,7 @@ options_ploop:
 	jsr	kuikae_ok
 	beq	options_pnext
 	ldab	cop_pat
-	ldaa	#1
-	tstb
-	beq	call_options_00
-options_bit:
-	asla
-	decb
-	bne	options_bit
-call_options_00:
+	jsr	player_bit
 	oraa	rp_chi
 	staa	rp_chi
 options_pnext:

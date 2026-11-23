@@ -683,19 +683,15 @@ collect_01:
 	cmpb	sets_n
 	beq	collect_06
 	jsr	btype_x
-	ldab	bkind-btype,x
 	ldaa	0,x
 	bita	#B_SEQ
 	bne	collect_04
 	ldab	cl_i
 	jsr	concealed
-	psha
-	adda	n_conc
-	staa	n_conc
-	pula
 	ldab	#2
 	tsta
 	beq	collect_02
+	inc	n_conc
 	aslb
 collect_02:
 	ldaa	0,x
@@ -714,6 +710,7 @@ collect_03:
 	ldx	#trip_n
 	bra	collect_05
 collect_04:
+	ldab	bkind-btype,x
 	inc	n_seq
 	ldx	#seq_n
 collect_05:

@@ -169,8 +169,8 @@ kind_suit_02:
  ldaa #3
  rts
 
-; B = player. Returns A = 1 shifted left by B (player_bit_hi: $10 shifted
-; left by B, the bit of player B + 4). Keeps X.
+; B = player or bit number. Returns A = 1 shifted left by B (player_bit_hi:
+; $10 shifted left by B, the bit of player B + 4). Keeps X.
 player_bit_hi:
  ldaa #$10
  bra player_bit_02
