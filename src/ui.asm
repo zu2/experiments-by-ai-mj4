@@ -179,7 +179,9 @@ ui_human_tail:
 ui_human_erased:
  tst ui_big
  bne ui_human_nocur
- jsr arrow_full
+ ; A hand redraw also removes old kan marks before drawing new furo.
+ ldaa #248
+ jsr arrow_width
 ui_human_nocur:
  jsr ui_furo_big
  tst ui_big
@@ -540,10 +542,6 @@ redraw_all_01:
 draw_info:
  jsr ui_header
  jmp ui_scores
-; After a draw: the tiles left and the turn marks.
-draw_nokori:
- jsr ui_nokori
- jmp ui_turn
 ; Draws the round, the honba and the dora indicators over the old ones. Each
 ; item keeps its place and width, and the stick of the deposits and the dora
 ; indicators only increase in a round (clear_screen starts each round).

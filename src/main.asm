@@ -263,7 +263,8 @@ win_tsumo_21:
 
 	clr	kyotaku
 	jsr	wait_space
-	jsr	show_win_scores
+	ldaa	#1
+	jsr	score_page
 	jsr	wait_space
 	jsr	tobi
 	bne	win_game_end
@@ -298,7 +299,8 @@ draw_sound:
 abortive_draw:
 	staa	abort_reason
 	clr	game_active
-	jsr	redraw_hands
+	clr	reveal
+	jsr	draw_hands
 	ldx	#0*256+0
 	stx	posx
 	ldaa	#22
@@ -322,7 +324,9 @@ ryukyoku:
 	jsr	save_scores
 	jsr	settle_draw
 	ldaa	ry_tenpai
-	jsr	reveal_hands
+	staa	reveal
+	jsr	draw_hands
+	clr	reveal
 	jsr	show_draw
 	jsr	draw_sound
 	jsr	wait_space
@@ -463,7 +467,8 @@ check_win_00:
 check_win_01:
 	jsr	is_agari
 	beq	check_win_02
-	jsr	setup_score
+	jsr	setup_place
+	jsr	setup_win
 	jsr	score_hand
 	ldaa	best_pts
 	oraa	best_pts+1
@@ -474,9 +479,6 @@ check_win_02:
 	clra
 	rts
 
-; Sets the inputs of score_hand for player cw_p.
-setup_score:
-	jsr	setup_place
 ; Sets the inputs that depend on how the hand is won: sflags and ura_n.
 setup_win:
 	ldaa	cw_p
@@ -498,7 +500,11 @@ setup_special:
 setup_rinshan:
 	ldaa	#F_RINSHAN
 setup_win_00:
-	jsr	ss_flag_if
+	tst	0,x
+	beq	setup_win_01
+	oraa	sflags
+	staa	sflags
+setup_win_01:
 	clr	ura_n
 	tst	sflags
 	bpl	setup_win_11
@@ -629,15 +635,6 @@ ss_count:
 	adda	furo_tiles-counts,x
 	rts
 
-; X = flag byte, A = F_*. Sets A in sflags if the byte is not 0.
-ss_flag_if:
-	tst	0,x
-	beq	ss_flag_if_00
-	oraa	sflags
-	staa	sflags
-ss_flag_if_00:
-	rts
-
 ; B = indicator index (0..4); returns A = dora kind. B and X are scratch.
 dora_kind_at:
  aslb
@@ -754,7 +751,8 @@ show_result_10:
 	staa	posx
 	jsr	yaku_han_of
 	beq	show_result_04
- jsr print_a2
+ ldab #2
+ jsr print_byte_num
 	ldx	#s_han
 	jsr	drawstr
 show_result_04:
@@ -838,9 +836,6 @@ print_win_pts_00:
 print_win_pts_01:
 	rts
 
-; Post-win score page, shown after the yaku page and before the next hand.
-show_win_scores:
- ldaa #1
 ; A = settlement detail flag (1 = win arithmetic, 0 = final scores).
 score_page:
  staa result_active
@@ -1007,17 +1002,8 @@ save_scores_00:
 	bpl	save_scores_00
 	rts
 
-; A = players whose hands are shown (bit p for player p). Redraws the hands
-; in place; keeps the table, rivers and header intact.
-reveal_hands:
-	staa	reveal
-	jsr	draw_hands
-	clr	reveal
-	rts
-
-; Redraw the hands without forcing the current CPU hand open.
-redraw_hands:
-	clr	reveal
+; reveal = players whose hands are shown (bit p for player p). Redraws the
+; hands in place; keeps the table, rivers and header intact.
 draw_hands:
 	clr	loop_p
 draw_hands_00:
@@ -1406,10 +1392,7 @@ draw_arrow:
  asla
  adda #8
  bra arrow_width
-; Clears the arrow strip and draws the arrow under the cursor.
-arrow_full:
- ; A hand redraw also removes old kan marks before drawing new furo.
- ldaa #248
+; A = width of the arrow strip. Clears it and draws the arrow under the cursor.
 arrow_width:
  staa ui_width
  clr sm_x
@@ -1502,9 +1485,7 @@ pscore_zero:
 	inc	posx
 	rts
 
-; A = unsigned byte, printed in 2 cells (print_byte_num: B cells).
-print_a2:
- ldab #2
+; A = unsigned byte, printed in B cells.
 print_byte_num:
  clr wk_num
  staa wk_num+1
@@ -1591,12 +1572,6 @@ title_dragons:
 	cmpa	#3
 	bne	title_dragons
 	rts
-; Shows or hides the CPU hands and redraws the table.
-toggle_open:
-	ldaa	open_mode
-	eora	#1
-	staa	open_mode
-	jmp	redraw_all
 
 ; ---------------------------------------------------------------- screen
 
@@ -1976,7 +1951,10 @@ apply_open_00:
 	beq	apply_open_01
 	ldx	#snd_select
 	jsr	play
-	jsr	toggle_open
+	ldaa	open_mode
+	eora	#1
+	staa	open_mode
+	jmp	redraw_all
 apply_open_01:
 	rts
 
@@ -2155,7 +2133,7 @@ dc_k:	.ds	1 ; place of dc_tile in the river
 cw_ron:	.ds	1 ; 1 for ron, 0 for tsumo (check_win)
 win_tile:	.ds	1 ; winning tile: dc_tile for a ron, the drawn tile for a tsumo
 ; ss_i is allocated in directpage.asm.
-ss_p:	.ds	2 ; next furo (setup_score)
+ss_p:	.ds	2 ; next furo (setup_place)
 ; ry_tenpai is allocated in directpage.asm.
 ; ry_v is allocated in directpage.asm.
 

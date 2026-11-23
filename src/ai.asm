@@ -77,7 +77,9 @@ ai_kan_03:
  ldab kan_kind
  jsr counts_x
  clr 0,x
- jsr shanten_furo
+ inc nfuro
+ jsr shanten
+ dec nfuro
  psha
  ldab kan_kind
  jsr counts_x
@@ -931,7 +933,8 @@ cc_rank:
  ; Kokushi discards its middle tiles first.
  tst iw_kok
  beq cc_rank_value
- jsr kind_is_yaochu
+ ldaa wk_kind
+ jsr is_yaochu
  bne cc_rank_value
  clr cc_key
 cc_rank_value:
@@ -1681,10 +1684,8 @@ ryan_pairs_02:
  ldaa rp_n
  rts
 
-; A = kind (kind_is_yaochu: wk_kind). Returns A = 1 for terminals and
-; honors, with N and Z set from A. Preserves B and X.
-kind_is_yaochu:
- ldaa wk_kind
+; A = kind. Returns A = 1 for terminals and honors, with N and Z set from A.
+; Preserves B and X.
 is_yaochu:
  cmpa #K_HONOR
  bcc is_yaochu_00

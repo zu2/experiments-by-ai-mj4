@@ -41,7 +41,8 @@ turn_loop_00:
 after_draw:
 	ldaa	turn
 	staa	ai_player
-	jsr	draw_nokori
+	jsr	ui_nokori
+	jsr	ui_turn
 	ldaa	turn
 	jsr	ui_hand
 	ldaa	turn
@@ -55,6 +56,7 @@ after_draw:
 	jmp	abortive_draw
 after_draw_04:
 	ldaa	turn
+	oraa	auto_play
 	bne	after_draw_01
 	jsr	human_turn
 	bra	after_draw_02
@@ -541,10 +543,6 @@ kyuushu_ask_00:
 ; Returns A = action, B = tile (discard) or kind (kan). decl = 1 for a
 ; riichi declaration.
 human_turn:
-	tst	auto_play
-	beq	human_manual
-	jmp	cpu_turn
-human_manual:
 	clr	decl
 	clr	riichi_mode
 	clr	riichi_reject

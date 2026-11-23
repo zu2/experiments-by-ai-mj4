@@ -48,13 +48,6 @@ each_head_01:
 	bne	each_head_00
 	rts
 
-; Returns A = shanten number with one more furo; nfuro is restored.
-shanten_furo:
- inc nfuro
- bsr shanten
- dec nfuro
- rts
-
 ; Returns A = shanten number (-1 for a winning shape).
 ; Returns with N and Z set from A and V clear.
 shanten:

@@ -11,7 +11,7 @@ sm_x .equ $0076 ; pixel x of smalltile
 wk_num .equ $0077 ; shared work: 16-bit number (div8_a operand and result, payer_amount and score_total sums, print_num input)
 ai_player .equ $0079 ; computer player that is thinking
 min_s .equ $007A ; lowest shanten of the discards
-wk_draw .equ $007B ; shared work: kind of the draw (acceptance, ev_acceptance)
+wk_draw .equ $007B ; shared work: kind of the draw (acceptance, ev_tally)
 loop_p .equ $007C ; player index for loops (settle, scores, count_ge)
 sh_best .equ $007D ; best shanten in shanten
 ht_p .equ $007E ; player whose hand is drawn
@@ -46,7 +46,7 @@ fi_han .equ $009B ; han for fi_limit
 ko_k .equ $009C ; kind kan_options checks
 rp_chi .equ $009D ; chi patterns possible (bits)
 seed .equ $009E ; rand state (3 bytes, never 0)
-wk_accept .equ $00A1 ; shared work: acceptance sum (output of acceptance, ev_acceptance)
+wk_accept .equ $00A1 ; shared work: acceptance sum (output of acceptance, ev_tally)
 wk_best .equ $00A2 ; shared work: best value (least_danger, best_accept)
 cur_fu .equ $00A3 ; fu of the decomposition
 head_kind .equ $00A4 ; kind of the head
@@ -85,7 +85,7 @@ sr_row .equ $00C8 ; text row of the result page
 title_i .equ $00C9 ; title tile index
 win_kind .equ $00CA ; kind of the winning tile
 pay_amt .equ $00CC ; points one payer pays
-wk_unseen .equ $00CE ; shared work: unseen copies of wk_draw (acceptance, ev_acceptance)
+wk_unseen .equ $00CE ; shared work: unseen copies of wk_draw (acceptance, ev_tally)
 aka_n .equ $00CF ; red fives in the hand
 best_n .equ $00D0 ; yaku of the best result
 chi_pat .equ $00D2 ; chi pattern the human chose

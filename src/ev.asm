@@ -75,10 +75,11 @@ ev_value_waits:
  jsr ev_tally
  bra ev_value_restore
 ; Value of discarding wk_kind from the 14 tiles of counts, after ev_prepare:
-; ev_sum and wk_accept of ev_acceptance. counts is restored.
+; ev_sum and wk_accept of ev_tally. counts is restored.
 ev_value:
  jsr ev_hand_prep
- jsr ev_acceptance
+ jsr find_waits
+ jsr ev_tally
 ev_value_restore:
  jsr kind_counts_x
  inc 0,x
@@ -181,8 +182,6 @@ ev_prepare_00:
 
 ; counts is the 13-tile hand after discarding wk_kind. A dead wait is
 ; still a wait for permanent furiten.
-ev_acceptance:
- jsr find_waits
 ev_tally:
  clr wk_accept
  clr ev_yacc
@@ -191,10 +190,10 @@ ev_tally:
  clr ev_sum+1
  clr wk_draw
  ldx #waits
-ev_acceptance_00:
+ev_tally_00:
  stx ev_wait_ptr
  tst 0,x
- beq ev_acceptance_11
+ beq ev_tally_11
  ldab wk_draw
  jsr unseen_x
  ldaa 0,x
@@ -214,7 +213,7 @@ evacc_is_furiten:
  staa ev_furiten
 evacc_live_wait:
  ldaa wk_unseen
- beq ev_acceptance_11
+ beq ev_tally_11
  ; The inputs of score_hand that change with the discard and the wait.
  ldab wk_draw
  jsr counts_x
@@ -236,23 +235,23 @@ evacc_live_wait:
  ldab wk_draw
  jsr counts_x
  dec 0,x
-ev_acceptance_11:
+ev_tally_11:
  ldx ev_wait_ptr
  inx
  inc wk_draw
  ldaa wk_draw
  cmpa #K_END
- bne ev_acceptance_00
+ bne ev_tally_00
  ; A furiten hand wins only by tsumo: a quarter of the ron value.
  tst ev_furiten
- beq ev_acceptance_12
+ beq ev_tally_12
  ldab #2
-ev_acceptance_13:
+ev_tally_13:
  lsr ev_sum
  ror ev_sum+1
  decb
- bne ev_acceptance_13
-ev_acceptance_12:
+ bne ev_tally_13
+ev_tally_12:
  ldaa wk_accept
  rts
 ; ev_sum += B * the points at X (B > 0), saturating at $FFFF; ev_yacc += B
@@ -713,10 +712,10 @@ ev_yacc: .ds 1 ; live winning tiles with yaku of ev_value
 ev_has_best: .ds 1 ; 1 once ev_best is set
 ev_furiten: .ds 1 ; 1 when a wait is in our river or is the discard, else 0
 ev_base_dora: .ds 1 ; dora of the 14 tiles
-ev_hand_dora: .ds 1 ; input of ev_acceptance: dora after the discard
-ev_hand_aka: .ds 1 ; input of ev_acceptance: red fives after the discard
+ev_hand_dora: .ds 1 ; input of ev_tally: dora after the discard
+ev_hand_aka: .ds 1 ; input of ev_tally: red fives after the discard
 ev_base_aka: .ds 1 ; red fives of the 14 tiles
-ev_wait_ptr: .ds 2 ; &waits[wk_draw] (ev_acceptance)
+ev_wait_ptr: .ds 2 ; &waits[wk_draw] (ev_tally)
 e1_rec: .ds 14*E1_SIZE ; records of ev1_discard (at most 14 kinds in a hand)
 e1_end: .ds 2 ; end of the records
 e1_j: .ds 2 ; record of the discard i being tried
