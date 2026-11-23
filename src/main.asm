@@ -207,7 +207,7 @@ kyoku_03:
 	clr	deal_player
 kyoku_04:
 	ldaa	deal_player
-	jsr	draw_hand
+	jsr	ui_hand
 	inc	deal_player
 	ldaa	deal_player
 	cmpa	#4
@@ -1022,7 +1022,7 @@ draw_hands:
 	clr	loop_p
 draw_hands_00:
 	ldaa	loop_p
-	jsr	draw_hand
+	jsr	ui_hand
 	inc	loop_p
 	ldaa	loop_p
 	cmpa	#4
@@ -1109,7 +1109,6 @@ eval_load:
 	; The operand of eval_load_ld walks the player area, so X stays on counts.
 	stx	eval_load_ld+1
 	ldx	#counts
-eval_load_00:
 eval_load_ld:
 	ldaa	players
 	anda	#7
@@ -1121,7 +1120,7 @@ eval_load_ld:
 eval_load_01:
 	inx
 	cpx	#counts+KN
-	bne	eval_load_00
+	bne	eval_load_ld
 	pula
 	ldx	#furo_tiles
 
@@ -1368,10 +1367,10 @@ discard:
  oraa 0,x
  staa 0,x
 	ldaa	dc_p
-	jsr	draw_hand
+	jsr	ui_hand
 	ldaa	dc_p
 	ldab	dc_k
-	jsr	draw_river_tile
+	jsr	ui_river_tile
 	jsr	river_mark
 	ldx	#snd_discard
 	jmp	play
@@ -1954,15 +1953,14 @@ scan_keys_02:
 	inc	krep
 	ldab	krep
 	cmpb	#20
-	bcs	scan_keys_04
+	bcs	apply_open
 	ldab	#16
 	stab	krep
 	oraa	knew
 	staa	knew
-	bra	scan_keys_04
+	bra	apply_open
 scan_keys_03:
 	clr	krep
-scan_keys_04:
 
 ; Shared column-0 sample supplies 1; process its edge after action scanning.
 apply_open:

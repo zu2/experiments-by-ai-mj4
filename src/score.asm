@@ -897,13 +897,13 @@ finish:
 	ldab	ym_n
  jsr fi_copy
 	tst	ym_extra
-	beq	finish_sort
+	beq	finish_00
 	ldab	best_n
 	jsr	best_y_x
 	ldaa	#Y_SUUANKOU
 	staa	0,x
 	inc	best_n
-	bra	finish_sort
+	rts
 finish_normal:
 	tst	cur_n
 	beq	finish_00
@@ -934,7 +934,6 @@ finish_han_total:
 	ldx	#cur_y
 	ldab	cur_n
  jsr fi_copy
-finish_sort:
 finish_00:
 	rts
 
@@ -954,14 +953,13 @@ fi_copy:
 	; The operand of fi_copy_ld walks the list (ym_y or cur_y, each within
 	; one page; build.py checks it), so X stays on best_y.
 	ldx	#best_y
-fi_copy_00:
 fi_copy_ld:
 	ldaa	cur_y
 	staa	0,x
 	inx
 	inc	fi_copy_ld+2
 	decb
-	bne	fi_copy_00
+	bne	fi_copy_ld
 fi_copy_01:
 	rts
 

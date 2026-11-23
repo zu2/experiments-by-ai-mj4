@@ -1,6 +1,5 @@
 ; Fixed 256x192 layout: three CPU bands, human river, large human hand.
 ; Pixel coordinates are used for the 12x12 sprites; all tile faces are upright.
-draw_hand:
 ui_hand:
  staa ht_p
  beq ui_human
@@ -421,7 +420,6 @@ ui_furo_big_03:
 
 ; A = player, B = index in the river. Called tiles are not shown; the
 ; others are shown in order.
-draw_river_tile:
 ui_river_tile:
  staa rvt_player
  stab rvt_index
@@ -532,7 +530,7 @@ redraw_all_00:
  clr ui_all
 redraw_all_01:
  ldaa ui_all
- jsr draw_hand
+ jsr ui_hand
  inc ui_all
  ldaa ui_all
  cmpa #4
@@ -1106,7 +1104,7 @@ ui_win_reveal:
  jsr player_bit
  staa reveal
  ldaa turn
- jsr draw_hand
+ jsr ui_hand
  clr reveal
  rts
 

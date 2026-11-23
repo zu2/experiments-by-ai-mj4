@@ -43,9 +43,9 @@ sg_entry_x:
 sg_four:
  ldaa sg_batch
  cmpa #3
- bcc sg_leaf_call
+ bcc sg_call_leaf
  tst heads_n
- bne sg_leaf_call
+ bne sg_call_leaf
  ldx #counts
 sg_four_00:
  ldaa 0,x
@@ -54,7 +54,7 @@ sg_four_00:
  inx
  cpx #counts+KN
  bne sg_four_00
- bra sg_leaf_call
+ bra sg_call_leaf
 sg_four_01:
  inc heads_n
 sg_call_head:
@@ -68,7 +68,6 @@ sg_entry_x_00:
  ldaa 0,x
  beq sg_advance
  bpl sg_found
-sg_leaf_call:
 sg_call_leaf:
  .byte $BD
  .word sg_leaf
@@ -180,7 +179,7 @@ search_00:
  bra search_00
 search_01:
  jsr eval_places
- bra search_05
+ bra search_04
 search_02:
  ldaa 0,x
  cmpa #3
@@ -209,7 +208,6 @@ search_03:
  inc 1,x
  inc 2,x
 search_04:
-search_05:
  pula
  staa se_kind
 ; Returns X = &counts[se_kind].

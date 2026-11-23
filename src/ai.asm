@@ -924,9 +924,8 @@ cand_priority:
  adda cc_key
  staa cc_key
  tst cc_isol_flag
- beq choose_cands_10
+ beq cc_rank
  clr cc_key
-choose_cands_10:
  ; Equal priorities prefer losing less dora, then the completed bonus.
 cc_rank:
  ; Kokushi discards its middle tiles first.
@@ -1072,7 +1071,6 @@ pai_toi_ydora:
  ldaa dora_hits
  beq pai_notpair
  inc pai_toi_yaku
- bra pai_notpair
 pai_notpair:
  ldaa pai_kind
  cmpa #K_HONOR
@@ -1971,10 +1969,8 @@ acceptance_00:
 acceptance_02:
  jsr accept_eval
 acceptance_03:
- psha
  ldx ac_ptr
  dec 0,x
- pula
  cmpa min_s
  bge acceptance_04
  jsr acc_weight

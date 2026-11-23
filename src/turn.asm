@@ -43,7 +43,7 @@ after_draw:
 	staa	ai_player
 	jsr	draw_nokori
 	ldaa	turn
-	jsr	draw_hand
+	jsr	ui_hand
 	ldaa	turn
 	clrb
 	jsr	check_win
@@ -152,7 +152,7 @@ discard_step_03:
 	ldab	#RF_RIICHI
 	stab	0,x
 	pulb
-	jsr	draw_river_tile
+	jsr	ui_river_tile
 	jsr	draw_riichi
 	; Four riichi: every player has P_RIICHI (bit 7).
 	ldaa	players+P_FLAG
@@ -425,7 +425,7 @@ own_kan:
 	staa	fmk_tile
  jsr furo_make
  jsr dora_open
-	jmp	own_kan_10
+	jmp	rinshan_draw
 ownkan_kakan:
 	ldaa	turn
 	ldab	kan_kind
@@ -469,7 +469,6 @@ ownkan_no_rob:
 	jsr	furo_upgrade
 	ldaa	#1
 	staa	pending_dora
-own_kan_10:
 ; rinshan_draw -> after_draw redraws only the active hand and the header.
 
 ; Draws the replacement tile after a kan.
@@ -618,7 +617,7 @@ human_r_allowed:
 	eora	#1
 	staa	riichi_mode
 	clra
-	jsr	draw_hand
+	jsr	ui_hand
 	jmp	human_letters
 human_turn_20:
 	bita	#KEY_SPACE
@@ -696,7 +695,7 @@ human_called:
 	decb
 	stab	cursor
 	clra
-	jsr	draw_hand
+	jsr	ui_hand
 human_called_00:
 	jsr	frame
 	ldaa	knew
@@ -741,7 +740,7 @@ move_cursor_02:
 	tst	riichi_mode
 	beq	move_cursor_03
 	clra
-	jmp	draw_hand
+	jmp	ui_hand
 move_cursor_03:
 	jsr	draw_arrow
 move_cursor_04:
@@ -1239,7 +1238,7 @@ choose_chi_02:
 choose_chi_03:
 	clr	chi_mode
 	clra
-	jsr	draw_hand
+	jsr	ui_hand
 	ldab	chi_pat
 	ldaa	#R_CHI
 	rts
@@ -1295,7 +1294,7 @@ chi_preview:
 	jsr	cp_position
 	stab	chi_i2
 	clra
-	jmp	draw_hand
+	jmp	ui_hand
 
 ; A = kind in the own hand. Returns B = position of its first tile.
 cp_position:
@@ -1337,18 +1336,17 @@ chi_kinds:
 	dec	ck_a
 	dec	ck_a
 	dec	ck_b
-	bra	chi_kinds_02
+	rts
 chi_kinds_00:
 	cmpb	#1
 	bne	chi_kinds_01
 	dec	ck_a
 	inc	ck_b
-	bra	chi_kinds_02
+	rts
 chi_kinds_01:
 	inc	ck_a
 	inc	ck_b
 	inc	ck_b
-chi_kinds_02:
 	rts
 
 ; A = player. Sets rp_pon, rp_kan, rp_chi for the player and dc_tile.
@@ -1387,10 +1385,10 @@ options_chi:
 	inca
 	anda	#3
 	cmpa	call_player
-	bne	call_options_10
+	bne	clear_kk
 	ldaa	cop_t
 	cmpa	#K_HONOR
-	bcc	call_options_10
+	bcc	clear_kk
 	clr	cop_pat
 options_ploop:
 	ldaa	cop_t
@@ -1418,7 +1416,6 @@ options_pnext:
 	ldaa	cop_pat
 	cmpa	#3
 	bne	options_ploop
-call_options_10:
 clear_kk:
 	ldaa	#$FF
 	staa	kk1
@@ -1604,7 +1601,7 @@ docall_add:
 	stab	fmk_type
  jsr furo_make
 	ldaa	turn
-	jsr	draw_hand
+	jsr	ui_hand
 	jsr	draw_arrow
  jmp ui_turn
 
