@@ -2648,6 +2648,9 @@ yakuhai_call:
 	ldaa	call_yakuhai
 	cmpa	#2
 	beq	yakuhai_call_00
+ ; The top in the last hand takes any yakuhai: a win ends the game.
+ jsr last_top
+ bne yakuhai_call_00
 	ldaa	pai_dora_use
 	ldab	ai_player
 	cmpb	dealer

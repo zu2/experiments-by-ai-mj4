@@ -398,13 +398,18 @@ count_ge_01:
 ; the dealer is strictly ahead of every other player.
 ; Returns with N and Z set from A.
 last_dealer_top:
-	ldaa	round
-	cmpa	#7
-	bne	last_dealer_top_00
 	ldaa	ai_player
 	cmpa	dealer
-	beq	dealer_top
-last_dealer_top_00:
+	bne	last_top_00
+; Returns A = 1 in the last hand (round 7) if ai_player is strictly ahead of
+; every other player. Returns with N and Z set from A.
+last_top:
+	ldaa	round
+	cmpa	#7
+	bne	last_top_00
+	ldaa	ai_player
+	bra	dealer_top_01
+last_top_00:
 	clra
 	rts
 
@@ -412,6 +417,7 @@ last_dealer_top_00:
 ; Returns with N and Z set from A.
 dealer_top:
 	ldaa	dealer
+dealer_top_01:
 	jsr	count_ge
 	clra
 	cmpb	#1
