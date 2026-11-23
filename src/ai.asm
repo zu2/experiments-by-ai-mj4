@@ -3028,7 +3028,7 @@ oc_build_06:
 ; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left.
 ; FC_FOLD    fold: draws_left / 4 draws cannot reach tenpai, or a threat
 ;            and 2-shanten or more, or the dealer top in the last hand without
-;            tenpai.
+;            tenpai and more than 4000 ahead of every other player.
 ; Sets push_by_value: against a riichi, push_value decides between a push
 ; and a fold for FC_DANGER, and for a tenpai except in the last draws, where
 ; the tenpai is kept for the payment at a drawn hand, and for the last place,
@@ -3054,6 +3054,9 @@ fold_check:
  ldab fold_result
  beq fold_check_04
  jsr last_dealer_top
+ beq fold_check_05
+ jsr noten_safe
+fold_check_05:
  adda fold_result
  tab
 fold_check_04:

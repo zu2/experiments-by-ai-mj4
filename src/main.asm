@@ -377,6 +377,8 @@ count_ge:
 	stab	ry_v
 	ldab	P_SCORE+1,x
 	stab	ry_v+1
+; Returns B = the players with at least ry_v points.
+count_at:
 	clrb
 	ldaa	#3
 	staa	loop_p
@@ -393,6 +395,20 @@ count_ge_01:
 	dec	loop_p
 	bpl	count_ge_00
 	rts
+
+; Returns A = 1 if every other player is more than 4000 behind ai_player: a
+; noten draw (4000 at most) cannot pass it. Returns with N and Z set from A.
+noten_safe:
+	ldaa	ai_player
+	jsr	player
+	ldab	P_SCORE+1,x
+	subb	#40
+	stab	ry_v+1
+	ldab	P_SCORE,x
+	sbcb	#0
+	stab	ry_v
+	jsr	count_at
+	bra	dealer_top_02
 
 ; Returns A = 1 in the last hand (round 7) if ai_player is the dealer and
 ; the dealer is strictly ahead of every other player.
@@ -419,12 +435,10 @@ dealer_top:
 	ldaa	dealer
 dealer_top_01:
 	jsr	count_ge
-	clra
+dealer_top_02:
 	cmpb	#1
-	bne	dealer_top_00
-	inca
-dealer_top_00:
-	tsta
+	bne	last_top_00
+	ldaa	#1
 	rts
 
 
