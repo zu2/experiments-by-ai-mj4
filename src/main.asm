@@ -2008,52 +2008,43 @@ wait_space_00:
 	beq	wait_space_00
 	rts
 
-; xorshift24 (shifts 8, 1, 11; period 2^24-1; the state must not be 0).
-; Returns A = random byte.
+; 24-bit PRNG of Wim Couwenberg (period 2^24-1; the state must not be 0).
+; Returns A = random byte. B is scratch.
 rand:
-	ldaa	seed+1
-	eora	seed
-	staa	seed
-	ldaa	seed+2
-	eora	seed+1
-	staa	seed+1
-	ldaa	seed
-	lsra
-	staa	rnd_t0
-	ldaa	seed+1
-	rora
-	staa	rnd_t1
-	ldaa	seed+2
-	rora
-	eora	seed+2
-	staa	seed+2
-	ldaa	seed+1
-	eora	rnd_t1
-	staa	seed+1
-	ldaa	seed
-	eora	rnd_t0
-	staa	seed
-	ldaa	seed+2
-	ldab	seed+1
-	asla
+	ldab	seed
+	aslb
+	eorb	seed+1
+	stab	seed+1
 	rolb
-	asla
-	rolb
-	asla
-	rolb
+	eorb	seed+2
+	stab	seed+2
 	eorb	seed
 	stab	seed
-	eora	seed+1
-	staa	seed+1
+	ldab	seed+1
+	rorb
+	eorb	seed+2
+	stab	seed+2
+	eorb	seed+1
+	stab	seed+1
 	ldaa	seed
 	rts
 
-; A = n. Returns A = random number in 0..n-1.
+; A = n (2 or more). Returns A = random number in 0..n-1, each equally likely:
+; draws rand under the smallest mask 2^k-1 that covers n-1 until it is below n.
 rand_below:
 	staa	rb_n
+	deca
+	ldab	#$FF
+rand_below_00:
+	stab	rb_mask
+	lsrb
+	cba
+	bls	rand_below_00
+rand_below_01:
 	jsr	rand
-	ldab	rb_n
-	jsr	mul8
+	anda	rb_mask
+	cmpa	rb_n
+	bcc	rand_below_01
 	rts
 
 ; Fills the wall with the 136 tiles in kind order (the first five of each
@@ -2126,8 +2117,6 @@ bss_start:
 ym_y:	.ds	12 ; yakuman numbers found (ym_n, score.asm)
 cur_y:	.ds	16 ; yaku numbers of the decomposition (cur_n, score.asm)
 ym_n:	.ds	1 ; yakuman found
-rnd_t0:	.ds	1 ; rand scratch
-rnd_t1:	.ds	1 ; rand scratch
 ; posx is allocated in directpage.asm.
 ; posy is allocated in directpage.asm.
 ; knew is allocated in directpage.asm.
@@ -2137,6 +2126,7 @@ krep:	.ds	1 ; frames a key has been held
 rk_bit:	.ds	1 ; key bit scan_keys checks
 wf_cnt:	.ds	1 ; frames left
 rb_n:	.ds	1 ; rand_below limit
+rb_mask:	.ds	1 ; rand_below mask
 shf_left:	.ds	1 ; tiles left to shuffle
 shf_pi:	.ds	2 ; &wall[i]
 shf_pj:	.ds	2 ; &wall[j]

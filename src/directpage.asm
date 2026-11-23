@@ -45,7 +45,7 @@ dc_tile .equ $009A ; tile just discarded
 fi_han .equ $009B ; han for fi_limit
 ko_k .equ $009C ; kind kan_options checks
 rp_chi .equ $009D ; chi patterns possible (bits)
-seed .equ $009E ; xorshift24 state (3 bytes)
+seed .equ $009E ; rand state (3 bytes, never 0)
 wk_accept .equ $00A1 ; shared work: acceptance sum (output of acceptance, ev_acceptance)
 wk_best .equ $00A2 ; shared work: best value (least_danger, best_accept)
 cur_fu .equ $00A3 ; fu of the decomposition
