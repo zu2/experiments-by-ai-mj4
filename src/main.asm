@@ -635,7 +635,8 @@ ss_count:
 	adda	furo_tiles-counts,x
 	rts
 
-; B = indicator index (0..4); returns A = dora kind. B and X are scratch.
+; B = indicator index (0..4). Returns A = dora kind, X = &indicator tile.
+; B is scratch.
 dora_kind_at:
  aslb
  negb
@@ -644,7 +645,7 @@ dora_kind_at:
  ; Fall through with X pointing to the indicator.
 
 ; X = &indicator tile (dora_next_x) or A = indicator tile (dora_next).
-; Returns A = dora kind.
+; Returns A = dora kind. Keeps X.
 dora_next_x:
  ldaa 0,x
 dora_next:

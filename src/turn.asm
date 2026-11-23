@@ -1061,10 +1061,7 @@ find_waits_01:
  ldab nfuro
  bne fw_result
  ; Chiitoi tenpai: the single tile.
- jsr spec_count
- ldaa SP_PAIRS,x
- ldab SP_KINDS,x
- jsr chii_sh
+ jsr counts_chii_sh
  bne fw_kokushi
  ldx #counts
 find_waits_10:
@@ -1867,14 +1864,9 @@ dora_open:
 unshown_dora:
 	ldab	dora_cnt
 	decb
-	aslb
-	negb
-	addb	#DORA_POS
-	jsr	wall_x
+	jsr	dora_kind_at
 	ldab	0,x
 	pshb
-	tba
-	jsr	dora_next
 	tab
 	jsr	dora_x
 	inc	0,x

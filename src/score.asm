@@ -96,10 +96,7 @@ score_hand:
 	jsr	find_yakuman
 	ldab	nfuro
 	bne	score_hand_01
-	jsr	spec_count
-	ldaa	SP_PAIRS,x
-	ldab	SP_KINDS,x
-	jsr	chii_sh
+	jsr	counts_chii_sh
 	inca
 	bne	score_hand_00
  jsr start_yaku_clr

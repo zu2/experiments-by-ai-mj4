@@ -68,6 +68,11 @@ spec_count_yao:
 spec_count_05:
  rts
 
+; Returns A = chiitoi shanten of counts.
+counts_chii_sh:
+ jsr spec_count
+ ldaa SP_PAIRS,x
+ ldab SP_KINDS,x
 ; A = pairs, B = kinds. Returns A = chiitoi shanten 6 - pairs + max(0, 7 - kinds).
 ; Returns with N and Z set from A.
 chii_sh:
