@@ -3010,7 +3010,8 @@ oc_build_06:
 ; FC_PUSH    a threat, but the hand is near: push with the least danger.
 ; FC_DANGER  a riichi, 1-shanten and fewer than 40 draws left.
 ; FC_FOLD    fold: draws_left / 4 draws cannot reach tenpai, or a threat
-;            and 2-shanten or more.
+;            and 2-shanten or more, or the dealer top in the last hand without
+;            tenpai.
 ; Sets push_by_value: against a riichi, push_value decides between a push
 ; and a fold for FC_DANGER, and for a tenpai except in the last draws, where
 ; the tenpai is kept for the payment at a drawn hand, and for the last place,
@@ -3034,6 +3035,17 @@ fold_check:
  jsr any_threat
  beq fold_check_01
  ldab fold_result
+ beq fold_check_04
+ ldaa round
+ cmpa #7
+ bne fold_check_04
+ ldaa ai_player
+ cmpa dealer
+ bne fold_check_04
+ jsr dealer_top
+ adda fold_result
+ tab
+fold_check_04:
  ldaa #FC_FOLD
  cmpb #2
  bcc fold_check_01
