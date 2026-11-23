@@ -1038,6 +1038,16 @@ fi_limit_02:
 fi_limit_03:
 	rts
 
+; Returns A = kyotaku * 10, the riichi pool in units of 100 (fewer than 26
+; sticks, so it fits a byte). Keeps B and X.
+pool_pts:
+	ldaa	kyotaku
+	asla
+	asla
+	adda	kyotaku
+	asla
+	rts
+
 ; Convert winning basic points to best_pts, including honba and pool.
 fi_pay:
 	jsr	score_total
@@ -1046,11 +1056,7 @@ fi_pay:
 	ldab	honba
 	aslb
 	addb	honba
-	ldaa	kyotaku
-	asla
-	asla
-	adda	kyotaku
-	asla
+	jsr	pool_pts
 	aba
 	tab
 	ldaa	#0

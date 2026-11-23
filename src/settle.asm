@@ -131,12 +131,16 @@ settle_win_10:
  ldaa settle_p
  cmpa #4
  bne settle_win_00
+ ldx best_pts
+ stx ry_v
  jsr turn_player
+; X = player. Adds ry_v to his score. Keeps X.
+add_score:
  ldab P_SCORE+1,x
- addb best_pts+1
+ addb ry_v+1
  stab P_SCORE+1,x
  ldab P_SCORE,x
- adcb best_pts
+ adcb ry_v
  stab P_SCORE,x
  rts
 
@@ -170,12 +174,7 @@ settle_draw_02:
  jsr noten_delta
  ldaa loop_p
  jsr player
- ldab P_SCORE+1,x
- addb ry_v+1
- stab P_SCORE+1,x
- ldab P_SCORE,x
- adcb ry_v
- stab P_SCORE,x
+ jsr add_score
  inc loop_p
  ldaa loop_p
  cmpa #4

@@ -803,12 +803,7 @@ show_result_08:
 
 ; best_pts includes the riichi pool. Split it only for display.
 print_win_pts:
-	; Fewer than 26 riichi sticks, so kyotaku*10 fits a byte.
-	ldaa	kyotaku
-	asla
-	asla
-	adda	kyotaku
-	asla
+	jsr	pool_pts
 	staa	wk_num+1
 	ldab	best_pts+1
 	subb	wk_num+1
@@ -1156,6 +1151,34 @@ furo_counts_04:
 ; Ends the game and shows the final scores.
 game_end:
  clr game_active
+ ; The riichi sticks left on the table go to the top: the first player,
+ ; from the first dealer on, whom nobody passes (as in Mahjong Soul).
+ ldaa kyotaku
+ beq game_end_04
+ ldaa dealer
+ suba round
+game_end_05:
+ anda #3
+ staa settle_p
+ jsr player
+ ldx P_SCORE,x
+ inx
+ stx ry_v
+ jsr count_at
+ ldaa settle_p
+ inca
+ tstb
+ bne game_end_05
+ deca
+ jsr player
+ jsr pool_pts
+ adda P_SCORE+1,x
+ staa P_SCORE+1,x
+ bcc game_end_06
+ inc P_SCORE,x
+game_end_06:
+ clr kyotaku
+game_end_04:
  ldaa result_active
  beq game_end_01
  ldab #17
