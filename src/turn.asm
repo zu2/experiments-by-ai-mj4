@@ -342,8 +342,7 @@ react_stick_00:
  bpl react_stick_00
  ldab dc_tile
  lsrb
- ldx #river_bits
- jsr addxb
+ jsr river_bits_x
  ldaa rp_bits
  anda #$0F
  oraa 0,x
@@ -1331,7 +1330,6 @@ single_bit_00:
 
 ; A = called kind, B = pattern. Sets ck_a, ck_b (the two hand kinds).
 chi_kinds:
-	pshb
 	staa	ck_a
 	staa	ck_b
 	tstb
@@ -1351,7 +1349,6 @@ chi_kinds_01:
 	inc	ck_b
 	inc	ck_b
 chi_kinds_02:
-	pulb
 	rts
 
 ; A = player. Sets rp_pon, rp_kan, rp_chi for the player and dc_tile.
@@ -1891,8 +1888,7 @@ unshown_dora:
 	tba
 	jsr	dora_next
 	tab
-	ldx	#dora_of_kind
-	jsr	addxb
+	jsr	dora_x
 	inc	0,x
 	pulb
 ; B = tile. One more tile of its kind is shown.

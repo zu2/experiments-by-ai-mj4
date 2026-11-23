@@ -60,7 +60,6 @@ spec_count_04:
  rts
 ; A = tiles of a yaochu kind: counts it in SP_YAO and SP_YPAIRS. Keeps B and X.
 spec_count_yao:
- tsta
  beq spec_count_05
  inc spec_cnt+SP_YAO
  cmpa #2

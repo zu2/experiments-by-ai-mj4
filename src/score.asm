@@ -361,7 +361,6 @@ base_rinshan:
 	jsr	add_yaku
 	bra	base_suit
 base_chankan:
-	ldaa	sflags
 	bita	#F_CHANKAN
 	beq	base_last
 	ldaa	#Y_CHANKAN
@@ -541,20 +540,21 @@ decomp_iipei:
 	ldaa	#Y_IIPEIKOU
 	jsr	add_yaku
 decomp_dragons:
-	tst	trip_n+K_HAKU
-	beq	decomp_hatsu
-	ldaa	#Y_HAKU
-	jsr	add_yaku
-decomp_hatsu:
-	tst	trip_n+K_HATSU
-	beq	decomp_chun
-	ldaa	#Y_HAKU+1
-	jsr	add_yaku
-decomp_chun:
-	tst	trip_n+K_CHUN
-	beq	decomp_round
-	ldaa	#Y_HAKU+2
-	jsr	add_yaku
+ ; Y_HAKU + i for a triplet of kind K_HAKU + i.
+ ldaa #Y_HAKU
+decomp_dragons_00:
+ tab
+ addb #K_HAKU-Y_HAKU
+ jsr trip_n_x
+ tst 0,x
+ beq decomp_dragons_01
+ psha
+ jsr add_yaku
+ pula
+decomp_dragons_01:
+ inca
+ cmpa #Y_HAKU+3
+ bne decomp_dragons_00
 decomp_round:
 	ldab	round_kind
 	jsr	trip_n_x

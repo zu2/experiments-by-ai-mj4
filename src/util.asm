@@ -28,6 +28,12 @@ best_y_x:
 trip_n_x:
 	ldx	#trip_n
 	bra	addxb
+dora_x:
+ ldx #dora_of_kind
+ bra addxb
+river_bits_x:
+ ldx #river_bits
+ bra addxb
 ; kind_counts_x: B = wk_kind.
 kind_counts_x:
  ldab wk_kind

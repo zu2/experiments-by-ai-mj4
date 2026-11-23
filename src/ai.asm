@@ -1059,7 +1059,7 @@ pai_toi_value:
  ldaa pai_kind
  ldab ai_player
  jsr is_yakuhai
- beq pai_pair_dora
+ beq pai_notpair
  inc pai_ypairs
  adda pai_toi_yaku
  staa pai_toi_yaku
@@ -1073,7 +1073,6 @@ pai_toi_ydora:
  beq pai_notpair
  inc pai_toi_yaku
  bra pai_notpair
-pai_pair_dora:
 pai_notpair:
  ldaa pai_kind
  cmpa #K_HONOR
@@ -1158,7 +1157,6 @@ pai_hon_trip:
  inc pai_honor_pts
  inc pai_honor_pts
 scan_pai_30:
-pai_is_yao:
  ldaa pai_kind
  jsr is_yaochu
  beq pai_add_simple
@@ -2372,8 +2370,7 @@ dcc_honor_table:
 
 ; B = kind. Returns A and dora_hits = the matching dora indicators (0..5).
 is_dora_kind:
- ldx #dora_of_kind
- jsr addxb
+ jsr dora_x
  ldaa 0,x
  staa dora_hits
  rts
@@ -2500,8 +2497,7 @@ dg_none_tab:
 ; it: it is in his river, or it passed after his riichi (river_bits).
 ; Returns with N and Z set from A.
 in_opp_river:
- ldx #river_bits
- jsr addxb
+ jsr river_bits_x
  ldaa 0,x
  ldab danger_player
  beq in_opp_river_01
@@ -2663,7 +2659,6 @@ call_yakuhai_han:
 	ldaa	pai_ypairs
 	cmpa	#2
 	bcc	yakuhai_call_00
-	ldab	ai_player
 	cmpb	dealer
 	bne	call_pon_route
 	jsr	leaf_parts
@@ -3154,8 +3149,7 @@ furo_threat_00:
  beq furo_threat_01
  ldab P_FURO+1,x
  stx ft_x
- ldx #dora_of_kind
- jsr addxb
+ jsr dora_x
  ldaa 0,x
  ldx ft_x
  tsta

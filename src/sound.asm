@@ -6,7 +6,6 @@ SOUND_ON	.equ	$30
 ; X = notes: pairs of (delay, waves), ending with 0. A wave is two halves of
 ; about 6 * delay + 20 cycles each.
 play:
-play_00:
 	ldaa	0,x
 	beq	play_04
 	staa	pl_delay
@@ -30,7 +29,7 @@ play_03:
 	ldx	pl_p
 	inx
 	inx
-	bra	play_00
+	bra	play
 play_04:
 	clr	SOUND
 	rts

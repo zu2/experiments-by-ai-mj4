@@ -87,9 +87,8 @@ ev_value_restore:
 ev_hand_prep:
  jsr kind_counts_x
  dec 0,x
- ldx #dora_of_kind
  ldab wk_kind
- jsr addxb
+ jsr dora_x
  ldaa ev_base_dora
  suba 0,x
  staa ev_hand_dora
@@ -202,9 +201,8 @@ ev_acceptance_00:
  staa wk_unseen
  adda wk_accept
  staa wk_accept
- ldx #river_bits
  ldab wk_draw
- jsr addxb
+ jsr river_bits_x
  ldaa 0,x
  anda ev_own_bit
  bne evacc_is_furiten
@@ -225,9 +223,8 @@ evacc_live_wait:
  staa win_kind
  ldaa ev_hand_aka
  staa aka_n
- ldx #dora_of_kind
  ldab wk_draw
- jsr addxb
+ jsr dora_x
  ldaa ev_hand_dora
  adda 0,x
  staa dora_n
@@ -563,22 +560,19 @@ ev1_draw_03:
 ev1_draw_04:
  ldab min_s
  bne ev1_draw_30
- ldx #dora_of_kind
  ldab e1_e
- jsr addxb
+ jsr dora_x
  ldaa e1_dora
  adda 0,x
- ldx #dora_of_kind
  ldab e1_i
- jsr addxb
+ jsr dora_x
  suba 0,x
  staa ev_base_dora
  ldaa e1_aka
  staa ev_base_aka
  ; The discard i is in the river and, if it is the red five, not in the hand.
- ldx #river_bits
  ldab e1_i
- jsr addxb
+ jsr river_bits_x
  ldaa 0,x
  staa e1_river
  oraa ev_own_bit
@@ -639,9 +633,8 @@ ev1_draw_29:
  ldaa e1_d
  cmpa #K_END
  bne ev1_draw_20
- ldx #river_bits
  ldab e1_i
- jsr addxb
+ jsr river_bits_x
  ldaa e1_river
  staa 0,x
 ev1_draw_30:

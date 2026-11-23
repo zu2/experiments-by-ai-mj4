@@ -1363,8 +1363,7 @@ discard:
  psha
  ldab dc_tile
  lsrb
- ldx #river_bits
- jsr addxb
+ jsr river_bits_x
  pula
  oraa 0,x
  staa 0,x

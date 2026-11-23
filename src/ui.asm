@@ -656,14 +656,14 @@ wind_names:
  .word s_ton,s_nan,s_sha,s_pe
 ; Draws the turn marks of the four players.
 ui_turn:
- clra
- bsr ui_turn_mark
- ldaa #1
- bsr ui_turn_mark
- ldaa #2
- bsr ui_turn_mark
  ldaa #3
- ; Fall through for player 3.
+ui_turn_00:
+ psha
+ bsr ui_turn_mark
+ pula
+ deca
+ bpl ui_turn_00
+ rts
 ; A = player. Draws his turn mark (CH_TURN in turn, else a space) at the
 ; start of his line of the scores, and leaves posx and posy there.
 ui_turn_mark:
