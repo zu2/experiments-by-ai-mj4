@@ -21,11 +21,6 @@ unseen_x:
 unseen_x_ldx:
  ldx #unseen
  rts
-ry_bits4_x:
- ldab loop_p
-bits4_x:
-	ldx	#bits4
-	bra	addxb
 best_y_x:
 	ldx	#best_y
 	bra	addxb
@@ -50,13 +45,7 @@ kind_bit:
  anda #7
  pshb
  tab
- ldaa #1
-kind_bit_00:
- decb
- bmi kind_bit_01
- asla
- bra kind_bit_00
-kind_bit_01:
+ jsr player_bit
  pulb
  rts
 ; X = X + B
@@ -171,9 +160,14 @@ kind_suit_02:
  ldaa #3
  rts
 
-; B = player. Returns A = 1 shifted left by B.
+; B = player. Returns A = 1 shifted left by B (player_bit_hi: $10 shifted
+; left by B, the bit of player B + 4). Keeps X.
+player_bit_hi:
+ ldaa #$10
+ bra player_bit_02
 player_bit:
  ldaa #1
+player_bit_02:
  tstb
  beq player_bit_01
 player_bit_00:

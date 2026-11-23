@@ -742,8 +742,7 @@ move_cursor_02:
 	tst	riichi_mode
 	beq	move_cursor_03
 	clra
-	jsr	draw_hand
-	rts
+	jmp	draw_hand
 move_cursor_03:
 	jsr	draw_arrow
 move_cursor_04:

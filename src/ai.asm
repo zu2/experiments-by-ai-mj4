@@ -1937,8 +1937,7 @@ candidate_acceptance:
  staa wk_score
  jsr kind_counts_x
  inc 0,x
- jsr rel_restore
- rts
+ jmp rel_restore
 
 ; counts = the hand after the discard (shanten min_s). Returns A = number
 ; of unseen tiles that lower the shanten number, and sets bit (k & 7) of

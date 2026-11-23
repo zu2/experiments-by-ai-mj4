@@ -890,7 +890,6 @@ finish:
 	jsr	mul8
 	stab	fi_han
 	clr	fi_fu
-	ldab	fi_han
 	jsr	yakuman_basic
 	jsr	fi_better
 	beq	finish_00

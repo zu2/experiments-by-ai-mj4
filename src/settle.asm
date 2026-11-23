@@ -151,8 +151,8 @@ settle_draw_00:
  jsr find_waits
  beq settle_draw_01
  inc ry_n
- jsr ry_bits4_x
- ldaa 0,x
+ ldab loop_p
+ jsr player_bit
  oraa ry_tenpai
  staa ry_tenpai
 settle_draw_01:
@@ -182,7 +182,6 @@ settle_draw_02:
  bne settle_draw_02
 settle_draw_04:
  rts
-bits4: .byte 1,2,4,8
 tenpai_pay: .byte 0,30,15,10
 noten_pay: .byte 0,246,241,226
  .bss
@@ -202,8 +201,7 @@ noten_delta:
  beq noten_delta_01
  cmpa #4
  beq noten_delta_01
- jsr bits4_x
- ldaa 0,x
+ jsr player_bit
  ldx #tenpai_pay
  anda ry_tenpai
  bne noten_delta_00

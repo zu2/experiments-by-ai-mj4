@@ -1194,8 +1194,7 @@ ui_latest_discard:
  ldab P_RLEN,x
  decb
  ldaa discarder
- jsr ui_river_tile
- rts
+ jmp ui_river_tile
 
 ; Latest discard marker and native-font reaction keys.
 hint_start:

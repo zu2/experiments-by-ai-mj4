@@ -176,11 +176,7 @@ ev_prepare:
 ev_prepare_00:
  ; Furiten: the own discards are in river_bits (bit ai_player + 4).
  ldab ai_player
- jsr player_bit
- asla
- asla
- asla
- asla
+ jsr player_bit_hi
  staa ev_own_bit
  rts
 

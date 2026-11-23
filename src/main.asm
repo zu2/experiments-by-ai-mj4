@@ -291,8 +291,7 @@ draw_sound:
 	ldaa	#5
 	jsr	wait_frames
 	ldx	#snd_select
-	jsr	play
-	rts
+	jmp	play
 
 ; A = ABORT_*. Shows the hands and the reason; no payment. The dealer
 ; stays, one more honba, and the riichi sticks stay on the table.
@@ -331,8 +330,7 @@ ryukyoku:
 	bne	win_game_end
 	inc	honba
 	ldab	dealer
-	jsr	bits4_x
-	ldaa	0,x
+	jsr	player_bit
 	anda	ry_tenpai
 	beq	rotate
 	jmp	kyoku
@@ -801,7 +799,6 @@ show_result_07:
 show_result_08:
 	ldx	#18*256+16
 	stx	posx
-	jmp	print_win_pts
 
 ; best_pts includes the riichi pool. Split it only for display.
 print_win_pts:
@@ -844,7 +841,6 @@ print_win_pts_01:
 ; Post-win score page, shown after the yaku page and before the next hand.
 show_win_scores:
  ldaa #1
- bra score_page
 ; A = settlement detail flag (1 = win arithmetic, 0 = final scores).
 score_page:
  staa result_active
@@ -945,7 +941,7 @@ show_draw:
 show_draw_01:
 	clr	loop_p
 show_draw_00:
-	ldx	#rh_rows
+	ldx	#ui_score_rows
 	ldab	loop_p
 	jsr	addxb
 	ldaa	0,x
@@ -982,8 +978,8 @@ showdraw_status:
 	staa	posy
 	ldaa	#28
 	staa	posx
- jsr ry_bits4_x
-	ldaa	0,x
+ ldab loop_p
+ jsr player_bit
 	anda	ry_tenpai
 	beq	showdraw_noten
 	ldx	#s_tenpai
@@ -1032,8 +1028,6 @@ draw_hands_00:
 	cmpa	#4
 	bne	draw_hands_00
 	rts
-rh_rows:
-	.byte	16,2,7,12
 
 ; Returns A = han shown for yaku sr_id (0 for yakuman).
 ; Returns with N and Z set from A.
@@ -1363,11 +1357,7 @@ discard:
 	jsr	unshown_tile
  ; The kind is in the river of dc_p (river_bits, bit dc_p + 4).
  ldab dc_p
- jsr player_bit
- asla
- asla
- asla
- asla
+ jsr player_bit_hi
  psha
  ldab dc_tile
  lsrb
@@ -1971,7 +1961,6 @@ scan_keys_02:
 scan_keys_03:
 	clr	krep
 scan_keys_04:
-	jmp	apply_open
 
 ; Shared column-0 sample supplies 1; process its edge after action scanning.
 apply_open:
