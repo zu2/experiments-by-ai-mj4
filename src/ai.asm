@@ -1685,8 +1685,8 @@ ryan_pairs_02:
  ldaa rp_n
  rts
 
-; A = kind. Returns A = 1 for terminals and honors, with N and Z set from A.
-; Preserves B and X.
+; A = kind (kind_is_yaochu: wk_kind). Returns A = 1 for terminals and
+; honors, with N and Z set from A. Preserves B and X.
 kind_is_yaochu:
  ldaa wk_kind
 is_yaochu:
@@ -2822,7 +2822,7 @@ call_chi_yaku_03:
 	tsta
 	rts
 
-; A = kind. Returns A = 1 for 2-8 of a suit.
+; A = kind (call_is_simple: call_kind). Returns A = 1 for 2-8 of a suit.
 ; Returns with N and Z set from A. Preserves B and X.
 call_is_simple:
  ldaa call_kind
@@ -3323,19 +3323,19 @@ sanshoku_furo:
  ldaa ai_player
  jsr player
  ldab nfuro
-sanshoku_near_00:
+sanshoku_cut_00:
  ldaa P_FURO,x
  anda #3
- bne sanshoku_near_01
+ bne sanshoku_cut_01
  ldaa P_FURO+1,x
  cmpa s3_kind
  beq sanshoku_full
-sanshoku_near_01:
+sanshoku_cut_01:
  inx
  inx
  inx
  decb
- bne sanshoku_near_00
+ bne sanshoku_cut_00
 sanshoku_back:
  pulb
  bra sanshoku_shape
@@ -3344,7 +3344,7 @@ sanshoku_full:
  ldab #3
 sanshoku_shape:
  tstb
- beq sanshoku_near_20
+ beq sanshoku_cut_20
  stab s3_n
  cmpb #3
  beq sanshoku_alive
@@ -3354,10 +3354,10 @@ sanshoku_shape:
  ldab #3
 sanshoku_missing:
  tst 0,x
- bne sanshoku_near_10
+ bne sanshoku_cut_10
  tst unseen-counts,x
- beq sanshoku_near_20
-sanshoku_near_10:
+ beq sanshoku_cut_20
+sanshoku_cut_10:
  inx
  decb
  bne sanshoku_missing
@@ -3376,14 +3376,14 @@ sanshoku_nsuit:
  cmpa #K_HONOR
  bcs sanshoku_suit
  tst s3_full
- beq sanshoku_near_20
+ beq sanshoku_cut_20
  ldaa s3_total
  suba #5
- bls sanshoku_near_20
+ bls sanshoku_cut_20
  cmpa s3_best
- bls sanshoku_near_20
+ bls sanshoku_cut_20
  staa s3_best
-sanshoku_near_20:
+sanshoku_cut_20:
  ldaa s3_start
  inca
  cmpa #K_FIRST+7

@@ -771,7 +771,8 @@ tenpai_without:
 	jsr	counts_x
  jmp has_wait_cut
 
-; Requirements shared by human and CPU. A = player; A = boolean result.
+; Requirements shared by human and CPU. A = player (ai_can_riichi:
+; ai_player); A = boolean result.
 ; Returns with N and Z set from A.
 ai_can_riichi:
  ldaa ai_player

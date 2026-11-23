@@ -13,6 +13,7 @@ kattr_x_ldx:
 btype_x:
 	ldx	#btype
 	bra	addxb
+; kind_unseen_x: B = wk_kind.
 kind_unseen_x:
  ldab wk_kind
 unseen_x:
@@ -27,6 +28,7 @@ best_y_x:
 trip_n_x:
 	ldx	#trip_n
 	bra	addxb
+; kind_counts_x: B = wk_kind.
 kind_counts_x:
  ldab wk_kind
 counts_x:
@@ -59,7 +61,7 @@ addxb_00:
 	ldx	addxb_tmp
 	rts
 
-; A * B -> A (high), B (low)
+; A * B -> A (high), B (low) (mul12: B = 12)
 mul12:
  ldab #12
 mul8:
@@ -126,7 +128,8 @@ near_sum_02:
  ldx #ns_buf
  rts
 
-; A = valid suited compact kind. A = rank 1..9. Preserve B and X.
+; A = valid suited compact kind (kind_number_b: B). A = rank 1..9. Preserve
+; B and X.
 kind_number_b:
  tba
 kind_number:

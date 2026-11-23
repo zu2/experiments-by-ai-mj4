@@ -1109,7 +1109,7 @@ fi_better_01:
 	ldaa	#1
 	rts
 
-; wk_num = wk_num / dv_divisor, A = remainder.
+; wk_num = wk_num / dv_divisor (div8_a: A), A = remainder.
 div8_a:
  staa dv_divisor
 div8:

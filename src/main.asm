@@ -1097,8 +1097,8 @@ limit_name_01:
 limit_name_02:
 	rts
 
-; A = player. Loads the hand into counts, the tiles of the furo into
-; furo_tiles and the number of furo into nfuro. Keeps A.
+; A = player (turn_eval_load: turn). Loads the hand into counts, the tiles
+; of the furo into furo_tiles and the number of furo into nfuro. Keeps A.
 turn_eval_load:
  ldaa turn
 eval_load:
@@ -1199,7 +1199,8 @@ wall_next:
 	inc	wallpos
 	rts
 
-; A = player. Returns X = the player's area. Keeps A and B.
+; A = player (turn_player: turn). Returns X = the player's area. Keeps A
+; and B.
 turn_player:
  ldaa turn
 player:
@@ -1260,8 +1261,9 @@ hand_remove_00:
 	stab	0,x
 	rts
 
-; A = player, B = kind in the hand. Returns B = a tile of that kind to
-; discard: the red five only when it is the last tile of the kind. Keeps A.
+; A = player, B = kind in the hand (ai_hand_pick: ai_player, wk_kind).
+; Returns B = a tile of that kind to discard: the red five only when it is
+; the last tile of the kind. Keeps A.
 ai_hand_pick:
  ldaa ai_player
  ldab wk_kind
@@ -1280,9 +1282,9 @@ hand_pick:
 hand_pick_00:
 	rts
 
-; A = player, B = position in the shown order: kinds in increasing order,
-; the red five first in its kind, the drawn tile last. Returns B = tile.
-; Keeps A.
+; A = player (p0_hand_at: 0), B = position in the shown order: kinds in
+; increasing order, the red five first in its kind, the drawn tile last.
+; Returns B = tile. Keeps A.
 p0_hand_at:
  clra
 hand_at:
@@ -1375,7 +1377,8 @@ discard:
 	ldx	#snd_discard
 	jmp	play
 
-; A = position, ht_n = tiles in the hand of ht_p. Sets posx.
+; A = position (ot_hand_tile_x also stores it in ot_i; hand_tile_x reads
+; ot_i), ht_n = tiles in the hand of ht_p. Sets posx.
 ot_hand_tile_x:
  staa ot_i
 hand_tile_x:
@@ -1633,7 +1636,7 @@ clear_screen:
 	ldab	#24
 	jmp	erase
 
-; A = width, B = height in cells, at posx/posy.
+; A = width, B = height in cells (erase1: 1), at posx/posy.
 erase1:
  ldab #1
 erase:
@@ -1677,7 +1680,7 @@ erase_05:
 	bne	erase_01
 	rts
 
-; A = cell row. X = text RAM address of (posx, row).
+; A = cell row (posy_textaddr: posy). X = text RAM address of (posx, row).
 posy_textaddr:
  ldaa posy
 textaddr:
@@ -1785,8 +1788,8 @@ tile_crow:
 	bne	tile_crow
 	rts
 
-; X = string of character codes, the last with bit 7 (or one $FF for an
-; empty string), at posx/posy.
+; X = string of character codes (drawstr_x: X = address of the string),
+; the last with bit 7 (or one $FF for an empty string), at posx/posy.
 drawstr_x:
  ldx 0,x
 drawstr:
@@ -1868,8 +1871,8 @@ char_at:
  clr 224,x
  rts
 
-; A = tile. Returns A = image number: 0-26 for the suits, 27-33 for the
-; honors, 34-36 for the red fives.
+; A = tile (img_of_b: B). Returns A = image number: 0-26 for the suits,
+; 27-33 for the honors, 34-36 for the red fives.
 img_of_b:
  tba
 img_of:
