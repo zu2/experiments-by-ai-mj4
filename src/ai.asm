@@ -318,10 +318,24 @@ threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
 ; Returns A = 1 if the computer declares riichi with the tile ai_tile.
 ; It declares whenever it may: closed, tenpai after the discard, 1000
 ; points, 4 live draws left; but not when all 13 tiles are yaochu (kokushi,
-; chiitoi or honroutou): riichi does not raise them and stops ron.
+; chiitoi or honroutou): riichi does not raise them and stops ron, and not
+; for the dealer top in the last hand with yaku on every wait.
 ai_riichi:
  jsr ai_can_riichi
  beq ai_riichi_00
+ ; The dealer top in the last hand keeps a hand with yaku on every wait
+ ; dama: a win ends the game, and a drawn hand would continue it.
+ jsr last_dealer_top
+ beq ai_riichi_02
+ jsr ev_prepare
+ clr sflags
+ ldaa ad_pick
+ staa wk_kind
+ jsr ev_value
+ ldaa ev_yacc
+ cmpa wk_accept
+ beq ai_riichi_00
+ai_riichi_02:
  ; ai_discard already evaluated this exact discarded kind.
  ldab ad_pick
  jsr	counts_x
@@ -3036,13 +3050,7 @@ fold_check:
  beq fold_check_01
  ldab fold_result
  beq fold_check_04
- ldaa round
- cmpa #7
- bne fold_check_04
- ldaa ai_player
- cmpa dealer
- bne fold_check_04
- jsr dealer_top
+ jsr last_dealer_top
  adda fold_result
  tab
 fold_check_04:
