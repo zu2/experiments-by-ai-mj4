@@ -270,16 +270,19 @@ win_tsumo_21:
 	bne	win_game_end
 	ldaa	turn
 	cmpa	dealer
-	beq	win_tsumo_22
+	beq	renchan
 	clr	honba
 	jmp	rotate
-win_tsumo_22:
+; The dealer won or is tenpai at a drawn hand and keeps the deal. In the
+; last hand a dealer on top ends the game (agari-yame and tenpai-yame, as
+; in Tenhou and Mahjong Soul).
+renchan:
 	ldaa	round
 	cmpa	#7
-	bne	win_tsumo_23
+	bne	renchan_00
 	jsr	dealer_top
 	bne	win_game_end
-win_tsumo_23:
+renchan_00:
 	inc	honba
 	jmp	kyoku
 win_game_end:
@@ -332,12 +335,11 @@ ryukyoku:
 	jsr	wait_space
 	jsr	tobi
 	bne	win_game_end
-	inc	honba
 	ldab	dealer
 	jsr	player_bit
 	anda	ry_tenpai
-	beq	rotate
-	jmp	kyoku
+	bne	renchan
+	inc	honba
 ; Moves the deal to the next player; the game ends after round 7.
 rotate:
 	ldaa	dealer
