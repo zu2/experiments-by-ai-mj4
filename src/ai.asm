@@ -99,9 +99,6 @@ ai_kan_02:
  clra
  rts
 
-; Best ordinary shanten after the call and a legal mandatory discard.
-; Reuse the discard batch calculator with the call's kuikae restrictions.
-; B = 1 for pon, or the chi pattern.
 ; Prepare the no-call acceptance once per response, before trial melds.
 call_before_ukeire:
  ldaa call_shanten_now
@@ -123,6 +120,10 @@ call_before_ukeire:
  staa call_pre_acc
  rts
 
+; ck_a and ck_b = the hand kinds of the call, B = 1 for pon, or the chi
+; pattern. Returns A = the best ordinary shanten after the call and a legal
+; discard (call_shanten_now + 1 when the call is worse). Reuses the discard
+; batch calculator with the kuikae restrictions of the call.
 call_shanten:
  ldaa call_kind
  jsr chi_forbidden
@@ -297,7 +298,7 @@ call_acc_yes:
  rts
 
  .bss
-call_pre_acc: .ds 1
+call_pre_acc: .ds 1 ; acceptance of not calling (call_before_ukeire)
 call_ev_now: .ds 2 ; ev_sum of not calling, in tenpai (call_ev_more)
 cem_x: .ds 2 ; call_ev_more: the player
 ft_n: .ds 1 ; furo_threat: result
@@ -312,7 +313,7 @@ rp_n: .ds 1 ; ryan_pairs: pairs found
 rp_s: .ds 1 ; ryan_pairs: suits left
 fold_result: .ds 1 ; input of fold_check: shanten; output: the result
 push_by_value: .ds 1 ; output of fold_check: 1 when push_value decides
-threat_furo: .ds 1 ; any_threat: furo count that is a threat (5 = never)
+threat_furo: .ds 1 ; any_riichi, any_threat: least threat_weight that is a threat
  .code
 
 ; Returns A = 1 if the computer declares riichi with the tile ai_tile.
@@ -482,7 +483,6 @@ ai_discard_07:
 	ldaa	ai_player
 	ldab	ad_pick
 	jmp	hand_pick
-
 
 ; counts = 14 tiles. Sets spec_off to SPEC_NO_CHII for four pairs with a
 ; set (a triplet or three kinds in a row) or three two-sided shapes: people
@@ -1819,7 +1819,6 @@ cand_restrict_03:
  rts
 
 ; Returns A = 1 if the hand has one tile of kind wk_kind.
-; Returns with N and Z set from A.
 kind_single:
  jsr kind_counts_x
  ldaa 0,x
@@ -1828,7 +1827,6 @@ kind_single:
  clra
  rts
 kind_single_00:
- tsta
  rts
 
 ; Returns A = 1 if the hand (counts) has a pair of an off-suit kind, or two
@@ -2014,7 +2012,7 @@ acceptance_04:
 ; the hand without it, rel = its near_sum of every kind. Returns B = 0, 2 or
 ; $FF (N set): acceptance adds wk_unseen, (wk_unseen + 2) / 4 or nothing.
 ; A draw next to one tile only, an isolated one (rel 1), counts 1/4 when it
-; makes a kanchan or a pair and 1/16 when it makes a penchan; every other
+; makes a kanchan or a pair and 0 when it makes a penchan; every other
 ; draw counts 1. Tenpai, chanta, chiitoi, toitoi and kokushi count 1.
 acc_weight:
  tst min_s
@@ -2314,7 +2312,7 @@ toi_bonus_00:
 
 ; Numbered dora loss per indicator is the original concealed copy count.
 ; Honors use [copies][unseen] below; each matching indicator adds that loss.
-; Red adds one only if actually discarded. Maximum loss is 9*5=45.
+; Red adds one only if actually discarded.
 ; A=cost, B/X scratch. Original counts and physical hand stay unchanged.
 ; Returns with N and Z set from A.
 dora_cut_cost:
@@ -2373,7 +2371,7 @@ dcc_honor_table:
  .byte 5,6,0,0
  .byte 6,0,0,0
 
-; B=kind, return the number of matching dora indicators (0..5).
+; B = kind. Returns A and dora_hits = the matching dora indicators (0..5).
 is_dora_kind:
  ldx #dora_of_kind
  jsr addxb
@@ -2643,6 +2641,7 @@ ai_call_30:
 ; Another yakuhai: 3 han (2 for the dealer) of the yakuhai and usable dora
 ; (pai_dora_use), a furo, a flush call (call_flush), another yakuhai pair,
 ; or for the dealer two other blocks. The shanten may stay the same.
+; A double wind and the top in the last hand (last_top) skip this test.
 yakuhai_call:
 	; A double wind skips the extra value test, not the shanten check.
 	ldaa	call_yakuhai
@@ -2714,8 +2713,10 @@ yakuhai_call_10:
 	clra
 	rts
 
-; Returns A = 1 if the computer already has a yakuhai triplet (closed or
-; melded), or if all its tiles and call_kind are simples (tanyao).
+; Returns A = 1 if the call of call_kind keeps a yaku: chanta (iw_chi, a
+; yaochu call_kind and no block chanta must cut), a flush call
+; (call_flush_ok), a yakuhai triplet (closed or melded), or tanyao (all the
+; tiles and call_kind are simples).
 ; Returns with N and Z set from A.
 call_yaku_ok:
  tst iw_chi
@@ -2836,13 +2837,12 @@ is_simple_00:
 	clra
 	rts
 
-
 	.bss
 ; unshown sits before counts and work right after it: ai_unseen reads counts
 ; as counts-unshown,x, and make_tot writes work as work-counts,x.
 unshown: .ds KN ; tiles of each kind not yet shown on the table (turn.asm)
 counts: .ds KN ; tiles of each kind in the closed hand (eval_load)
-sg_stop: .ds 1 ; sg_init sets $80: the end of counts for sg_entry_x
+sg_stop: .ds 1 ; sg_start sets $80: the end of counts for sg_entry_x
 work: .ds 4 ; make_tot scratch: 37 contiguous bytes in total
 pai_suit_work: .ds 3 ; scan-only suit scores; alias inside work, no added RAM
  .ds KN-7
@@ -2933,8 +2933,6 @@ ai_open_furo:
  adda minkan_n-minshun_n,x
  rts
 
-; Returns A = 1 if another player has a riichi (any_riichi), or a riichi or
-; two furo (any_threat). Returns with N and Z set from A.
 ; oc_mask[p] = suits whose danger from player p is half. For a player
 ; without riichi, with 10 river tiles or more, whose furo of numbered tiles
 ; are all of one suit S: 0 to 2 tiles of S in his river make the other two
@@ -3089,6 +3087,8 @@ fold_check_01:
  staa fold_result
  rts
 
+; Returns A = 1 if another player has a riichi (any_riichi), or a riichi or
+; two furo (any_threat). Returns with N and Z set from A.
 any_riichi:
  ldaa #4
  bra any_riichi_03
@@ -3401,13 +3401,10 @@ s3_total: .ds 1 ; kinds the pattern covers
 s3_best: .ds 1 ; best pattern value
 s3_n: .ds 1 ; tiles of the suit in the pattern
 ; cc_sanshoku is allocated in directpage.asm.
- .bss
 ; dcc_count is allocated in directpage.asm.
 ; dcc_cost is allocated in directpage.asm.
 ; wk_bonus is allocated in directpage.asm.
- .code
 
- .bss
 dora_hits: .ds 1 ; indicators that match (is_dora_kind)
 toi_dead: .ds 1 ; concealed pairs with no unseen copy
 toi_live: .ds 1 ; concealed pairs with an unseen copy
@@ -3417,13 +3414,6 @@ tb_n_pairs: .ds 1 ; pairs that are not triplets
 tb_n_dead: .ds 1 ; dead pairs
 ; tb_n_live is allocated in directpage.asm.
 wk_left: .ds 1 ; shared work: tanyao yaochu limit (set_intents), toitoi slots left (toi_bonus)
- .code
-
- .bss
- .code
-
- .bss
-
 
  .code
  ; Special-shape values of a hand, a set of 4 bytes: kinds held, yaochu kinds
@@ -3546,8 +3536,8 @@ spec_step_00:
 spec_step_01:
  rts
  .bss
-; spec_off: the special shapes not counted. ai_discard sets SPEC_NO_CHII (chii_check)
-; and clears it at its end; ev1_discard sets SPEC_NONE and puts back the value
+; spec_off: the special shapes not counted. ai_discard (chii_check) and ai_call set
+; SPEC_NO_CHII and clear it at their end; ev1_discard sets SPEC_NONE and puts back the value
 ; it found.
 SPEC_NO_CHII .equ $01
 SPEC_NONE .equ $81
@@ -3583,9 +3573,6 @@ ac_special:
 ac_special_08:
  jmp acceval_yes
 
- .code
-
- .code
 ; Prefer ukeire on exact final-score ties only in a closed hand without triplets.
 ; This leaves triplet/kan hands on their previous tie policy.
 tie_policy:
@@ -3608,9 +3595,7 @@ tie_policy_01:
 cc_isol_flag: .ds 1 ; 1 for an isolated candidate
 ad_best_ukeire: .ds 1 ; acceptance of the best candidate
 tie_ukeire: .ds 1 ; output of tie_policy: 1 when equal scores compare acceptance
- .code
 
- .bss
 ac_ptr: .ds 2 ; &counts[draw]
 cand: .ds KN ; candidates of best_accept (cand_build, cand_restrict)
 ac_lower: .ds 5 ; output of acceptance: 1 bit for each kind that lowers the shanten

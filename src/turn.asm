@@ -390,7 +390,6 @@ react_called:
 	bne	call_discard
 	jmp	rinshan_draw
 
-
 ; The player in turn called pon or chi and discards without drawing.
 call_discard:
 	ldab	turn
@@ -1025,7 +1024,7 @@ ron_no:
  clra
  rts
 
-; A = 1 if counts contains a quartet.
+; A = 1 if counts and furo_tiles hold 4 tiles of one kind.
 ; Returns with N and Z set from A.
 has_four:
  ldx #counts
@@ -1043,7 +1042,8 @@ has_four_00:
 ; waits[k] = 1 for every kind k that completes it (regular shape, chiitoi or
 ; kokushi), except a kind of which 4 tiles are held. counts is restored.
 ; Returns A = 1 if there is a wait.
-; Returns with N and Z set from A.
+; Returns with N and Z set from A. has_wait_cut: X = &counts[k]; takes one
+; tile of k out first and does not put it back.
 has_wait_cut:
  dec 0,x
 find_waits:
@@ -1354,7 +1354,7 @@ chi_kinds_02:
 	pulb
 	rts
 
-; Sets rp_pon, rp_kan, rp_chi for the own player and dc_tile.
+; A = player. Sets rp_pon, rp_kan, rp_chi for the player and dc_tile.
 call_options:
 	staa	call_player
 	clr	rp_pon
@@ -1626,7 +1626,6 @@ clear_ippatsu_00:
 	deca
 	bne	clear_ippatsu_00
 	rts
-
 
 ; ---------------------------------------------------------------- furo
 
@@ -1917,8 +1916,8 @@ unshown_kind_00:
 
 ; ---------------------------------------------------------------- drawing
 
-
-; Shows the dora indicators.
+; Removes the riichi and kan hints, the call letters beside the latest
+; discard and the action letters of the own hand.
 clear_letters:
  jsr hide_riichi
  jsr hint_clear
@@ -1975,7 +1974,6 @@ add_action_02:
  inc let_n
  rts
 
-
 ; Shows R:ロン and waits. Returns A nonzero for ron (R), 0 for pass (space).
 ask_ron:
 	ldx	#snd_select
@@ -2026,7 +2024,7 @@ kan_n:	.ds	1 ; kan options
 kan_k:	.ds	4 ; their kinds
 ; ko_k is allocated in directpage.asm.
 ; kk2 is allocated in directpage.asm.
-ra_player:	.ds	1 ; player riichi_allowed checks
+ra_player:	.ds	1 ; player ron_ok checks
 rn_n:	.ds	1 ; river tiles left (ron_ok)
 rn_x:	.ds	2 ; next river tile
 rp_pon:	.ds	1 ; pon possible
@@ -2086,17 +2084,16 @@ chi_key:	.ds	1 ; last chi key
 chi_i1:	.ds	1 ; hand position of the first chi tile
 chi_i2:	.ds	1 ; hand position of the second chi tile
 
-riichi_reject:	.ds	1 ; nonzero after riichi is cancelled
+riichi_reject:	.ds	1 ; nonzero after R was pressed when riichi is not allowed
 abort_reason:	.ds	1 ; ABORT_* pending after the discard ($FF = none)
 
-	.bss
 ; discarder is allocated in directpage.asm.
 react_phase:	.ds	1 ; 0 ron, 1 calls
 react_human:	.ds	1 ; human answer ($FF = ask)
 react_hpat:	.ds	1 ; human chi pattern
 react_count:	.ds	1 ; players asked so far
 react_choice:	.ds	1 ; nonzero once a call is chosen
-react_winner:	.ds	1 ; player who rons
+react_winner:	.ds	1 ; player of the chosen call
 react_pattern:	.ds	1 ; chi pattern of the call
 react_ron_n:	.ds	1 ; players who ron
 react_ron_first:	.ds	1 ; first of them from the discarder
@@ -2104,12 +2101,8 @@ react_hum_ron:	.ds	1 ; human can ron: 1 first, 2 after a CPU ron
 call_player:	.ds	1 ; player call_options checks
 auto_play:	.ds	1 ; nonzero when every player is a CPU
 
-
- .bss
 ri_player: .ds 1 ; player riichi_ok checks
 ri_kind: .ds 1 ; kind tried
-
- .bss
 
  .code
 ; Shows the riichi hint (show_kan_hint: the kan hint).
@@ -2150,7 +2143,6 @@ hide_riichi_00:
 riichi_hint_x: .ds 1 ; x of the riichi hint
 riichi_hint_live: .ds 1 ; nonzero while the hint is shown
 
- .bss
 own_hint_x: .ds 1 ; pixel column of the own hint
 own_hint_y: .ds 1 ; pixel row of the own hint
 own_hint_str: .ds 2 ; own hint string

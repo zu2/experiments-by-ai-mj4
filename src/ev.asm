@@ -47,10 +47,8 @@ evdisc_next_cand:
  bne evdisc_candidate
  rts
 
-; Value of discarding wk_kind from the 14 tiles of counts, after ev_prepare:
-; ev_sum and wk_accept of ev_acceptance. counts is restored.
-; Returns Z clear when the 13-tile hand of ai_call has
-; a winning tile with yaku (ev_sum of not calling call_kind).
+; Returns X = ev_sum of the 13-tile hand of ai_call without calling
+; call_kind: Z clear when it has a winning tile with yaku.
 ev_no_call:
  jsr ev_prepare
  ldaa call_kind
@@ -76,6 +74,8 @@ ev_value_waits:
  jsr fw_expand
  jsr ev_tally
  bra ev_value_restore
+; Value of discarding wk_kind from the 14 tiles of counts, after ev_prepare:
+; ev_sum and wk_accept of ev_acceptance. counts is restored.
 ev_value:
  jsr ev_hand_prep
  jsr ev_acceptance
@@ -262,7 +262,8 @@ ev_acceptance_13:
 ev_acceptance_12:
  ldaa wk_accept
  rts
-; ev_sum += B * the points at X (B > 0), saturating at $FFFF.
+; ev_sum += B * the points at X (B > 0), saturating at $FFFF; ev_yacc += B
+; when the points are not 0.
 ev_add_pts:
  ldaa 0,x
  oraa 1,x

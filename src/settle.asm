@@ -192,8 +192,6 @@ total_tmp: .ds 2 ; running total
 settle_p: .ds 1 ; player being settled
 ry_n: .ds 1 ; tenpai players
 
-	.bss
-
  .code
 ; B = player index; ry_n / ry_tenpai describe the completed draw.
 ; Output ry_v = signed transfer in units of 100 points, including zero.

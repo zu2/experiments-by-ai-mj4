@@ -89,7 +89,6 @@ mul8_01:
  bne mul8_00
  rts
 
-
 	.bss
 addxb_tmp:	.ds	2 ; X being added to
 mul_a:	.ds	1 ; multiplicand

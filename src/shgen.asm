@@ -89,4 +89,3 @@ yao_offsets:
  .bss
 yao_ptr: .ds 2 ; next kind in yao_offsets
  .code
-

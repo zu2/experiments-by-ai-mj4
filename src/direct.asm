@@ -140,8 +140,7 @@ sg_leaf:
  suba heads_n
  cmpa sg_best
  bge sg_leaf_04
- ; leaf_parts returns the sum for all suits and honors. The result is
- ; capped below exactly as in the incremental early-exit implementation.
+ ; leaf_parts returns the sum for all suits and honors, capped at sg_cap.
  ldab sg_cap
  beq sg_leaf_no_taatsu
  jsr leaf_parts
@@ -233,7 +232,6 @@ sg_lmax: .ds 1 ; sg_entry_x stops when sg_left goes above it
 ; heads_n is allocated in directpage.asm.
 ; sg_best is allocated in directpage.asm.
 ; sg_cap is allocated in directpage.asm.
-; Best shanten attainable by a forbidden discard; 127 if none.
 ad_forbidden_s: .ds 1 ; best shanten of a forbidden discard (127 if none)
 
  .code

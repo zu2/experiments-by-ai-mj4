@@ -859,9 +859,9 @@ calc_fu_10:
 	stab	cur_fu
 	rts
 
-; A = fu
 add_fu2:
  ldaa #2
+; A = fu. Adds it to cur_fu (add_fu2: 2 fu).
 add_fu:
 	adda	cur_fu
 	staa	cur_fu
@@ -1085,7 +1085,6 @@ yakuman_basic_00:
  bne yakuman_basic_00
  rts
 
-
 ; Compare basic points, then han and fu; payout is monotone on legal inputs.
 ; Returns with N and Z set from A.
 fi_better:
@@ -1164,11 +1163,11 @@ cur_han:	.ds	1 ; its han
 btype:	.ds	4 ; block types
 bkind:	.ds	4 ; block kinds
 ep_i:	.ds	1 ; block index
-ep_kind:	.ds	1 ; kind of the winning tile
+ep_kind:	.ds	1 ; first kind of the block
 ep_off:	.ds	1 ; place of the winning tile in the sequence
 ; ed_wait is allocated in directpage.asm.
 ed_wi:	.ds	1 ; block of the winning tile
-ed_yhead:	.ds	1 ; 1 for a yakuhai head
+ed_yhead:	.ds	1 ; fu of the head (head_fu): nonzero for a yakuhai head
 ed_pinfu:	.ds	1 ; 1 for pinfu
 n_seq:	.ds	1 ; sequences
 n_trip:	.ds	1 ; triplets
@@ -1180,10 +1179,8 @@ ab_index:	.ds	1 ; block index
 block_fu:	.ds	1 ; fu of the block
 ; fi_han is allocated in directpage.asm.
 
-
 sbt_swapped:	.ds	1 ; nonzero when a pass swapped
 ; dv_divisor is allocated in directpage.asm.
- .bss
 sort_base: .ds 2 ; array being sorted
 sort_n: .ds 1 ; its length
 

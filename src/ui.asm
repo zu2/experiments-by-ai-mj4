@@ -810,7 +810,7 @@ img_decode_08:
  bne img_decode_00
  rts
 
-; 12 rows * 12 pixels. Generic unaligned bit writer, preserves sm_x/sm_y.
+; 12 rows * 12 pixels at sm_x (a multiple of 4) and sm_y. Preserves sm_x/sm_y.
 smalltile:
  stab sm_flags
  ldx #small_set
@@ -1100,7 +1100,7 @@ ui_winning_hand:
  clr ui_big
  rts
 
-; Reveal and redraw only the winner's hand, preserving the table and river ▲.
+; Reveal and redraw only the winner's hand, preserving the table and the river marker.
 ui_win_reveal:
  ldab turn
  jsr player_bit
@@ -1171,8 +1171,6 @@ df_rec: .ds 2 ; furo record being drawn
 df_rot: .ds 1 ; place of the called tile ($FF for none)
 df_o: .ds 1 ; place of the tile among the tiles of the furo (furo_img)
 
- .code
- .bss
 sm_dst: .ds 2 ; screen address
 sm_align: .ds 1 ; bit offset
 sm_n: .ds 1 ; rows left
@@ -1184,12 +1182,9 @@ ui_dst: .ds 2 ; screen address
 ui_tail: .ds 1 ; pixels after the last whole byte
 ui_bytes: .ds 1 ; whole bytes
 
- .bss
-
 ui_back_n: .ds 4 ; hidden tiles drawn for each player ($FF = none)
 ui_furo_n: .ds 4 ; furo drawn for each CPU
 
- .bss
 ui_first: .ds 1 ; pixels before the first whole byte
  .code
 ; Redraw the most recent discard, including its updated flags.
@@ -1296,9 +1291,6 @@ mark_live: .ds 1 ; nonzero while the river marker is shown
 ; mark_tip is allocated in directpage.asm.
 mark_top: .ds 1 ; marker top row
 
-
-
-
  .code
 ; Fixed under the seat name, outside the two-row river.
 ui_stick:
@@ -1378,7 +1370,6 @@ draw_wind_for_player:
  jsr addxb
  jmp drawstr_x
 
- .code
 ; A=y, B=x. Return A:B = $0900 + y*32 + x/8.
 pixel_address:
  pshb
@@ -1400,8 +1391,8 @@ pixel_address:
  ldaa addxb_tmp
  rts
 
- .code
-; River-only 12x13 mockup: face11 + white/black line + black line.
+; Draws the 2 rows under the 11-row face of a river tile (sm_x, sm_y + 11):
+; white under an upright tile, black under a turned (riichi) one.
 river_footer:
  ldaa sm_y
  adda #11
@@ -1416,5 +1407,3 @@ river_footer:
 river_footer_00:
  ldx #shape_footer
  jmp ui_shape
-
- .code

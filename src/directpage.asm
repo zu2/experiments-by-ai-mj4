@@ -12,12 +12,12 @@ wk_num .equ $0077 ; shared work: 16-bit number (div8_a operand and result, payer
 ai_player .equ $0079 ; computer player that is thinking
 min_s .equ $007A ; lowest shanten of the discards
 wk_draw .equ $007B ; shared work: kind of the draw (acceptance, ev_acceptance)
-loop_p .equ $007C ; player index for loops (settle, scores)
+loop_p .equ $007C ; player index for loops (settle, scores, count_ge)
 sh_best .equ $007D ; best shanten in shanten
 ht_p .equ $007E ; player whose hand is drawn
 px_x .equ $007F ; pixel x
 sm_y .equ $0080 ; pixel y of smalltile
-ry_v .equ $0081 ; signed transfer of the draw (units of 100)
+ry_v .equ $0081 ; signed transfer of the draw (units of 100); points count_at compares with
 dealer .equ $0083 ; dealer player
 cursor .equ $0084 ; cursor position in the own hand ($FF = none)
 discarder .equ $0085 ; player who discarded dc_tile
@@ -66,7 +66,7 @@ greedy_sum .equ $00B4 ; taatsu so far
 fmk_kind .equ $00B5 ; first kind of the furo
 nfuro .equ $00B6 ; furo of the hand
 react_act .equ $00B7 ; R_* answer of the reacting player
-s3_kind .equ $00B8 ; kind sanshoku_near checks
+s3_kind .equ $00B8 ; kind sanshoku_cut checks
 se_kind .equ $00B9 ; kind search is at
 toi_slots .equ $00BA ; toitoi blocks still needed
 best_fu .equ $00BB ; fu of the best result

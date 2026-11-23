@@ -75,7 +75,9 @@ shanten_11:
 	ldaa	sh_best
 	rts
 
- ; ai_discard-only entry: counts stays at fourteen tiles; X points at wk_kind.
+; ai_discard-only entry: counts stays at fourteen tiles; X = &counts[wk_kind].
+; Returns A = the lower of sk and the special-shape shanten of the discard
+; (spec_before); sk when spec_low is not below sk.
 shanten_lim:
  ; A discard does not lower a special shape: spec_low is a lower bound.
  ; Cutting a pair from four pairs drops chiitoi, so spec_before may be
@@ -125,7 +127,6 @@ gd_smc_last:
  anda #7
  adda greedy_sum
  ldx greedy_saved_x
- tsta
  rts
 
 	.bss
@@ -134,7 +135,7 @@ greedy_left: .ds 1 ; ranks left in greedy_loop
 ; nfuro is allocated in directpage.asm.
 eh_routine:	.ds	2 ; routine called for each head
 al_res: .ds 1 ; al_check result
-fi_fu: .ds 1
+fi_fu: .ds 1 ; fu for fi_limit
 call_pat: .ds 1 ; chi pattern ai_call checks
 ; sh_best is allocated in directpage.asm.
 ; greedy_sum is allocated in directpage.asm.

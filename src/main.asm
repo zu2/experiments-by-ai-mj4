@@ -66,7 +66,6 @@ P_IPPATSU	.equ	$04
 P_DOUBLE	.equ	$02
 P_SKIP	.equ	$01
 
-	.code
 start:
 	bra	start_00
 ; greedy reads gd_transitions and kattr_x reads kattr with a one-byte
@@ -113,7 +112,7 @@ clear_directpage:
 	ldaa	#$FF
 	staa	cursor
 
-; Title screen. Waits for space and starts a title_wait_00.
+; Title screen. Waits for space and starts a game.
 title:
 	clr	game_active
 	clr	auto_play
@@ -224,7 +223,6 @@ kyoku_04:
 	staa	players+PSIZE*3+P_FLAG
 	jmp	turn_loop
 
-
 ; Player other won with the discarded tile dc_tile and becomes the player
 ; in turn.
 win_ron:
@@ -245,10 +243,10 @@ win_show:
 win_tsumo_00:
 	jsr	play
 	jsr	ui_win_reveal
-	; The existing river ▲ already identifies the ron tile. Keep it in place.
+	; The river marker already shows the ron tile. Keep it in place.
 	tst	tsumo_flag
 	beq	win_tsumo_20
-	; Keep the ▲ source cue on the winning player's drawn tile.
+	; Mark the drawn tile of the winning player.
 	jsr mark_clear
 	jsr ui_mark_tsumo
 win_tsumo_20:
@@ -440,7 +438,6 @@ dealer_top_02:
 	bne	last_top_00
 	ldaa	#1
 	rts
-
 
 ; A = player, B = 1 for ron with dc_tile, 0 for tsumo with the drawn tile.
 ; Returns A = 1 if the player can win (winning shape with yaku).
@@ -697,7 +694,6 @@ winds_of:
 	inca
 winds_of_00:
 	rts
-
 
 ; Dedicated result page: winner header, indicators, yaku, points and large hand.
 show_result:
@@ -962,7 +958,6 @@ show_draw_00:
 	jsr	player
 	ldx	P_BEFORE,x
 	jsr	print_score
-	; Replace the second line with status and exact point transfer.
 	; The second line shows the point transfer, the third the status.
 	ldaa	sr_row
 	inca
@@ -1176,7 +1171,7 @@ furo_counts_04:
 	pula
 	rts
 
-; Ends the title_wait_00 and shows the final scores.
+; Ends the game and shows the final scores.
 game_end:
  clr game_active
  ldaa result_active
@@ -1452,10 +1447,6 @@ select_arrow:
  jmp ui_shape_set
 arrow_done:
  rts
-
-
-
-
 
 ; A = row. Shows the space prompt at its right end.
 show_push:
@@ -1824,7 +1815,8 @@ drawstr:
 drawstr_01:
 	rts
 
-; A = character code, at posx/posy. Does not move posx.
+; A = character code (draw_zero: 0), at posx/posy. Does not move posx;
+; next_zero moves it one cell right first and draws 0.
 next_zero:
  inc posx
 draw_zero:
@@ -1906,7 +1898,6 @@ img_of_00:
 	rts
 
 ; ---------------------------------------------------------------- misc
-
 
 ; Waits one frame and reads the keys. knew has the keys pressed in this frame.
 frame:
@@ -2155,7 +2146,7 @@ honba:	.ds	1 ; honba counter
 ; kyotaku is allocated in directpage.asm.
 ; title_i is allocated in directpage.asm.
 title_sec:	.ds	1 ; $0B (seconds) when the title began to wait
-demo:	.ds	1 ; nonzero in a demo game (D at the title; auto_play is set too)
+demo:	.ds	1 ; nonzero in a demo game (D or 30 seconds at the title; auto_play is set too)
 open_mode:	.ds	1 ; nonzero when CPU hands are shown
 game_active:	.ds	1 ; nonzero during a hand
 result_active:	.ds	1 ; nonzero on a result page
@@ -2169,11 +2160,11 @@ deal_cnt:	.ds	1 ; deal steps left
 wall:	.ds	136 ; 136 tiles, dead wall at the end
 players:	.ds	PSIZE*4 ; four player areas (PSIZE each)
 ; dc_p is allocated in directpage.asm.
-dc_k:	.ds	1 ; kind of dc_tile
+dc_k:	.ds	1 ; place of dc_tile in the river
 ; cursor is allocated in directpage.asm.
 ; cw_p is allocated in directpage.asm.
 cw_ron:	.ds	1 ; 1 for ron, 0 for tsumo (check_win)
-win_tile:	.ds	1 ; tile of the ron (setup_score)
+win_tile:	.ds	1 ; winning tile: dc_tile for a ron, the drawn tile for a tsumo
 ; ss_i is allocated in directpage.asm.
 ss_p:	.ds	2 ; next furo (setup_score)
 ; ry_tenpai is allocated in directpage.asm.
@@ -2185,7 +2176,6 @@ sr_id:	.ds	1 ; yaku number shown
 can_win:	.ds	1 ; nonzero when the player in turn can tsumo
 reveal:	.ds	1 ; players whose hands are shown (bit p for player p)
 win_text:	.ds	2 ; win title string
-
 
 fcn_dst:	.ds	2 ; array furo are added to
 fcn_src:	.ds	2 ; next furo
@@ -2216,18 +2206,10 @@ dt_dst:	.ds	2 ; drawtile screen address
 dt_cnt:	.ds	1 ; drawtile rows left
 dst_ptr:	.ds	2 ; next character
 
-
-
 ch_dst:	.ds	2 ; drawchar screen address
 
-
-	.bss
-	.bss
 deal_player:	.ds	1 ; player being dealt
 
-	.code
-
- .bss
 dt_repeat: .ds 1 ; nonzero to repeat the row
 dt_row_id: .ds 1 ; row lookup index
 
