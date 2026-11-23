@@ -3315,14 +3315,14 @@ sanshoku_tile3:
  beq sanshoku_furo
  incb
 sanshoku_furo:
+ stab s3_n
  cmpb #3
+ beq sanshoku_full
+ ; A minshun of this exact sequence fills it.
+ ldab nfuro
  beq sanshoku_shape
- ldaa nfuro
- beq sanshoku_shape
- pshb
  ldaa ai_player
  jsr player
- ldab nfuro
 sanshoku_cut_00:
  ldaa P_FURO,x
  anda #3
@@ -3336,18 +3336,9 @@ sanshoku_cut_01:
  inx
  decb
  bne sanshoku_cut_00
-sanshoku_back:
- pulb
- bra sanshoku_shape
-sanshoku_full:
- ins
- ldab #3
 sanshoku_shape:
- tstb
+ ldab s3_n
  beq sanshoku_cut_20
- stab s3_n
- cmpb #3
- beq sanshoku_alive
  ; Missing tiles must be available; counts and unseen use identical kind indices.
  ldab s3_kind
  jsr counts_x
@@ -3361,10 +3352,11 @@ sanshoku_cut_10:
  inx
  decb
  bne sanshoku_missing
-sanshoku_alive:
  ldab s3_n
- cmpb #3
- bne sanshoku_total
+ bra sanshoku_total
+sanshoku_full:
+ ldab #3
+ stab s3_n
  inc s3_full
 sanshoku_total:
  addb s3_total
