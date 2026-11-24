@@ -1360,58 +1360,33 @@ intent_toi_store:
  bcc intent_fl_wide
  inca
 intent_fl_wide:
- cmpa #4
- bcc intent_fl_clear
- ldab #K_END-1
-intent_fl_save:
- pshb
- jsr counts_x
- pulb
- tba
- jsr off_suit
- bne intent_fl_save_00
- cmpb #K_HONOR
- bcs intent_fl_save_01
- tst unseen-counts,x
- bne intent_fl_save_01
- ldaa 0,x
+ ldab draws_left
+ cmpb #60
+ bcs intent_fl_wide_00
  psha
- cmpa #2
- bcs intent_fl_save_01
- ldaa #1
- staa 0,x
- bra intent_fl_save_01
-intent_fl_save_00:
- ldaa 0,x
- psha
- clr 0,x
-intent_fl_save_01:
- decb
- bne intent_fl_save
- jsr sh_general
- suba wk_left
- staa wk_left
- ldab #1
-intent_fl_rest:
- pshb
- jsr counts_x
- pulb
- tba
- jsr off_suit
- bne intent_fl_rest_00
- cmpb #K_HONOR
- bcs intent_fl_rest_01
- tst unseen-counts,x
- bne intent_fl_rest_01
-intent_fl_rest_00:
+ ldaa pai_flush_score
+ adda pai_honor_pts
+ cmpa #10
  pula
- staa 0,x
-intent_fl_rest_01:
- incb
- cmpb #K_END
- bne intent_fl_rest
- tst wk_left
+ bcs intent_fl_wide_00
+ ldab #5
+ bra intent_fl_wide_01
+intent_fl_wide_00:
+ ldab #4
+intent_fl_wide_01:
+ cba
+ bcc intent_fl_clear
+ clra
+ jsr part_shanten
+ suba wk_left
  beq set_intents_80
+ ldaa pai_yaochu
+ cmpa #2
+ bcs intent_fl_clear
+ ldaa #1
+ jsr part_shanten
+ cmpa #7
+ bcc set_intents_80
 intent_fl_clear:
  clr iw_flush
 set_intents_80:
@@ -1428,6 +1403,62 @@ set_intents_82:
  cpx #intent_flags_end
  bne set_intents_81
  staa intents
+ rts
+
+; A = 0 keeps the flush suit and the honors, A = 1 keeps the other suits;
+; returns A = sh_general of the kept tiles. An honor pair with no unseen copy
+; counts as a single tile, since it makes no set.
+part_shanten:
+ staa ps_part
+ ldab #K_END-1
+part_shanten_save:
+ pshb
+ jsr counts_x
+ pulb
+ tba
+ jsr off_suit
+ cmpa ps_part
+ bne part_shanten_save_00
+ cmpb #K_HONOR
+ bcs part_shanten_save_01
+ tst unseen-counts,x
+ bne part_shanten_save_01
+ ldaa 0,x
+ psha
+ cmpa #2
+ bcs part_shanten_save_01
+ ldaa #1
+ staa 0,x
+ bra part_shanten_save_01
+part_shanten_save_00:
+ ldaa 0,x
+ psha
+ clr 0,x
+part_shanten_save_01:
+ decb
+ bne part_shanten_save
+ jsr sh_general
+ ldab #1
+part_shanten_rest:
+ pshb
+ jsr counts_x
+ pulb
+ tba
+ jsr off_suit
+ cmpa ps_part
+ bne part_shanten_rest_00
+ cmpb #K_HONOR
+ bcs part_shanten_rest_01
+ tst unseen-counts,x
+ bne part_shanten_rest_01
+part_shanten_rest_00:
+ pula
+ staa 0,x
+part_shanten_rest_01:
+ incb
+ cmpb #K_END
+ bne part_shanten_rest
+ ldaa sg_best
  rts
 
 ; A completed sequence or triplet outside the target suit blocks flush intent.
@@ -3394,6 +3425,7 @@ tb_n_pairs: .ds 1 ; pairs that are not triplets
 tb_n_dead: .ds 1 ; dead pairs
 ; tb_n_live is allocated in directpage.asm.
 wk_left: .ds 1 ; shared work: tanyao yaochu limit (set_intents), toitoi slots left (toi_bonus)
+ps_part: .ds 1
 
  .code
  ; Special-shape values of a hand, a set of 4 bytes: kinds held, yaochu kinds
