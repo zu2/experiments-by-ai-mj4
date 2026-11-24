@@ -414,19 +414,67 @@ noten_safe:
 
 ; Returns A = 1 in the last hand (round 7) if ai_player is the dealer and
 ; the dealer is strictly ahead of every other player.
-; Returns with N and Z set from A.
+; Returns with N and Z set from A. Continues in south_top.
 last_dealer_top:
 	ldaa	ai_player
 	cmpa	dealer
 	bne	last_top_00
-; Returns A = 1 in the last hand (round 7) if ai_player is strictly ahead of
-; every other player. Returns with N and Z set from A.
-last_top:
 	ldaa	round
 	cmpa	#7
 	bne	last_top_00
+; Returns A = 1 in the south round (round 4 to 7) if ai_player is strictly
+; ahead of every other player: he wants speed to end the game.
+; Returns with N and Z set from A.
+south_top:
+	ldaa	round
+	cmpa	#4
+	bcs	last_top_00
 	ldaa	ai_player
 	bra	dealer_top_01
+; Returns A = 1 in the south round if ai_player is not the dealer, not
+; strictly ahead of every other player, and has fewer than two usable dora:
+; he wants value, as a cheap win helps the top (tanyao and two dora make 3
+; han, as yakuhai_call asks). In the last hand (round 7) it is 0 when a win
+; passes a player: his rank is worth more than the value. The win is 1000
+; points for the tanyao, each usable dora and each riichi stick on the table.
+; Returns with N and Z set from A.
+want_value:
+	ldaa	pai_dora_use
+	lsra
+	bne	last_top_00
+	ldaa	round
+	cmpa	#4
+	bcs	last_top_00
+	ldaa	ai_player
+	cmpa	dealer
+	beq	last_top_00
+	jsr	count_ge
+	decb
+	beq	last_top_00
+	ldaa	round
+	cmpa	#7
+	bne	want_value_01
+	pshb
+	ldaa	kyotaku
+	inca
+	adda	pai_dora_use
+	tab
+	asla
+	asla
+	aba
+	asla
+	adda	ry_v+1
+	staa	ry_v+1
+	bcc	want_value_00
+	inc	ry_v
+want_value_00:
+	jsr	count_at
+	pula
+	cba
+	bhi	last_top_00
+want_value_01:
+	ldaa	#1
+	rts
 last_top_00:
 	clra
 	rts

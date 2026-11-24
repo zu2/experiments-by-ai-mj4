@@ -2633,14 +2633,14 @@ ai_call_30:
 ; Another yakuhai: 3 han (2 for the dealer) of the yakuhai and usable dora
 ; (pai_dora_use), a furo, a flush call (call_flush), another yakuhai pair,
 ; or for the dealer two other blocks. The shanten may stay the same.
-; A double wind and the top in the last hand (last_top) skip this test.
+; A double wind and the top in the south round (south_top) skip this test.
 yakuhai_call:
 	; A double wind skips the extra value test, not the shanten check.
 	ldaa	call_yakuhai
 	cmpa	#2
 	beq	yakuhai_call_00
- ; The top in the last hand takes any yakuhai: a win ends the game.
- jsr last_top
+ ; The top in the south round takes any yakuhai: a win moves the game on.
+ jsr south_top
  bne yakuhai_call_00
 	ldaa	pai_dora_use
 	ldab	ai_player
@@ -2728,6 +2728,8 @@ call_yaku_ok_00:
  bne call_yaku_ok_10
  tst pai_yaochu
  bne call_yaku_ok_11
+ jsr want_value
+ bne call_yaku_ok_11
  jmp call_is_simple
 call_yaku_ok_10:
 	ldaa	#1
@@ -2785,6 +2787,8 @@ call_chi_yaku_02:
  bne call_chi_yaku_03
  jsr call_is_simple
 	beq	call_chi_yaku_03
+ jsr want_value
+ bne call_chi_yaku_03
 	; Early, a closed hand with fewer than two usable dora keeps a two-sided
 	; block for riichi: tanyao does not chi with it (two simples next to each
 	; other are always two-sided).
