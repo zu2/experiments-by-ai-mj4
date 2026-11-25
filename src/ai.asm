@@ -1405,9 +1405,8 @@ set_intents_82:
  staa intents
  rts
 
-; A = 0 keeps the flush suit and the honors, A = 1 keeps the other suits;
-; returns A = sh_general of the kept tiles. An honor pair with no unseen copy
-; counts as a single tile, since it makes no set.
+; A = 0 keeps the flush suit and the honors, A = 1 keeps the other suits.
+; Returns A = sh_general of the kept tiles.
 part_shanten:
  staa ps_part
  ldab #K_END-1
@@ -1418,19 +1417,7 @@ part_shanten_save:
  tba
  jsr off_suit
  cmpa ps_part
- bne part_shanten_save_00
- cmpb #K_HONOR
- bcs part_shanten_save_01
- tst unseen-counts,x
- bne part_shanten_save_01
- ldaa 0,x
- psha
- cmpa #2
- bcs part_shanten_save_01
- ldaa #1
- staa 0,x
- bra part_shanten_save_01
-part_shanten_save_00:
+ beq part_shanten_save_01
  ldaa 0,x
  psha
  clr 0,x
@@ -1446,12 +1433,7 @@ part_shanten_rest:
  tba
  jsr off_suit
  cmpa ps_part
- bne part_shanten_rest_00
- cmpb #K_HONOR
- bcs part_shanten_rest_01
- tst unseen-counts,x
- bne part_shanten_rest_01
-part_shanten_rest_00:
+ beq part_shanten_rest_01
  pula
  staa 0,x
 part_shanten_rest_01:
