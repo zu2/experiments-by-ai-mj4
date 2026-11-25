@@ -286,8 +286,7 @@ ev_add_pts_01:
 ; search stops once 3 seconds have passed since ai_discard began, so every
 ; candidate has its value over the same draws. ad_pick changes only to a larger
 ; value. counts, unseen, kk1 and kk2 are restored; sk and min_s are made again.
-; A = 1 (push_value against a riichi): every cc_order candidate that keeps
-; 1-shanten gets a record, and the totals are made even for ad_pick alone.
+; A = 1 (push_value against a riichi): compute a value even for ad_pick alone.
 ; A record per candidate: kind, 5 bytes of tenpai draws (from ac_lower),
 ; total (3 bytes), best of the current draw (3 bytes).
 E1_SIZE .equ 10
@@ -299,8 +298,8 @@ ev1_discard:
  staa e1_kk2
  ldx #e1_rec
  stx e1_end
- ; Pass 2 records ad_pick; pass 1 the other candidates of cc_order that keep
- ; 1-shanten and lose no more value (cc_value: dora and yakuhai) than ad_pick.
+ ; Record ad_pick first so it wins a tie. Score the remaining candidates
+ ; with the same tenpai evaluation, including dora, red fives and yaku.
  ldaa #2
  staa e1_pass
 ev1_discard_00:
@@ -312,10 +311,8 @@ ev1_discard_01:
  ldaa 0,x
  cmpa #$FF
  beq ev1_discard_09
- ldab cc_value-cc_order,x
  cmpa ad_pick
  bne ev1_discard_02
- stab e1_value
  ldab e1_pass
  cmpb #2
  beq ev1_discard_05
@@ -324,11 +321,6 @@ ev1_discard_02:
  ldab e1_pass
  cmpb #2
  beq ev1_discard_08
- tst e1_all
- bne ev1_discard_05
- ldab cc_value-cc_order,x
- cmpb e1_value
- bcs ev1_discard_08
 ev1_discard_05:
  staa e1_i
  ; best_accept kept ac_lower of each cc_order slot in cc_lower.
@@ -734,7 +726,6 @@ e1_kk1: .ds 1 ; kk1 of the caller
 e1_kk2: .ds 1 ; kk2 of the caller
 e1_sec: .ds 1 ; $0B when ai_discard began
 e1_frame: .ds 1 ; $0C when ai_discard began
-e1_value: .ds 1 ; cc_value of ad_pick
-e1_all: .ds 1 ; A of ev1_discard: 1 records every candidate
+e1_all: .ds 1 ; A of ev1_discard: 1 scores even a single candidate
 e1_src: .ds 2 ; ev1_discard: source of the tenpai draws
 ; e1_dst is allocated in directpage.asm.
