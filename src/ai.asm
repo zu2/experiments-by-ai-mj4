@@ -1,5 +1,6 @@
 ; Computer players 1..3; ai_player selects the current thinker.
 ; Candidates that best_accept evaluates (choose_cands).
+	.code
 CC_LIMIT .equ 4
 
 ; Computer's turn. Returns A = action, B = tile or kind, decl.
@@ -18,7 +19,7 @@ cpu_turn_00:
 	ldaa	#ACT_DISCARD
 	rts
 cpu_turn_01:
-	jsr	ai_kan
+	bsr	ai_kan
 	beq	cpu_turn_02
 	ldaa	#ACT_KAN
 	rts
@@ -37,7 +38,7 @@ cpu_turn_02:
 ; Returns with N and Z set from A.
 ai_kan:
  jsr any_riichi
- bne ai_kan_02
+ jne ai_kan_02
  tst draws_left
  beq ai_kan_02
  ldaa kans_done
@@ -140,7 +141,7 @@ call_shanten:
  ; A call from tenpai to tenpai must raise the value (ev_best).
  tst call_shanten_now
  bne call_shanten_05
- jsr call_ev_more
+ bsr call_ev_more
  bls call_shanten_worse
 call_shanten_05:
  ldaa call_shanten_now
@@ -412,7 +413,7 @@ ai_discard_10:
 	ldaa	min_s
 	staa	wk_limit
  jsr least_danger
- bra ai_discard_07
+ jmp ai_discard_07
 ai_discard_12:
  tst min_s
  beq ai_discard_13
@@ -428,7 +429,7 @@ ai_discard_13:
  bra ai_discard_07
 ai_discard_04:
 	jsr	least_danger
-	jmp	ai_discard_07
+	bra	ai_discard_07
 ai_discard_05:
  ldab min_s
  bne ai_discard_06
@@ -548,7 +549,7 @@ discard_sk_01:
 	clr	wk_kind
 ; sk begins as ordinary-shape results; consume and replace one kind at a time.
 ad_s_loop:
- jsr ad_allowed
+ bsr ad_allowed
  beq ad_s_loop_00
  ldaa sk-counts,x
  staa skn-counts,x
@@ -627,7 +628,7 @@ least_danger:
 	staa	wk_best
 	clr	wk_kind
 least_danger_00:
-	jsr	ad_allowed
+	bsr	ad_allowed
 	beq	least_danger_01
 	ldaa	sk-counts,x
 	cmpa	wk_limit
@@ -646,7 +647,7 @@ least_danger_02:
  bcs least_danger_07
  bne least_danger_01
  psha
- jsr sk_exact
+ bsr sk_exact
  tab
  pula
  cmpb ld_sk
@@ -717,7 +718,7 @@ push_value_00:
  jsr ev_value
  ldx ev_sum
  stx pv_v
- jsr pv_score
+ bsr pv_score
 push_value_01:
  inc wk_kind
  ldaa wk_kind
@@ -738,7 +739,7 @@ push_value_05:
  ror pv_v+1
  decb
  bne push_value_05
- jsr pv_score
+ bsr pv_score
  ldx pv_rec
  ldab #E1_SIZE
  jsr addxb
@@ -905,7 +906,7 @@ cand_clear_order:
 cand_loop:
  jsr kind_cand_x
  tst 0,x
- beq cand_next
+ jeq cand_next
  jsr dora_cut_cost
  jsr isolated_cand
  staa cc_isol_flag
@@ -984,7 +985,7 @@ cand_next:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_END
- bne cand_loop
+ jne cand_loop
  rts
 
 ; Collects the facts pai_* of the tiles of the computer player (hand and
@@ -1026,7 +1027,7 @@ pai_edge_add:
 scan_pai_10:
  ldaa 0,x
  adda furo_tiles-counts,x
- beq scan_pai_50
+ jeq scan_pai_50
  staa wk_count
  ldab pai_kind
  jsr is_dora_kind
@@ -1077,7 +1078,7 @@ pai_toi_ydora:
 pai_notpair:
  ldaa pai_kind
  cmpa #K_HONOR
- bcc pai_honor
+ jcc pai_honor
  jsr kind_suit
  tab
  ldx #pai_suit0
@@ -1174,7 +1175,7 @@ scan_pai_50:
  inc pai_kind
  ldaa pai_kind
  cmpa #K_END
- bne scan_pai_00
+ jne scan_pai_00
  ; Keep physical counts intact. work+4..6 is scratch here: a numbered
  ; fixed meld contributes 2, not its 3/4 tiles. This location also puts
  ; pai_suit0..2 within the unsigned indexed addressing range.
@@ -1354,37 +1355,37 @@ intent_toi_store:
  staa wk_left
  ; A yakuhai pair or two usable dora make the flush worth one shanten more.
  ldab pai_ypairs
- bne intent_fl_wide
+ bne intent_fl_lim
  ldab pai_dora_use
  cmpb #2
- bcc intent_fl_wide
+ bcc intent_fl_lim
  inca
-intent_fl_wide:
+intent_fl_lim:
  ldab draws_left
  cmpb #60
- bcs intent_fl_wide_00
+ bcs intent_fl_lim_00
  psha
  ldaa pai_flush_score
  adda pai_honor_pts
  cmpa #10
  pula
- bcs intent_fl_wide_00
+ bcs intent_fl_lim_00
  ldab #5
- bra intent_fl_wide_01
-intent_fl_wide_00:
+ bra intent_fl_lim_01
+intent_fl_lim_00:
  ldab #4
-intent_fl_wide_01:
+intent_fl_lim_01:
  cba
  bcc intent_fl_clear
  clra
- jsr part_shanten
+ bsr part_shanten
  suba wk_left
  beq set_intents_80
  ldaa pai_yaochu
  cmpa #2
  bcs intent_fl_clear
  ldaa #1
- jsr part_shanten
+ bsr part_shanten
  cmpa #7
  bcc set_intents_80
 intent_fl_clear:
@@ -1410,36 +1411,36 @@ set_intents_82:
 part_shanten:
  staa ps_part
  ldab #K_END-1
-part_shanten_save:
+part_shanten_00:
  pshb
  jsr counts_x
  pulb
  tba
  jsr off_suit
  cmpa ps_part
- beq part_shanten_save_01
+ beq part_shanten_01
  ldaa 0,x
  psha
  clr 0,x
-part_shanten_save_01:
+part_shanten_01:
  decb
- bne part_shanten_save
+ bne part_shanten_00
  jsr sh_general
  ldab #1
-part_shanten_rest:
+part_shanten_02:
  pshb
  jsr counts_x
  pulb
  tba
  jsr off_suit
  cmpa ps_part
- beq part_shanten_rest_01
+ beq part_shanten_03
  pula
  staa 0,x
-part_shanten_rest_01:
+part_shanten_03:
  incb
  cmpb #K_END
- bne part_shanten_rest
+ bne part_shanten_02
  ldaa sg_best
  rts
 
@@ -1623,7 +1624,7 @@ discard_bonus:
  ldaa intents
  bita #I_TOI+I_KOK
  bne discard_bonus_01
- jsr ryan_pairs
+ bsr ryan_pairs
  asla
  adda wk_bonus
  staa wk_bonus
@@ -1734,7 +1735,7 @@ cn_honor_weights:
 ; Shortlist only: a duplicate may be cut while preserving a complete sequence.
 ; connection leaves X at the five-cell ns_buf for numbers. Isolation is unchanged.
 short_conn:
- jsr connection
+ bsr connection
  ldab intents
  bitb #I_TOI+I_KOK
  bne short_conn_02
@@ -1765,7 +1766,7 @@ short_conn_02:
 cand_build:
  clr wk_kind
 cand_build_00:
- jsr kind_cand_x
+ bsr kind_cand_x
  clr 0,x
  jsr kind_counts_x
  ldaa sk-counts,x
@@ -1779,7 +1780,7 @@ cand_build_00:
  cmpa ad_norm_min
  bne cand_build_02
 cand_build_01:
- jsr kind_cand_x
+ bsr kind_cand_x
  inc 0,x
 cand_build_02:
  inc wk_kind
@@ -1804,7 +1805,7 @@ cand_restrict:
 cand_restrict_00:
  clr wk_kind
 cand_restrict_01:
- jsr kind_cand_x
+ bsr kind_cand_x
  tst 0,x
  beq cand_restrict_03
  ldx cr_test
@@ -1818,7 +1819,7 @@ cand_restrict_01:
 cand_restrict_02:
  tsta
  bne cand_restrict_03
- jsr kind_cand_x
+ bsr kind_cand_x
  clr 0,x
 cand_restrict_03:
  inc wk_kind
@@ -1844,49 +1845,49 @@ kind_single_00:
 ; Returns with N and Z set from A.
 off_suit_shape:
  clr wk_kind
-off_suit_shape_00:
- jsr kind_off_suit
- beq off_suit_shape_02
+off_suit_shape_0:
+ bsr kind_off_suit
+ beq off_suit_shape_2
  jsr kind_counts_x
  ldaa 0,x
- beq off_suit_shape_02
+ beq off_suit_shape_2
  cmpa #2
- bcc off_suit_shape_03
+ bcc off_suit_shape_3
  ldaa wk_kind
  jsr kind_number
  ; The kind after 9 is a gap (count 0); 8 and 9 have no kind 2 above.
  cmpa #8
  ldab 1,x
- bcc off_suit_shape_01
+ bcc off_suit_shape_1
  addb 2,x
-off_suit_shape_01:
- bne off_suit_shape_03
-off_suit_shape_02:
+off_suit_shape_1:
+ bne off_suit_shape_3
+off_suit_shape_2:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_HONOR
- bne off_suit_shape_00
+ bne off_suit_shape_0
  clra
  rts
-off_suit_shape_03:
+off_suit_shape_3:
  ldaa #1
  rts
 ; Returns A = the off-suit tiles in the hand (counts).
 off_suit_tiles:
  clr wk_count
  clr wk_kind
-off_suit_tiles_00:
- jsr kind_off_suit
- beq off_suit_tiles_01
+off_suit_tiles_0:
+ bsr kind_off_suit
+ beq off_suit_tiles_1
  jsr kind_counts_x
  ldaa 0,x
  adda wk_count
  staa wk_count
-off_suit_tiles_01:
+off_suit_tiles_1:
  inc wk_kind
  ldaa wk_kind
  cmpa #K_HONOR
- bne off_suit_tiles_00
+ bne off_suit_tiles_0
  ldaa wk_count
  rts
 ; A = kind, returns 1 for a numbered tile outside pai_max_suit, otherwise 0.
@@ -1943,7 +1944,7 @@ isolated_cand_00:
 candidate_acceptance:
  jsr kind_counts_x
  jsr relevant
- jsr acceptance
+ bsr acceptance
  staa wk_score
  jsr kind_counts_x
  inc 0,x
@@ -1987,7 +1988,7 @@ acceptance_03:
  dec 0,x
  cmpa min_s
  bge acceptance_04
- jsr acc_weight
+ bsr acc_weight
  bmi acceptance_07
  ldaa wk_unseen
  tstb
@@ -2241,7 +2242,7 @@ toi_prepare_03:
 ; Distant routes get no bonus. The main minimum-shanten filter is unchanged.
 toi_bonus:
  tst iw_toi
- beq toi_bonus_00
+ jeq toi_bonus_00
  ldaa pai_trips
  staa tb_n_trips
  ldaa pai_pairs
@@ -2351,7 +2352,7 @@ dora_cut_cost_00:
  staa dcc_count
 dora_cut_cost_01:
  ldab wk_kind
- jsr is_dora_kind
+ bsr is_dora_kind
  tab
  beq dora_cut_cost_03
  clra
@@ -2446,7 +2447,7 @@ danger_one_01:
 	inc	dg_sides
 	ldab	wk_kind
 	subb	#3
-	jsr	in_opp_river
+	bsr	in_opp_river
 	beq	danger_one_02
 	inc	dg_suji
 danger_one_02:
@@ -2456,7 +2457,7 @@ danger_one_02:
 	inc	dg_sides
 	ldab	wk_kind
 	addb	#3
-	jsr	in_opp_river
+	bsr	in_opp_river
 	beq	danger_one_03
 	inc	dg_suji
 danger_one_03:
@@ -2681,7 +2682,7 @@ call_chi:
 	beq	yakuhai_call_10
 	tst iw_chi
 	bne call_chanta_pats
-	jsr	call_yaku_ok
+	bsr	call_yaku_ok
 	beq	yakuhai_call_10
 call_chanta_pats:
 	clr	call_pat
@@ -2692,7 +2693,7 @@ call_ploop:
 	ldaa	call_kind
 	ldab	call_pat
 	jsr	chi_kinds
-	jsr	call_chi_yaku
+	bsr	call_chi_yaku
 	beq	call_pnext
 	ldab	call_pat
 	jsr	call_shanten
@@ -2701,7 +2702,7 @@ call_ploop:
 	bgt	call_pnext
 	; Same-shanten chi needs an active route that call_chi_yaku kept
 	; (not tanyao, as for pon).
-	jsr	call_flush_ok
+	bsr	call_flush_ok
 	oraa	iw_chi
 	beq	call_pnext
 call_paccept:
@@ -2734,7 +2735,7 @@ call_yaku_ok:
  tst pai_chanta_cut
  beq call_yaku_ok_10
 call_yaku_ok_00:
- jsr call_flush_ok
+ bsr call_flush_ok
  bne call_yaku_ok_10
  ; These facts were collected by set_intents before any call trial.
  tst pai_ytrips
@@ -2743,7 +2744,7 @@ call_yaku_ok_00:
  bne call_yaku_ok_11
  jsr want_value
  bne call_yaku_ok_11
- jmp call_is_simple
+ bra call_is_simple
 call_yaku_ok_10:
 	ldaa	#1
 	rts
@@ -2775,7 +2776,7 @@ KUITAN_LEFT .equ 40
 ; Returns A = 1 if the chi of ck_a and ck_b keeps a yaku.
 ; Returns with N and Z set from A.
 call_chi_yaku:
- jsr call_flush_ok
+ bsr call_flush_ok
  bne cflush_yes
  tst iw_chi
  beq call_chi_yaku_02
@@ -2798,7 +2799,7 @@ call_chi_yaku_02:
  ; and ck_b are tiles of that hand: only call_kind may be a yaochu tile.
  tst pai_yaochu
  bne call_chi_yaku_03
- jsr call_is_simple
+ bsr call_is_simple
 	beq	call_chi_yaku_03
  jsr want_value
  bne call_chi_yaku_03
@@ -3049,7 +3050,7 @@ fold_check:
  ldaa #FC_FOLD
  cmpb fold_result
  bcs fold_check_01
- jsr any_threat
+ bsr any_threat
  beq fold_check_01
  ldab fold_result
  beq fold_check_04
@@ -3063,7 +3064,7 @@ fold_check_04:
  ldaa #FC_FOLD
  cmpb #2
  bcc fold_check_01
- jsr any_riichi
+ bsr any_riichi
  beq fold_check_00
  tst fold_result
  bne fold_check_02
@@ -3110,7 +3111,7 @@ any_riichi_00:
 	beq	any_riichi_01
  tba
  pshb
- jsr threat_weight
+ bsr threat_weight
  pulb
  cmpa threat_furo
  bcc any_riichi_02
@@ -3131,7 +3132,7 @@ threat_weight:
  jsr player
  tst P_FLAG,x
  bmi threat_weight_01
- jsr furo_threat
+ bsr furo_threat
  cmpa #3
  bls threat_weight_00
  ldaa #3
@@ -3185,9 +3186,9 @@ danger:
 danger_00:
  ldaa danger_player
  cmpa ai_player
- beq danger_01
- jsr threat_weight
- beq danger_01
+ jeq danger_01
+ bsr threat_weight
+ jeq danger_01
  staa dg_weight
  ldaa danger_player
  cmpa dealer
@@ -3259,7 +3260,7 @@ danger_01:
 	inc	danger_player
 	ldaa	danger_player
 	cmpa	#4
-	bne	danger_00
+	jne	danger_00
 	ldaa	danger_max
  cmpa #$FF
  bne danger_09
@@ -3381,7 +3382,7 @@ sanshoku_cut_20:
  ldaa s3_start
  inca
  cmpa #K_FIRST+7
- bne sanshoku_pattern
+ jne sanshoku_pattern
  jsr kind_counts_x
  inc 0,x
  ldaa s3_best
@@ -3433,7 +3434,7 @@ spec_prep14_01:
  decb
  bne spec_prep14_01
  ldx #spec14
- jsr spec_shanten
+ bsr spec_shanten
  cmpa #8
  bcs spec_prep14_00
  ldaa #$7F
@@ -3560,7 +3561,7 @@ ac_special:
  ldaa wk_draw
  bsr spec_add
  ldx #spec_drawn
- jsr spec_shanten
+ bsr spec_shanten
  cmpa min_s
  blt ac_special_08
  jmp acceval_regular

@@ -1,5 +1,6 @@
 ; Heads and sets of counts, and the residual incomplete sets: the lowest
 ; shanten number of the decompositions is left in sg_best.
+	.code
 sh_general:
  ldaa #8
  jsr sg_lmax_set
@@ -22,7 +23,7 @@ sg_start:
  staa sg_stop
  ldx #counts
  stx sg_restore_x+1
- jsr sg_entry_x
+ bsr sg_entry_x
  ldaa sg_best
  rts
 
@@ -78,7 +79,7 @@ sg_found:
  bcs sg_call_leaf_00
  suba #3
  staa 0,x
- jsr sg_entry_set
+ bsr sg_entry_set
  dec sets_n
  ldaa 0,x
  adda #3
@@ -94,7 +95,7 @@ sg_call_leaf_00:
  dec 0,x
  dec 1,x
  dec 2,x
- jsr sg_entry_set
+ bsr sg_entry_set
  dec sets_n
  inc 0,x
  inc 1,x
@@ -170,7 +171,7 @@ search:
  ldaa sets_n
  cmpa #4
  beq search_01
- jsr se_counts_x
+ bsr se_counts_x
 search_00:
  tst 0,x
  bne search_02
@@ -187,7 +188,7 @@ search_02:
  suba #3
  staa 0,x
  clra
- jsr se_block
+ bsr se_block
  ldaa 0,x
  adda #3
  staa 0,x
@@ -203,7 +204,7 @@ search_03:
  dec 1,x
  dec 2,x
  ldaa #1
- jsr se_block
+ bsr se_block
  inc 0,x
  inc 1,x
  inc 2,x
@@ -218,7 +219,7 @@ se_counts_x:
 se_block:
  ldab se_kind
  jsr push_block
- jsr search
+ bsr search
  dec sets_n
  rts
 
@@ -303,7 +304,7 @@ acc_leaf_02:
  cmpa #1
  bne acc_leaf_03
  stx al_x
- jsr al_try
+ bsr al_try
  ldx al_x
 acc_leaf_03:
  inx
@@ -351,7 +352,7 @@ al_try_03:
  cmpa al_cap
  bcc al_try_10
  jsr al_check
- bmi leaf_yes
+ jmi leaf_yes
 al_try_10:
  tst al_cap
  beq leaf_head
@@ -380,14 +381,14 @@ al_seq:
  beq leaf_seq_down
  tst 2,x
  beq leaf_seq_mid
- jsr al_seq_try
+ bsr al_seq_try
  bmi leaf_yes
 leaf_seq_mid:
  ldx al_x
  dex
  tst 0,x
  beq leaf_head
- jsr al_seq_try
+ bsr al_seq_try
  bmi leaf_yes
  bra leaf_seq_low
 leaf_seq_down:
@@ -398,7 +399,7 @@ leaf_seq_low:
  dex
  tst 0,x
  beq leaf_head
- jsr al_seq_try
+ bsr al_seq_try
  bmi leaf_yes
 leaf_head:
  tst heads_n
@@ -410,7 +411,7 @@ leaf_head:
  suba #2
  staa 0,x
  inc al_heads
- jsr al_check
+ bsr al_check
  staa al_res
  clr al_heads
  ldx al_x
@@ -434,7 +435,7 @@ al_seq_try:
  dec 1,x
  dec 2,x
  stx al_seq_x
- jsr al_check_m
+ bsr al_check_m
  staa al_res
  ldx al_seq_x
  inc 0,x
@@ -459,7 +460,7 @@ leaf_check_cap:
  jsr greedy
  bra al_check_01
 al_check_00:
- jsr honor_pairs
+ bsr honor_pairs
 al_check_01:
  adda al_other
  ldab al_ccap
@@ -488,7 +489,7 @@ leaf_parts:
  jsr greedy
  staa leaf_part_taatsu+2
  ldx #counts+K_HONOR
- jsr honor_pairs
+ bsr honor_pairs
  staa leaf_part_taatsu+3
  adda leaf_part_taatsu
  adda leaf_part_taatsu+1
@@ -565,18 +566,18 @@ batch_leaf:
  suba heads_n
  staa ba_bound
  cmpa wk_limit
- bgt batch_leaf_13
+ jgt batch_leaf_13
  jsr leaf_parts
  clr ba_k
  ldx #counts
 batch_leaf_00:
  stx ba_ptr
  tst 0,x
- beq batch_leaf_12
+ jeq batch_leaf_12
  ldaa ba_bound
  cmpa sk-counts,x
  blt batch_leaf_01
- bgt batch_leaf_12
+ jgt batch_leaf_12
  ; An equal value is only needed for its waits.
  ldab sg_batch
  cmpb #4
@@ -628,7 +629,7 @@ batch_leaf_10:
  ldab sg_batch
  cmpb #4
  bne batch_leaf_02
- jsr bw_collect
+ bsr bw_collect
  clra
  ldx ba_ptr
 batch_leaf_02:
@@ -644,7 +645,7 @@ batch_leaf_02:
  beq batch_leaf_11
  staa wk_limit
  inca
- jsr sg_lmax_set
+ bsr sg_lmax_set
 batch_leaf_11:
  inc 0,x
 batch_leaf_12:
@@ -652,7 +653,7 @@ batch_leaf_12:
  inc ba_k
  ldaa ba_k
  cmpa #K_END
- bne batch_leaf_00
+ jne batch_leaf_00
 batch_leaf_13:
  rts
 ; A = G. sg_lmax = 3 * G (255 if G > 84). A leaf of at most 14 tiles whose

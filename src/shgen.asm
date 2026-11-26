@@ -3,6 +3,7 @@
 ; A = yaochu kinds, B = 0 if no yaochu kind has a pair. Returns A = kokushi
 ; shanten 13 - yaochu kinds - (1 if B != 0).
 ; Returns with N and Z set from A.
+	.code
 kok_sh:
  tstb
  beq kok_sh_00
@@ -70,7 +71,7 @@ spec_count_05:
 
 ; Returns A = chiitoi shanten of counts.
 counts_chii_sh:
- jsr spec_count
+ bsr spec_count
  ldaa SP_PAIRS,x
  ldab SP_KINDS,x
 ; A = pairs, B = kinds. Returns A = chiitoi shanten 6 - pairs + max(0, 7 - kinds).

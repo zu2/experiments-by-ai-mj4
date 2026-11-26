@@ -1,4 +1,3 @@
-	.setcpu	6800
 
 VRAMHI	.equ	$09
 TEXTHI	.equ	$01
@@ -66,21 +65,7 @@ P_IPPATSU	.equ	$04
 P_DOUBLE	.equ	$02
 P_SKIP	.equ	$01
 
-start:
-	bra	start_00
-; greedy reads gd_transitions and kattr_x reads kattr with a one-byte
-; offset, so the tables must not cross a page. Here, right after the entry at
-; $4000, they do not move.
-gd_transitions:
- .byte 0,8,1,9,2,0,0,0,16,1,9,2,10,0,0,0,0,1,9,2,10
-; Kind attributes: A_YAOCHU, A_HONOR, A_GREEN, A_T28, A_M46 and the suit
-; (0 for the empty kinds between the suits and the honors).
-kattr:
- .byte 0,$11,$18,$10,$90,$90,$90,$10,$18,$11
- .byte 0,$21,$28,$20,$A0,$A0,$A0,$20,$28,$21
- .byte 0,$41,$4C,$44,$C4,$C0,$C4,$40,$4C,$41
- .byte 0,$03,$03,$03,$03,$03,$07,$03
-start_00:
+boot:
 	lds	#$3FFF
 	cli
 	ldx	#bss_start
@@ -168,7 +153,7 @@ kyoku:
 	clr	result_active
 	ldaa	#1
 	staa	game_active
-	jsr	kyoku_init_calls
+	jsr	kyoku_init
 	jsr	clear_screen
 	jsr	shuffle
 	jsr	unshown_init
@@ -315,7 +300,7 @@ abortive_draw:
 	jsr	drawstr_x
 	ldaa	#20
 	jsr	show_push
-	jsr	draw_sound
+	bsr	draw_sound
 	jsr	wait_space
 	inc	honba
 	jmp	kyoku
@@ -331,14 +316,14 @@ ryukyoku:
 	jsr	draw_hands
 	clr	reveal
 	jsr	show_draw
-	jsr	draw_sound
+	bsr	draw_sound
 	jsr	wait_space
-	jsr	tobi
+	bsr	tobi
 	bne	win_game_end
 	ldab	dealer
 	jsr	player_bit
 	anda	ry_tenpai
-	bne	renchan
+	jne	renchan
 	inc	honba
 ; Moves the deal to the next player; the game ends after round 7.
 rotate:
@@ -409,7 +394,7 @@ noten_safe:
 	ldab	P_SCORE,x
 	sbcb	#0
 	stab	ry_v
-	jsr	count_at
+	bsr	count_at
 	bra	dealer_top_02
 
 ; Returns A = 1 in the last hand (round 7) if ai_player is the dealer and
@@ -448,7 +433,7 @@ want_value:
 	ldaa	ai_player
 	cmpa	dealer
 	beq	last_top_00
-	jsr	count_ge
+	bsr	count_ge
 	decb
 	beq	last_top_00
 	ldaa	round
@@ -468,7 +453,7 @@ want_value:
 	bcc	want_value_00
 	inc	ry_v
 want_value_00:
-	jsr	count_at
+	bsr	count_at
 	pula
 	cba
 	bhi	last_top_00
@@ -517,8 +502,8 @@ check_win_00:
 check_win_01:
 	jsr	is_agari
 	beq	check_win_02
-	jsr	setup_place
-	jsr	setup_win
+	bsr	setup_place
+	bsr	setup_win
 	jsr	score_hand
 	ldaa	best_pts
 	oraa	best_pts+1
@@ -951,7 +936,7 @@ page_advance:
 	cmpa	#4
 	bne	score_page_00
 	ldaa	#22
-	bra	show_push
+	jmp	show_push
 
 ; Draw result over the four revealed hands. Each seat keeps the pre-settlement
 ; score with its tenpai state and point transfer directly underneath.
@@ -1208,7 +1193,7 @@ game_end:
 game_end_05:
  anda #3
  staa settle_p
- jsr player
+ bsr player
  ldx P_SCORE,x
  inx
  stx ry_v
@@ -1218,7 +1203,7 @@ game_end_05:
  tstb
  bne game_end_05
  deca
- jsr player
+ bsr player
  jsr pool_pts
  adda P_SCORE+1,x
  staa P_SCORE+1,x
@@ -1280,11 +1265,11 @@ player_base:
 ; A = player, B = tile. Adds the tile to the hand; hand_draw also makes it
 ; the drawn tile. Keeps A.
 hand_draw:
-	jsr	player
+	bsr	player
 	stab	P_DRAWN,x
 	bra	hand_add_go
 hand_add:
-	jsr	player
+	bsr	player
 hand_add_go:
 	inc	P_LEN,x
 	lsrb
@@ -1302,7 +1287,7 @@ hand_add_00:
 ; A = player, B = tile in the hand. Removes it. Afterwards there is no drawn
 ; tile. Keeps A.
 hand_remove:
-	jsr	player
+	bsr	player
 	dec	P_LEN,x
 	pshb
 	ldab	#$FF
@@ -1328,7 +1313,7 @@ ai_hand_pick:
  ldab wk_kind
 hand_pick:
 	pshb
-	jsr	player
+	bsr	player
 	jsr	addxb
 	pulb
 	aslb
@@ -1348,7 +1333,7 @@ p0_hand_at:
  clra
 hand_at:
 	psha
-	jsr	player
+	bsr	player
 	incb
 	cmpb	P_LEN,x
 	bne	hand_at_00
@@ -1480,7 +1465,7 @@ arrow_width:
  clr ht_p
  ldab players+P_LEN
  stab ht_n
- jsr ot_hand_tile_x
+ bsr ot_hand_tile_x
 ; Draws the arrow under the hand cell at posx.
 select_arrow:
  ldaa posx
@@ -1523,7 +1508,7 @@ print_signed_00:
 	ldaa	posx
 	psha
 	ldx	ry_v
-	jsr	print_score
+	bsr	print_score
 	; print_num left pn_p at the first digit in its four-cell field.
 	pula
 	deca
@@ -1548,11 +1533,11 @@ print_score:
 	staa	wk_num
 	stab	wk_num+1
 	ldab	#3
-	jsr	print_num
+	bsr	print_num
 	bra	pscore_zero
 print_score_00:
 	ldab	#4
-	jsr	print_num
+	bsr	print_num
 pscore_zero:
  jsr draw_zero
  jsr next_zero
@@ -1681,7 +1666,7 @@ clear_screen:
 	stx	posx
 	ldaa	#32
 	ldab	#24
-	jmp	erase
+	bra	erase
 
 ; A = width, B = height in cells (erase1: 1), at posx/posy.
 erase1:
@@ -1713,7 +1698,7 @@ erase_03:
 	decb
 	bne	erase_03
 	ldaa	er_y
-	jsr	textaddr
+	bsr	textaddr
 	ldab	er_w
 	ldaa	#ATTR_TEXT
 	staa	COLORREG
@@ -1846,7 +1831,7 @@ drawstr:
 	beq	drawstr_01
 	stx	dst_ptr
 	anda	#$7F
-	jsr	drawchar
+	bsr	drawchar
 	inc	posx
 	ldx	dst_ptr
 	tst	0,x
@@ -1943,7 +1928,7 @@ img_of_00:
 frame:
 	wai
 	jsr	rand
-	jsr	scan_keys
+	bsr	scan_keys
 ; In a demo game, space held now returns to the title. Called often enough
 ; while the CPU players think.
 demo_poll:
@@ -2050,9 +2035,9 @@ wait_space:
 	tst	demo
 	beq	wait_space_00
 	ldaa	#150
-	jsr	wait_frames
+	bsr	wait_frames
 	ldaa	#150
-	jmp	wait_frames
+	bra	wait_frames
 wait_space_00:
 	jsr	frame
 	ldaa	knew
@@ -2093,7 +2078,7 @@ rand_below_00:
 	cba
 	bls	rand_below_00
 rand_below_01:
-	jsr	rand
+	bsr	rand
 	anda	rb_mask
 	cmpa	rb_n
 	bcc	rand_below_01
@@ -2144,7 +2129,7 @@ shuffle_honor:
 shuffle_00:
 	ldaa	shf_left
 	inca
-	jsr	rand_below
+	bsr	rand_below
 	tab
 	jsr	wall_x
 	stx	shf_pj

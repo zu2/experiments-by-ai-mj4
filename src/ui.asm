@@ -1,8 +1,9 @@
 ; Fixed 256x192 layout: three CPU bands, human river, large human hand.
 ; Pixel coordinates are used for the 12x12 sprites; all tile faces are upright.
+	.code
 ui_hand:
  staa ht_p
- beq ui_human
+ jeq ui_human
  jsr ui_band
  stab sm_y
  clr dh_i
@@ -317,7 +318,7 @@ ui_furo_small_00:
 ui_furo_small_01:
  ldx df_rec
  ldab df_j
- jsr furo_img
+ bsr furo_img
  ldab sm_y
  pshb
  psha
@@ -434,7 +435,7 @@ ui_river_tile:
  stab rvt_pos
 ui_river_pos:
  ldaa rvt_player
- jsr ui_river_y
+ bsr ui_river_y
  stab sm_y
  ldaa rvt_pos
  cmpa #14
@@ -497,7 +498,7 @@ ui_river_y_00:
 ; A = player. Erases and redraws its river.
 ui_river_draw:
  staa rr_p
- jsr ui_river_y
+ bsr ui_river_y
  stab sm_y
  clr sm_x
  ldaa #240
@@ -520,11 +521,11 @@ ui_river_draw_01:
  rts
 ; Redraws the header, the rivers, the hands and the scores.
 redraw_all:
- jsr ui_header
+ bsr ui_header
  clr ui_all
 redraw_all_00:
  ldaa ui_all
- jsr ui_river_draw
+ bsr ui_river_draw
  inc ui_all
  ldaa ui_all
  cmpa #4
@@ -540,7 +541,7 @@ redraw_all_01:
  jmp ui_scores
 ; Redraws the header and the scores.
 draw_info:
- jsr ui_header
+ bsr ui_header
  jmp ui_scores
 ; Draws the round, the honba and the dora indicators over the old ones. Each
 ; item keeps its place and width, and the stick of the deposits and the dora
@@ -624,7 +625,7 @@ ui_scores:
  clr ui_sp
 ui_scores_00:
  ldaa ui_sp
- jsr ui_turn_mark
+ bsr ui_turn_mark
  inc posx
  jsr draw_seat_wind
  ldaa ui_sp
@@ -803,7 +804,7 @@ img_decode_07:
 img_decode_08:
  stx td_dst
  dec td_n
- bne img_decode_00
+ jne img_decode_00
  rts
 
 ; 12 rows * 12 pixels at sm_x (a multiple of 4) and sm_y. Preserves sm_x/sm_y.
@@ -982,13 +983,13 @@ ui_shape_shift:
  stab sm_bits+1
  ldab px_x
  andb #7
- beq ui_shape_shift_01
-ui_shape_shift_00:
+ beq ui_shape_shift_1
+ui_shape_shift_0:
  lsr sm_bits
  ror sm_bits+1
  decb
- bne ui_shape_shift_00
-ui_shape_shift_01:
+ bne ui_shape_shift_0
+ui_shape_shift_1:
  ldaa sm_bits
  ldab sm_bits+1
  rts
@@ -1194,7 +1195,7 @@ ui_latest_discard:
 
 ; Latest discard marker and native-font reaction keys.
 hint_start:
- jsr ui_latest_discard
+ bsr ui_latest_discard
  ldaa sm_x
  adda #19
  anda #$F8
@@ -1238,7 +1239,7 @@ hint_clear:
  ldaa discarder
  staa ui_sp
  jsr ui_turn_mark
- jmp ui_stick
+ bra ui_stick
 hint_clear_00:
  rts
 hint_chars:
@@ -1249,7 +1250,7 @@ mark_clear:
  tst mark_live
  beq river_mark_done
  clr px_ink
- jsr rmark_pixels
+ bsr rmark_pixels
  clr mark_live
 river_mark_done:
  rts
@@ -1309,7 +1310,7 @@ ui_stick_00:
 stick_draw:
  ldaa px_y
  ldab stick_x
- jsr pixel_address
+ bsr pixel_address
  staa px_addr
  stab px_addr+1
  ldx px_addr

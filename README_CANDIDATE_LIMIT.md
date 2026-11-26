@@ -7,7 +7,7 @@ This package contains an experimental copy of official V39. The official V39 sou
 From this directory:
 
 ```sh
-python3 build.py
+make
 gcc -O2 -I. -Ivendor/bm2-core \
   -DSYMBOL_HEADER='"build/symbols.h"' \
   evidence/harness/run_ms.c vendor/bm2-core/m6800.c \

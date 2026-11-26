@@ -10,9 +10,6 @@ on:
 permissions:
   contents: write
 
-env:
-  BINTOOLS_COMMIT: 791db957f9fb451dfb0b7faf8a77aa435a75ed7b
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,14 +23,8 @@ jobs:
       - name: Install Pillow
         run: python3 -m pip install pillow
 
-      - name: Fetch Fuzix-Bintools
-        run: |
-          git clone https://codeberg.org/EtchedPixels/Fuzix-Bintools vendor/bintools \
-            || git clone https://github.com/EtchedPixels/Fuzix-Bintools vendor/bintools
-          git -C vendor/bintools checkout "$BINTOOLS_COMMIT"
-
       - name: Build
-        run: python3 build.py
+        run: make
 
       - uses: actions/upload-artifact@v4
         with:

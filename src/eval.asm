@@ -3,6 +3,7 @@
 
 ; Returns A = 1 if counts is a winning shape, else A = 0.
 ; Returns with N and Z set from A.
+	.code
 is_agari:
 	ldab	nfuro
 	bne	agari_sets
@@ -55,7 +56,7 @@ shanten:
 	staa	sh_best
 	ldab	nfuro
 	bne	shanten_10
-	jsr	spec_count
+	bsr	spec_count
 	jsr	spec_shanten
 	staa	sh_best
 	bmi	shanten_11

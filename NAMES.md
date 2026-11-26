@@ -1,7 +1,7 @@
 # 名前の決まり（v28）
 
 ## 規則
-- 名前は 16 文字以下にする（ラベル、`.equ`、変数）。
+- 名前は先頭の 16 文字で区別できるようにする（ラベル、`.equ`、変数）。アセンブラとリンカは先頭の 16 文字だけを使う。
 - ルーチンの中のラベルと、そのルーチンだけが使う変数は「接頭辞_働き」にする。接頭辞はルーチンごとに一つで、一つの接頭辞は一つの意味だけに使う。下の表が全部の接頭辞である。
 - 英語の単語の接頭辞（`hand_`、`draw_` など）は、その単語の意味で使う。
 - 麻雀の用語はローマ字にする（`shanten`、`toitoi`、`chiitoi`、`yaochu`、`dora`、`furo`、`minshun`、`minkou`、`minkan`、`ankan`）。長い音は書く（`minkou`）。「子」は省く（明順子 → `minshun`）。副露（`furo`）は暗槓を含む。
@@ -12,6 +12,7 @@
 - 入口のラベル（呼ぶ前の 1 命令を持つラベル）は、入れる値＋ルーチン名にする（例: `turn_player` は A = turn を入れて player）。
 - 定数は大文字の接頭辞にする（下の表）。
 - 分岐だけのラベルは番号にする。形は「ルーチン名_NN」（NN は 2 桁）。
+  - 番号のラベルを持つルーチンの名前は 14 文字以下にする。14 文字なら NN を 1 桁にする（`_0`〜`_9`）。
   - 小さいルーチン（50 命令以下）と、展開で大きくなっただけのルーチンでは、すべての分岐先を番号にする。
   - 大きいルーチンでは、働きだけのラベルを番号にし、処理のまとまりの見出しは読める名前（接頭辞＋働き）にする。
   - 10 の位は、ルーチンの中の処理のまとまりごとに変える（00〜09 が最初のまとまり、10〜19 が次のまとまり）。
@@ -197,6 +198,7 @@
 | `bias_` | intent_bias（狙いによる打牌の補正）の中の見出し | 0 |  |
 | `bits4_` | bits4（4 ビットの表示） | 2 | bits4 bits4_x |
 | `block_` | ブロック | 1 | block_fu |
+| `boot_` | 起動 | 1 | boot |
 | `bss_` | BSS の範囲 | 2 | bss_all_end bss_start |
 | `btype_` | ブロックの種類 | 2 | btype btype_x |
 | `call_` | 鳴き | 33 | call_acc_yes call_accept_loop call_accept_next call_after_ready |
@@ -253,7 +255,7 @@
 | `kind_` | 牌の種類（A = 牌の種類を受け取るルーチンと、wk_kind を入れて呼ぶ入口。例: kind_counts_x は B = wk_kind で counts_x） | 7 | kind_counts_x kind_is_yaochu kind_number kind_number_b |
 | `kokushi_` | 国士無双 | 1 | kokushi_dead |
 | `kuikae_` | 喰い替え | 1 | kuikae_ok |
-| `kyoku_` | 局 | 2 | kyoku kyoku_init_calls |
+| `kyoku_` | 局 | 2 | kyoku kyoku_init |
 | `kyuushu_` | 九種九牌 | 2 | kyuushu_ask kyuushu_check |
 | `leaf_` | 分け方の葉 | 9 | leaf_check_cap leaf_head leaf_part_taatsu leaf_parts |
 | `least_` | 最も小さい | 1 | least_danger |
@@ -379,6 +381,7 @@
 | `batch_leaf` | 5 |
 | `batch_prepare` | 1 |
 | `best_accept` | 4 |
+| `boot` | 1 |
 | `calc_fu` | 9 |
 | `call_chi_yaku` | 4 |
 | `call_discard` | 1 |
@@ -500,7 +503,7 @@
 | `kuikae_ok` | 3 |
 | `kv_base` | 2 |
 | `kyoku` | 5 |
-| `kyoku_init_calls` | 1 |
+| `kyoku_init` | 1 |
 | `kyuushu_ask` | 1 |
 | `kyuushu_check` | 3 |
 | `least_danger` | 7 |

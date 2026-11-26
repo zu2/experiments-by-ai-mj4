@@ -1,11 +1,15 @@
 ; Sound with the DAC at $EE80 (bit 1-5).
 
+	.code
 SOUND	.equ	$EE80
 SOUND_ON	.equ	$30
 
 ; X = notes: pairs of (delay, waves), ending with 0. A wave is two halves of
 ; about 6 * delay + 20 cycles each.
 play:
+ ldaa 0,x
+ cmpa #$FF
+ jeq pcm_play
 	ldaa	0,x
 	beq	play_04
 	staa	pl_delay
@@ -39,18 +43,6 @@ snd_select:
 
 snd_discard:
 	.byte	40,8,0
-snd_pon:
- .byte 60,30,45,40,0
-snd_chi:
- .byte 75,25,60,35,0
-snd_kan:
- .byte 50,30,50,30,40,50,0
-snd_riichi:
- .byte 93,40,78,48,57,80,0
-snd_ron:
-snd_tsumo:
- .byte 116,63,93,79,78,94,57,255,0
-
 	.bss
 pl_delay:	.ds	1 ; half-wave delay
 pl_waves:	.ds	1 ; waves left

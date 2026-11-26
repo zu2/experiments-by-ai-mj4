@@ -1,4 +1,5 @@
 ; X = &ARRAY[B] for the arrays most often indexed by a kind or a place.
+	.code
 wall_x:
 	ldx	#wall
 	bra	addxb
@@ -90,8 +91,8 @@ mul8_01:
 addxb_tmp:	.ds	2 ; X being added to
 mul_a:	.ds	1 ; multiplicand
 mul_bits:	.ds	1 ; bits left
+ns_buf:	.ds	5 ; near_sum: counts of the kinds within 2
 ; wk_num is allocated in directpage.asm.
-bss_all_end:
 
  .code
 ; A = kind. Returns A = counts of this kind and of the kinds within 2 of it
@@ -100,7 +101,7 @@ bss_all_end:
 ; k - 2 does for a 1 and k + 2 for a 9.
 near_sum:
  tab
- jsr counts_x
+ bsr counts_x
  ldab 0,x
  stab ns_buf+2
  clr ns_buf
@@ -109,7 +110,7 @@ near_sum:
  clr ns_buf+4
  cmpa #K_HONOR
  bcc near_sum_02
- jsr kind_number
+ bsr kind_number
  dex
  dex
  ldab 1,x

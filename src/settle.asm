@@ -4,6 +4,7 @@
 ; Valid basic points are multiples of 20 (including 25-fu hands).
 ; ceil(basic*factor/100) = ceil((basic/20)*factor/5) = (4 + (basic/20)*factor)/5.
 ; Divide before multiplying so multiple yakuman cannot overflow 16 bits.
+	.code
 payer_amount:
  ldx fi_basic
  stx wk_num
@@ -49,7 +50,7 @@ pay_share_00:
  ldaa #1
 pay_share_01:
  staa pay_factor
- jmp payer_amount
+ bra payer_amount
 
 ; Returns wk_num = the points of the win before honba and pool; each payer is
 ; rounded separately. A tsumo is paid by the dealer (or a third child when
@@ -57,17 +58,17 @@ pay_share_01:
 score_total:
  tst tsumo_flag
  bne score_total_00
- jsr pay_share
+ bsr pay_share
  ldx pay_amt
  stx wk_num
  rts
 score_total_00:
  ldab #1
- jsr pay_share
+ bsr pay_share
  ldx pay_amt
  stx total_tmp
  clrb
- jsr pay_share
+ bsr pay_share
  ldab pay_amt+1
  ldaa pay_amt
  aslb
@@ -105,7 +106,7 @@ settle_win_01:
  bne settle_win_02
  incb
 settle_win_02:
- jsr pay_share
+ bsr pay_share
  ; Someone goes below zero long before 86 honba, so honba*3 fits a byte.
  ldab honba
  clra
@@ -171,10 +172,10 @@ settle_draw_01:
  clr loop_p
 settle_draw_02:
  ldab loop_p
- jsr noten_delta
+ bsr noten_delta
  ldaa loop_p
  jsr player
- jsr add_score
+ bsr add_score
  inc loop_p
  ldaa loop_p
  cmpa #4
@@ -208,7 +209,7 @@ noten_delta:
  ldx #noten_pay
 noten_delta_00:
  ldab ry_n
- jsr addxb
+ bsr addxb
  ldaa 0,x
  staa ry_v+1
 noten_delta_01:

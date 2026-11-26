@@ -2,6 +2,7 @@
 ; Sum(unseen copies * ron points/100), then shape ukeire, then kind order.
 ; Inputs are the 14-tile counts/furo_tiles, sk and unseen from ai_discard.
 ; No physical hand, river, score, flag, or wall is changed.
+	.code
 ev_discard:
  jsr ev_prepare
  clr ev_has_best
@@ -10,14 +11,14 @@ evdisc_candidate:
  jsr kind_counts_x
  tst sk-counts,x
  bne evdisc_next_cand
- jsr ev_value
+ bsr ev_value
  ; Live winning tiles: with yaku when open; a closed hand can riichi.
  ldaa ev_yacc
  ldab nfuro
  bne evdisc_live
  ldaa wk_accept
 evdisc_live:
- jsr ev_lk_x
+ bsr ev_lk_x
  staa 0,x
  tst ev_has_best
  beq ev_discard_02
@@ -55,7 +56,7 @@ ev_no_call:
  staa wk_kind
  jsr kind_counts_x
  inc 0,x
- jsr ev_value
+ bsr ev_value
  jsr kind_counts_x
  dec 0,x
  ldx ev_sum
@@ -70,14 +71,14 @@ ev_lk_x:
 ; Like ev_value with the waits of fw_bits (discard_sk_waits) in place of
 ; find_waits: for a hand with no chiitoi or kokushi.
 ev_value_waits:
- jsr ev_hand_prep
- jsr fw_expand
+ bsr ev_hand_prep
+ bsr fw_expand
  jsr ev_tally
  bra ev_value_restore
 ; Value of discarding wk_kind from the 14 tiles of counts, after ev_prepare:
 ; ev_sum and wk_accept of ev_tally. counts is restored.
 ev_value:
- jsr ev_hand_prep
+ bsr ev_hand_prep
  jsr find_waits
  jsr ev_tally
 ev_value_restore:
@@ -231,7 +232,7 @@ evacc_live_wait:
  ; At most four additions; ev_add_pts saturates at $FFFF.
  ldx #best_pts
  ldab wk_unseen
- jsr ev_add_pts
+ bsr ev_add_pts
  ldab wk_draw
  jsr counts_x
  dec 0,x
@@ -442,7 +443,7 @@ ev1_discard_13:
  suba e1_frame
  cmpa #180
  bcc ev1_discard_30
- jsr ev1_draw
+ bsr ev1_draw
 ev1_discard_19:
  inc e1_e
  ldaa e1_e
@@ -528,7 +529,7 @@ ev1_draw_10:
  jsr addxb
  ldaa 1,x
  anda e1_ebit
- beq ev1_draw_40
+ jeq ev1_draw_40
  ; The hand - i + e; e is no longer unseen.
  ldx e1_j
  ldab 0,x
@@ -550,7 +551,7 @@ ev1_draw_03:
  jsr discard_sk_lim
 ev1_draw_04:
  ldab min_s
- bne ev1_draw_30
+ jne ev1_draw_30
  ldab e1_e
  jsr dora_x
  ldaa e1_dora
@@ -615,10 +616,10 @@ ev1_draw_25:
  jsr ev_value
 ev1_draw_26:
  ldx e1_j
- jsr ev1_best
+ bsr ev1_best
  ldx e1_other
  beq ev1_draw_29
- jsr ev1_best
+ bsr ev1_best
 ev1_draw_29:
  inc e1_d
  ldaa e1_d
@@ -644,7 +645,7 @@ ev1_draw_40:
  jsr addxb
  stx e1_j
  cpx e1_end
- bne ev1_draw_10
+ jne ev1_draw_10
  ; total += e1_u * best, saturating at $FFFF.
  ldx #e1_rec
 ev1_draw_50:

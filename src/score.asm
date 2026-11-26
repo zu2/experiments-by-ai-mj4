@@ -7,6 +7,7 @@
 ; Output: best_pts (points in units of 100, 0 = no yaku), best_han, best_fu,
 ;         best_n and best_y (yaku numbers in increasing order).
 
+	.code
 F_RIICHI	.equ	$80
 F_DOUBLE	.equ	$02
 F_IPPATSU	.equ	$04
@@ -91,12 +92,12 @@ score_hand:
 	clr	best_han
 	clr	best_fu
 	clr	best_n
-	jsr	make_tot
-	jsr	analyse
+	bsr	make_tot
+	bsr	analyse
 	jsr	find_yakuman
 	ldab	nfuro
 	bne	score_hand_01
-	jsr	counts_chii_sh
+	bsr	counts_chii_sh
 	inca
 	bne	score_hand_00
  jsr start_yaku_clr
@@ -221,7 +222,7 @@ yakuman_wnext:
 	cmpa	#4
 	bne	yakuman_shou
 	ldaa	#Y_DAISUUSHII
-	jsr	add_ym
+	bsr	add_ym
 	bra	yakuman_green
 yakuman_shou:
 	cmpa	#3
@@ -230,13 +231,13 @@ yakuman_shou:
 	cmpa	#1
 	bne	yakuman_green
 	ldaa	#Y_SHOUSUUSHII
-	jsr	add_ym
+	bsr	add_ym
 yakuman_green:
 	ldaa	attr_and
 	bita	#A_GREEN
 	beq	yakuman_term
 	ldaa	#Y_RYUUIISOU
-	jsr	add_ym
+	bsr	add_ym
 yakuman_term:
 	ldaa	attr_and
 	bita	#A_YAOCHU
@@ -245,13 +246,13 @@ yakuman_term:
 	bita	#A_HONOR
 	bne	yakuman_kan
 	ldaa	#Y_CHINROUTOU
-	jsr	add_ym
+	bsr	add_ym
 yakuman_kan:
 	ldaa	nkan
 	cmpa	#4
 	bne	yakuman_chuuren
 	ldaa	#Y_SUUKANTSU
-	jsr	add_ym
+	bsr	add_ym
 yakuman_chuuren:
 	tst	nfuro
 	bne	find_yakuman_00
@@ -281,7 +282,7 @@ yakuman_cmid:
 	decb
 	bne	yakuman_cmid
 	ldaa	#Y_CHUUREN
-	jsr	add_ym
+	bsr	add_ym
 find_yakuman_00:
 	rts
 
@@ -324,44 +325,44 @@ base_yaku:
 	bita	#F_DOUBLE
 	beq	base_riichi
 	ldaa	#Y_DOUBLE
-	jsr	add_yaku
+	bsr	add_yaku
 	bra	base_ippatsu
 base_riichi:
 	bita	#F_RIICHI
 	beq	base_ippatsu
 	ldaa	#Y_RIICHI
-	jsr	add_yaku
+	bsr	add_yaku
 base_ippatsu:
 	ldaa	sflags
 	bita	#F_IPPATSU
 	beq	base_tsumo
 	ldaa	#Y_IPPATSU
-	jsr	add_yaku
+	bsr	add_yaku
 base_tsumo:
 	tst	closed_flag
 	beq	base_tanyao
 	tst	tsumo_flag
 	beq	base_tanyao
 	ldaa	#Y_TSUMO
-	jsr	add_yaku
+	bsr	add_yaku
 base_tanyao:
 	ldaa	attr_or
 	bita	#A_YAOCHU
 	bne	base_rinshan
 	ldaa	#Y_TANYAO
-	jsr	add_yaku
+	bsr	add_yaku
 base_rinshan:
 	ldaa	sflags
 	bita	#F_RINSHAN
 	beq	base_chankan
 	ldaa	#Y_RINSHAN
-	jsr	add_yaku
+	bsr	add_yaku
 	bra	base_suit
 base_chankan:
 	bita	#F_CHANKAN
 	beq	base_last
 	ldaa	#Y_CHANKAN
-	jsr	add_yaku
+	bsr	add_yaku
 base_last:
 	ldaa	sflags
 	bita	#F_LAST
@@ -371,7 +372,7 @@ base_last:
 	bne	base_last_add
 	ldaa	#Y_HOUTEI
 base_last_add:
-	jsr	add_yaku
+	bsr	add_yaku
 base_suit:
 	ldaa	attr_or
 	anda	#A_SUITS
@@ -433,7 +434,7 @@ eval_places:
 	ldaa	#W_TANKI
 	staa	ed_wait
 	ldaa	#$FF
- jsr eval_decomp
+ bsr eval_decomp
 eval_places_00:
 	ldaa	nfuro
 	staa	ep_i
@@ -478,7 +479,7 @@ eval_places_03:
 eval_places_04:
 	staa	ed_wait
 	ldaa	ep_i
- jsr eval_decomp
+ bsr eval_decomp
 eval_places_05:
 	inc	ep_i
 	bra	eval_places_01
@@ -539,19 +540,19 @@ decomp_iipei:
 decomp_dragons:
  ; Y_HAKU + i for a triplet of kind K_HAKU + i.
  ldaa #Y_HAKU
-decomp_dragons_00:
+decomp_dragons_0:
  tab
  addb #K_HAKU-Y_HAKU
  jsr trip_n_x
  tst 0,x
- beq decomp_dragons_01
+ beq decomp_dragons_1
  psha
  jsr add_yaku
  pula
-decomp_dragons_01:
+decomp_dragons_1:
  inca
  cmpa #Y_HAKU+3
- bne decomp_dragons_00
+ bne decomp_dragons_0
 decomp_round:
 	ldab	round_kind
 	jsr	trip_n_x
@@ -684,7 +685,7 @@ collect_01:
 	bita	#B_SEQ
 	bne	collect_04
 	ldab	cl_i
-	jsr	concealed
+	bsr	concealed
 	ldab	#2
 	tsta
 	beq	collect_02
@@ -814,14 +815,14 @@ calc_fu_01:
 	tst	tsumo_flag
 	bne	calc_fu_02
 	ldaa	#10
-	jsr	add_fu
+	bsr	add_fu
 calc_fu_02:
 	tst	tsumo_flag
 	beq	calc_fu_03
- jsr add_fu2
+ bsr add_fu2
 calc_fu_03:
  ldaa ed_yhead
- jsr add_fu
+ bsr add_fu
 	ldaa	ed_wait
 	cmpa	#W_KANCHAN
 	beq	calc_fu_05
@@ -830,10 +831,10 @@ calc_fu_03:
 	cmpa	#W_TANKI
 	bne	calc_fu_06
 calc_fu_05:
- jsr add_fu2
+ bsr add_fu2
 calc_fu_06:
  ldaa block_fu
- jsr add_fu
+ bsr add_fu
 	ldaa	cur_fu
 	cmpa	#20
 	bne	calc_fu_08
@@ -889,7 +890,7 @@ finish:
 	beq	finish_00
 	ldx	#ym_y
 	ldab	ym_n
- jsr fi_copy
+ bsr fi_copy
 	tst	ym_extra
 	beq	finish_00
 	ldab	best_n
@@ -922,12 +923,12 @@ finish_han_total:
 	adda	ura_n
 	staa	fi_han
 	ldaa	cur_fu
- jsr fi_limit
+ bsr fi_limit
 	jsr	fi_better
 	beq	finish_00
 	ldx	#cur_y
 	ldab	cur_n
- jsr fi_copy
+ bsr fi_copy
 finish_00:
 	rts
 
@@ -1056,7 +1057,7 @@ fi_pay:
 	ldab	honba
 	aslb
 	addb	honba
-	jsr	pool_pts
+	bsr	pool_pts
 	aba
 	tab
 	ldaa	#0

@@ -4,9 +4,10 @@
 ; and the first of every eight 107, so eight samples take 842 cycles; both
 ; paths of the BEQ below are part of this timing. tools/voice.py resamples to
 ; 7,168 Hz.
+	.code
 PCM_BUF .equ $2100
 pcm_play:
- jsr unpack_voice
+ bsr unpack_voice
  ldx #PCM_BUF
  ldaa 4,x
  staa pcm_hb

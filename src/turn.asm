@@ -1,5 +1,6 @@
 ; Turn flow, calls, riichi and furiten.
 
+	.code
 ACT_DISCARD	.equ	0
 ACT_TSUMO	.equ	1
 ACT_KAN	.equ	2
@@ -197,7 +198,7 @@ react_four:
  bne react_calls
  jsr ron_ok
  staa can_ron
- beq react_11
+ jeq react_11
  ldaa other
  bne react_ron_cpu
  tst auto_play
@@ -427,7 +428,7 @@ own_kan:
 	staa	fmk_tile
  jsr furo_make
  jsr dora_open
-	jmp	rinshan_draw
+	bra	rinshan_draw
 ownkan_kakan:
 	ldaa	turn
 	ldab	kan_kind
@@ -609,14 +610,14 @@ human_turn_13:
 	bne	human_r_allowed
 	inc	riichi_reject
 	jsr	draw_riichi
-	jmp	human_turn_11
+	bra	human_turn_11
 human_r_allowed:
 	ldaa	riichi_mode
 	eora	#1
 	staa	riichi_mode
 	clra
 	jsr	ui_hand
-	jmp	human_letters
+	bra	human_letters
 human_turn_20:
 	bita	#KEY_SPACE
 	beq	human_move
@@ -635,7 +636,7 @@ human_discard:
 	rts
 human_move:
 	jsr	move_cursor
-	jmp	human_turn_11
+	bra	human_turn_11
 
 ; After riichi: wins, kans or discards the drawn tile.
 riichi_turn:
@@ -686,7 +687,7 @@ riichi_turn_05:
 ; Returns B = tile.
 human_called:
 	tst	auto_play
-	bne	calldisc_cpu
+	jne	calldisc_cpu
 	clr	riichi_mode
 	clr	can_win
 	ldab	players+P_LEN
@@ -707,10 +708,10 @@ human_called_00:
 	beq	human_called_00
 	cmpb	kk2
 	beq	human_called_00
-	jsr	end_cursor
+	bsr	end_cursor
  jmp p0_hand_at
 human_called_01:
-	jsr	move_cursor
+	bsr	move_cursor
 	bra	human_called_00
 
 ; Moves the cursor of the own hand with Z and X (knew in A).
@@ -788,7 +789,7 @@ riichi_allowed_00:
  cmpa #4
  bcs riichi_no
  ldaa ri_player
- jmp is_closed
+ bra is_closed
 riichi_yes:
  ldaa #1
  rts
@@ -799,7 +800,7 @@ riichi_no:
 ; Human can enter riichi selection only if some discard leaves a real wait.
 riichi_ok:
  clra
- jsr riichi_allowed
+ bsr riichi_allowed
  beq riichi_no
  clra
  jsr eval_load
@@ -868,9 +869,9 @@ kan_options_00:
 	beq	kan_options_02
 	cmpa	#4
 	bne	kan_options_01
-	jsr	kan_riichi_ok
+	bsr	kan_riichi_ok
 	beq	kan_options_02
- jsr add_kan_option
+ bsr add_kan_option
 	bra	kan_options_02
 kan_options_01:
  jsr turn_player
@@ -881,7 +882,7 @@ kan_options_01:
 	jsr	furo_find_pon
 	cpx	#0
 	beq	kan_options_02
- jsr add_kan_option
+ bsr add_kan_option
 kan_options_02:
 	inc	ko_k
 	ldaa	ko_k
@@ -996,7 +997,7 @@ ron_ok:
  beq ron_yes
  stab rn_n
  jsr eval_load
- jsr find_waits
+ bsr find_waits
  ldaa ra_player
  jsr player
  ldab #P_RIVER
@@ -1190,7 +1191,7 @@ human_react_06:
 	beq	human_react_07
 	tst	rp_chi
 	beq	human_react_07
-	jmp	choose_chi
+	bra	choose_chi
 human_react_07:
 	bita	#KEY_SPACE
 	beq	human_react_03
@@ -1217,9 +1218,9 @@ choose_chi_00:
 	bita	#1
 	bne	choose_chi_01
 	ldaa	#KEY_X
-	jsr	chi_step
+	bsr	chi_step
 choose_chi_01:
-	jsr	chi_preview
+	bsr	chi_preview
 choose_chi_02:
 	jsr	frame
 	ldaa	knew
@@ -1227,8 +1228,8 @@ choose_chi_02:
 	bne	choose_chi_03
 	bita	#3
 	beq	choose_chi_02
-	jsr	chi_step
-	jsr	chi_preview
+	bsr	chi_step
+	bsr	chi_preview
 	bra	choose_chi_02
 choose_chi_03:
 	clr	chi_mode
@@ -1258,7 +1259,7 @@ chi_step_01:
 	clr	chi_pat
 chi_step_02:
 	ldab	chi_pat
- jsr chi_pat_ok
+ bsr chi_pat_ok
 	beq	chi_step_00
 	rts
 
@@ -1281,12 +1282,12 @@ chi_preview:
 	ldaa	dc_tile
 	lsra
 	ldab	chi_pat
-	jsr	chi_kinds
+	bsr	chi_kinds
 	ldaa	ck_a
-	jsr	cp_position
+	bsr	cp_position
 	stab	chi_i1
 	ldaa	ck_b
-	jsr	cp_position
+	bsr	cp_position
 	stab	chi_i2
 	clra
 	jmp	ui_hand
@@ -1388,12 +1389,12 @@ options_chi:
 options_ploop:
 	ldaa	cop_t
 	ldab	cop_pat
-	jsr	chi_valid
+	bsr	chi_valid
 	beq	options_pnext
 	ldaa	cop_t
 	ldab	cop_pat
-	jsr	chi_forbidden
-	jsr	kuikae_ok
+	bsr	chi_forbidden
+	bsr	kuikae_ok
 	beq	options_pnext
 	ldab	cop_pat
 	jsr	player_bit
@@ -1434,10 +1435,10 @@ chi_valid_01:
  bhi chi_valid_03
 chi_valid_02:
  ldab ck_a
- jsr cv_check
+ bsr cv_check
  beq chi_valid_03
  ldab ck_b
- jmp cv_check
+ bra cv_check
 chi_valid_03:
  clra
  rts
@@ -1484,7 +1485,7 @@ chi_forbidden_02:
 ; pon twice). Returns A = 1 if a tile other than kk1 and kk2 remains.
 ; Returns with N and Z set from A.
 kuikae_ok:
-	jsr	pair_remove
+	bsr	pair_remove
 	clr	ku_ok
 	ldx	#counts
 	clrb
@@ -1504,7 +1505,7 @@ kuikae_ok_01:
 	cmpb	#K_END
 	bne	kuikae_ok_00
 kuikae_ok_02:
-	jsr	pair_restore
+	bsr	pair_restore
 	ldaa	ku_ok
 	rts
 
@@ -1549,7 +1550,7 @@ docall_sound:
 	orab	#RF_CALLED
 	stab	0,x
 	jsr	ui_latest_discard
-	jsr	clear_ippatsu
+	bsr	clear_ippatsu
 	ldaa	dc_tile
 	staa	fmk_tile
 	lsra
@@ -1587,7 +1588,7 @@ docall_chi_first:
 	ldab	#M_CHI
 docall_add:
 	stab	fmk_type
- jsr furo_make
+ bsr furo_make
 	ldaa	turn
 	jsr	ui_hand
 	jsr	draw_arrow
@@ -1653,7 +1654,7 @@ furo_make_03:
 	staa	fmk_n
 furo_make_04:
 	ldab	fmk_kind
-	jsr	fmk_take
+	bsr	fmk_take
 	dec	fmk_n
 	bne	furo_make_04
 furo_make_05:
@@ -1786,7 +1787,7 @@ furo_upgrade:
 	inc	minkan_n-minkou_n,x
 	pulb
 	pula
-	jsr	furo_find_pon
+	bsr	furo_find_pon
 	stx	fup_x
 	ldab	fp_k
 	jsr	hand_pick
@@ -1856,7 +1857,7 @@ unshown_init_00:
 ; Opens one more dora indicator and draws it.
 dora_open:
 	inc	dora_cnt
-	jsr	unshown_dora
+	bsr	unshown_dora
 	jmp	ui_header
 
 ; The newest dora indicator (dora_cnt - 1) is shown, and its dora kind is
@@ -1954,9 +1955,9 @@ add_action_02:
 ask_ron:
 	ldx	#snd_select
 	jsr	play
-	jsr	clear_letters
+	bsr	clear_letters
 	ldx	#act_ron
-	jsr	add_action
+	bsr	add_action
 ask_ron_00:
 	jsr	frame
 	ldaa	knew
@@ -2035,13 +2036,13 @@ let_n:	.ds	1 ; nonzero while the action letters are shown
 
 	.code
 ; Clears the state of dora, calls, riichi and kans at the start of a hand.
-kyoku_init_calls:
+kyoku_init:
 	ldx	#river_bits
-kyoku_init_calls_00:
+kyoku_init_00:
 	clr	0,x
 	inx
 	cpx	#furo_facts_end
-	bne	kyoku_init_calls_00
+	bne	kyoku_init_00
 	ldaa	#1
 	staa	dora_cnt
 	jsr	clear_kk
